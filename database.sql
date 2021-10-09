@@ -1,7 +1,9 @@
-\c handover;
+\c postgres;
 
-DROP SCHEMA handover.public CASCADE;
-CREATE SCHEMA handover.public;
+DROP DATABASE handover;
+CREATE DATABASE handover;
+
+\c handover;
 
 CREATE TABLE user_ (
     id SERIAL PRIMARY KEY,

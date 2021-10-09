@@ -20,7 +20,7 @@ func NewAdsDelivery(adsUsecase *usecase.AdsUsecase) *AdsDelivery {
 
 func (adsDelivery *AdsDelivery) Configure(echo_ *echo.Echo) {
 	echo_.POST("/ads/create", adsDelivery.HandlerAdsCreate())
-	echo_.GET("/ads/list", adsDelivery.HandlerAdsCreate())
+	echo_.GET("/ads/list", adsDelivery.HandlerAdsList())
 }
 
 func (adsDelivery *AdsDelivery) HandlerAdsCreate() echo.HandlerFunc {
