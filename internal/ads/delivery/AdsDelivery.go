@@ -19,8 +19,8 @@ func NewAdsDelivery(adsUsecase *usecase.AdsUsecase) *AdsDelivery {
 }
 
 func (adsDelivery *AdsDelivery) Configure(echo_ *echo.Echo) {
-	echo_.POST("/ads/create", adsDelivery.HandlerAdsCreate())
-	echo_.GET("/ads/list", adsDelivery.HandlerAdsList())
+	echo_.POST("/api/ads/create", adsDelivery.HandlerAdsCreate())
+	echo_.GET("/api/ads/list", adsDelivery.HandlerAdsList())
 }
 
 func (adsDelivery *AdsDelivery) HandlerAdsCreate() echo.HandlerFunc {
@@ -29,8 +29,6 @@ func (adsDelivery *AdsDelivery) HandlerAdsCreate() echo.HandlerFunc {
 		if err := context.Bind(ads); err != nil {
 			return context.NoContent(http.StatusInternalServerError)
 		}
-
-		//ads.authorUserId = ...
 
 		return responser.Respond(context, adsDelivery.adsUsecase.Create(ads))
 	}
