@@ -6,7 +6,7 @@ import (
 )
 
 func Respond(context echo.Context, response *response.Response) error {
-	if response.JSONObject == nil {
+	if response.JSONObject.Data == nil {
 		return context.NoContent(response.Code)
 	}
 	return context.JSON(response.Code, response.JSONObject)
