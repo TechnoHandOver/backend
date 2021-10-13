@@ -9,7 +9,9 @@ GRANT ALL PRIVILEGES ON DATABASE handover TO handover;
 
 CREATE TABLE user_ (
     id SERIAL PRIMARY KEY,
-    vk_id INT NOT NULL UNIQUE
+    vk_id INT NOT NULL UNIQUE,
+    name TEXT NOT NULL CHECK (length(name) >= 2),
+    avatar TEXT NOT NULL CHECK (length(avatar) >= 10)
 );
 
 CREATE TABLE ads (
@@ -22,5 +24,7 @@ CREATE TABLE ads (
     min_price INT NOT NULL CHECK (min_price >= 0),
     comment TEXT NOT NULL
 );
+
+CREATE INDEX ON user_ USING hash (vk_id);
 
 CREATE INDEX ON ads (user_author_id);

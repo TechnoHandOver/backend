@@ -7,6 +7,9 @@ import (
 	AdsDelivery "github.com/TechnoHandOver/backend/internal/ads/delivery"
 	AdsRepository "github.com/TechnoHandOver/backend/internal/ads/repository"
 	AdsUsecase "github.com/TechnoHandOver/backend/internal/ads/usecase"
+	UserDelivery "github.com/TechnoHandOver/backend/internal/user/delivery"
+	UserRepository "github.com/TechnoHandOver/backend/internal/user/repository"
+	UserUsecase "github.com/TechnoHandOver/backend/internal/user/usecase"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"log"
@@ -28,21 +31,23 @@ func main() {
 	}
 
 	var logFileName string
-	flag.StringVar(&logFileName, "logFileName", "logs.log", "path to server log file")
+	flag.StringVar(&logFileName, "logFileName", "", "path to server log file")
 
-	logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatal(err)
+	if logFileName != "" {
+		logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer func() {
+			_ = logFile.Close()
+		}()
+
+		log.SetOutput(logFile)
+		defer func() {
+			log.Println("--- SERVER STOPPED HERE ---")
+			log.Println()
+		}()
 	}
-	defer func() {
-		_ = logFile.Close()
-	}()
-
-	log.SetOutput(logFile)
-	defer func() {
-		log.Println("--- SERVER STOPPED HERE ---")
-		log.Println()
-	}()
 
 	db, err := sql.Open(driverName, config_.GetDatabaseConfigString())
 	if err != nil {
@@ -65,14 +70,18 @@ func main() {
 	log.Println(config_.GetDatabaseConfigString())
 
 	adsRepository := AdsRepository.NewAdsRepository(db)
+	userRepository := UserRepository.NewUserRepository(db)
 
 	adsUsecase := AdsUsecase.NewAdsUsecase(adsRepository)
+	userUsecase := UserUsecase.NewUserUsecase(userRepository)
 
 	adsDelivery := AdsDelivery.NewAdsDelivery(adsUsecase)
+	userDelivery := UserDelivery.NewUserDelivery(userUsecase)
 
 	echo_ := echo.New()
 
 	adsDelivery.Configure(echo_)
+	userDelivery.Configure(echo_)
 
 	if err := echo_.Start(config_.GetServerConfigString()); err != nil {
 		log.Print(err)

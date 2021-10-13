@@ -67,6 +67,7 @@ func (adsDelivery *AdsDelivery) HandlerAdsUpdate() echo.HandlerFunc {
 
 		updatedAds := new(models.AdsUpdate)
 		if err := context.Bind(updatedAds); err != nil {
+			log.Println(err)
 			return context.NoContent(http.StatusInternalServerError)
 		}
 
