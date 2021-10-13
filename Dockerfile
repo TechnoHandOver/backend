@@ -12,4 +12,4 @@ RUN go build -o backend .
 
 WORKDIR /go/src/backend
 
-CMD ./app/main/backend configFileName=config.json
+CMD ./app/main/backend configFileName=config.json logFileName=logs.log
