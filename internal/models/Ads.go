@@ -14,3 +14,12 @@ type Ads struct {
 }
 
 type Adses []*Ads
+
+type AdsUpdate struct {
+	LocationFrom string    `json:"locationFrom,omitempty"`
+	LocationTo   string    `json:"locationTo,omitempty"`
+	TimeFrom     time.Time `json:"timeFrom,omitempty"`
+	TimeTo       time.Time `json:"timeTo,omitempty"`
+	MinPrice     uint32    `json:"minPrice,omitempty"`
+	Comment      string    `json:"comment,omitempty"`
+}

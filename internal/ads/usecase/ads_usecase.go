@@ -51,6 +51,22 @@ func (adsUsecase *AdsUsecase) Get(id uint32) *response.Response {
 	return response.NewResponse(http.StatusOK, ads)
 }
 
+func (adsUsecase *AdsUsecase) Update(id uint32, adsUpdate *models.AdsUpdate) *response.Response {
+	updatedAds, err := adsUsecase.adsRepository.Update(id, adsUpdate)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return response.NewResponse(http.StatusNotFound, models.Error{
+				Message: "Not found",
+			})
+		}
+
+		log.Error(err)
+		return response.NewResponse(http.StatusInternalServerError, nil)
+	}
+
+	return response.NewResponse(http.StatusOK, updatedAds)
+}
+
 func (adsUsecase *AdsUsecase) List() *response.Response {
 	adses, err := adsUsecase.adsRepository.SelectArray()
 	if err != nil {

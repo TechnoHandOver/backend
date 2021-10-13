@@ -23,6 +23,7 @@ func NewAdsDelivery(adsUsecase *usecase.AdsUsecase) *AdsDelivery {
 func (adsDelivery *AdsDelivery) Configure(echo_ *echo.Echo) {
 	echo_.POST("/api/ads/create", adsDelivery.HandlerAdsCreate())
 	echo_.GET("/api/ads/:id", adsDelivery.HandlerAdsGet())
+	echo_.PUT("/api/ads/:id", adsDelivery.HandlerAdsUpdate())
 	echo_.GET("/api/ads/list", adsDelivery.HandlerAdsList())
 }
 
@@ -50,6 +51,25 @@ func (adsDelivery *AdsDelivery) HandlerAdsGet() echo.HandlerFunc {
 		}
 
 		return responser.Respond(context, adsDelivery.adsUsecase.Get(id))
+	}
+}
+
+func (adsDelivery *AdsDelivery) HandlerAdsUpdate() echo.HandlerFunc {
+	return func(context echo.Context) error {
+		var id uint32
+		if idUint64, err := strconv.ParseUint(context.Param("id"), 10, 32); err == nil {
+			id = uint32(idUint64)
+		} else {
+			log.Error(err)
+			return context.NoContent(http.StatusInternalServerError)
+		}
+
+		updatedAds := new(models.AdsUpdate)
+		if err := context.Bind(updatedAds); err != nil {
+			return context.NoContent(http.StatusInternalServerError)
+		}
+
+		return responser.Respond(context, adsDelivery.adsUsecase.Update(id, updatedAds))
 	}
 }
 
