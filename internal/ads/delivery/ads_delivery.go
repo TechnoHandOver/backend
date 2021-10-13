@@ -5,7 +5,9 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"net/http"
+	"strconv"
 )
 
 type AdsDelivery struct {
@@ -20,6 +22,7 @@ func NewAdsDelivery(adsUsecase *usecase.AdsUsecase) *AdsDelivery {
 
 func (adsDelivery *AdsDelivery) Configure(echo_ *echo.Echo) {
 	echo_.POST("/api/ads/create", adsDelivery.HandlerAdsCreate())
+	echo_.GET("/api/ads/:id", adsDelivery.HandlerAdsGet())
 	echo_.GET("/api/ads/list", adsDelivery.HandlerAdsList())
 }
 
@@ -30,7 +33,23 @@ func (adsDelivery *AdsDelivery) HandlerAdsCreate() echo.HandlerFunc {
 			return context.NoContent(http.StatusInternalServerError)
 		}
 
+		ads.UserAuthorId = 1 //TODO: убрать, когда будет реализована авторизация
+
 		return responser.Respond(context, adsDelivery.adsUsecase.Create(ads))
+	}
+}
+
+func (adsDelivery *AdsDelivery) HandlerAdsGet() echo.HandlerFunc {
+	return func(context echo.Context) error {
+		var id uint32
+		if idUint64, err := strconv.ParseUint(context.Param("id"), 10, 32); err == nil {
+			id = uint32(idUint64)
+		} else {
+			log.Error(err)
+			return context.NoContent(http.StatusInternalServerError)
+		}
+
+		return responser.Respond(context, adsDelivery.adsUsecase.Get(id))
 	}
 }
 

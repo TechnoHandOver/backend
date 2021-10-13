@@ -10,7 +10,7 @@ import (
 )
 
 type AdsUsecase struct {
-	adsRepository *repository.AdsRepository //TODO: возможно, здесь не указатель, а копия
+	adsRepository *repository.AdsRepository
 }
 
 func NewAdsUsecase(adsRepository *repository.AdsRepository) *AdsUsecase {
@@ -27,17 +27,36 @@ func (adsUsecase *AdsUsecase) Create(ads *models.Ads) *response.Response {
 				Message: "Not authorized",
 			})
 		}
+
 		log.Error(err)
 		return response.NewResponse(http.StatusInternalServerError, nil)
 	}
+
 	return response.NewResponse(http.StatusCreated, createdAds)
 }
 
+func (adsUsecase *AdsUsecase) Get(id uint32) *response.Response {
+	ads, err := adsUsecase.adsRepository.Select(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return response.NewResponse(http.StatusNotFound, models.Error{
+				Message: "Not found",
+			})
+		}
+
+		log.Error(err)
+		return response.NewResponse(http.StatusInternalServerError, nil)
+	}
+
+	return response.NewResponse(http.StatusOK, ads)
+}
+
 func (adsUsecase *AdsUsecase) List() *response.Response {
-	adses, err := adsUsecase.adsRepository.Select()
+	adses, err := adsUsecase.adsRepository.SelectArray()
 	if err != nil {
 		log.Error(err)
 		return response.NewResponse(http.StatusInternalServerError, nil)
 	}
+
 	return response.NewResponse(http.StatusOK, adses)
 }

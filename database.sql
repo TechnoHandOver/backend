@@ -3,6 +3,8 @@
 DROP DATABASE handover;
 CREATE DATABASE handover;
 
+GRANT ALL PRIVILEGES ON DATABASE handover TO handover;
+
 \c handover;
 
 CREATE TABLE user_ (
