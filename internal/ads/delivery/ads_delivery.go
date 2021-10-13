@@ -5,7 +5,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -31,6 +31,7 @@ func (adsDelivery *AdsDelivery) HandlerAdsCreate() echo.HandlerFunc {
 	return func(context echo.Context) error {
 		ads := new(models.Ads)
 		if err := context.Bind(ads); err != nil {
+			log.Println(err)
 			return context.NoContent(http.StatusInternalServerError)
 		}
 
@@ -46,7 +47,7 @@ func (adsDelivery *AdsDelivery) HandlerAdsGet() echo.HandlerFunc {
 		if idUint64, err := strconv.ParseUint(context.Param("id"), 10, 32); err == nil {
 			id = uint32(idUint64)
 		} else {
-			log.Error(err)
+			log.Println(err)
 			return context.NoContent(http.StatusInternalServerError)
 		}
 
@@ -60,7 +61,7 @@ func (adsDelivery *AdsDelivery) HandlerAdsUpdate() echo.HandlerFunc {
 		if idUint64, err := strconv.ParseUint(context.Param("id"), 10, 32); err == nil {
 			id = uint32(idUint64)
 		} else {
-			log.Error(err)
+			log.Println(err)
 			return context.NoContent(http.StatusInternalServerError)
 		}
 

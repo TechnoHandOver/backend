@@ -5,7 +5,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/ads/repository"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
-	"github.com/labstack/gommon/log"
+	"log"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ func (adsUsecase *AdsUsecase) Create(ads *models.Ads) *response.Response {
 			})
 		}
 
-		log.Error(err)
+		log.Println(err)
 		return response.NewErrorResponse(http.StatusInternalServerError, nil)
 	}
 
@@ -44,7 +44,7 @@ func (adsUsecase *AdsUsecase) Get(id uint32) *response.Response {
 			})
 		}
 
-		log.Error(err)
+		log.Println(err)
 		return response.NewErrorResponse(http.StatusInternalServerError, nil)
 	}
 
@@ -60,7 +60,7 @@ func (adsUsecase *AdsUsecase) Update(id uint32, adsUpdate *models.AdsUpdate) *re
 			})
 		}
 
-		log.Error(err)
+		log.Println(err)
 		return response.NewErrorResponse(http.StatusInternalServerError, nil)
 	}
 
@@ -70,7 +70,7 @@ func (adsUsecase *AdsUsecase) Update(id uint32, adsUpdate *models.AdsUpdate) *re
 func (adsUsecase *AdsUsecase) List() *response.Response {
 	adses, err := adsUsecase.adsRepository.SelectArray()
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return response.NewErrorResponse(http.StatusInternalServerError, nil)
 	}
 
