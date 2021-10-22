@@ -35,7 +35,7 @@ func (adsDelivery *AdsDelivery) HandlerAdsCreate() echo.HandlerFunc {
 			return context.NoContent(http.StatusInternalServerError)
 		}
 
-		ads.UserAuthorId = 1 //TODO: убрать, когда будет реализована авторизация
+		ads.UserAuthorVkId = 1 //TODO: убрать, когда будет реализована авторизация
 
 		return responser.Respond(context, adsDelivery.adsUsecase.Create(ads))
 	}

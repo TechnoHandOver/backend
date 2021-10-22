@@ -1,28 +1,24 @@
 \c postgres;
 
-DROP DATABASE handover;
-CREATE DATABASE handover;
-
-GRANT ALL PRIVILEGES ON DATABASE handover TO handover;
-
-\c handover;
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
 
 CREATE TABLE user_ (
     id SERIAL PRIMARY KEY,
     vk_id INT NOT NULL UNIQUE,
-    name TEXT NOT NULL CHECK (length(name) >= 2),
-    avatar TEXT NOT NULL CHECK (length(avatar) >= 10)
+    name VARCHAR(100) NOT NULL CHECK (length(name) >= 2), --TODO: точно 100?
+    avatar TEXT CHECK (avatar IS NULL OR length(avatar) >= 10) --TODO: VARCHAR(...)
 );
 
 CREATE TABLE ads (
     id SERIAL PRIMARY KEY,
     user_author_id INT NOT NULL REFERENCES user_ (id) ON DELETE CASCADE,
-    location_from TEXT NOT NULL,
-    location_to TEXT NOT NULL,
-    time_from TIMESTAMP NOT NULL,
-    time_to TIMESTAMP NOT NULL,
+    user_author_vk_id INT NOT NULL REFERENCES user_ (vk_id) ON DELETE CASCADE,
+    loc_dep VARCHAR(100) NOT NULL,
+    loc_arr VARCHAR(100) NOT NULL,
+    date_arr TIMESTAMP NOT NULL, --TODO: not timestamp
     min_price INT NOT NULL CHECK (min_price >= 0),
-    comment TEXT NOT NULL
+    comment VARCHAR(100) NOT NULL
 );
 
 CREATE INDEX ON user_ USING hash (vk_id);
