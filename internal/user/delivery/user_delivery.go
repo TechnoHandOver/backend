@@ -3,17 +3,17 @@ package delivery
 import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
-	"github.com/TechnoHandOver/backend/internal/user/usecase"
+	"github.com/TechnoHandOver/backend/internal/user"
 	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
 )
 
 type UserDelivery struct {
-	userUsecase *usecase.UserUsecase
+	userUsecase user.UserUsecase
 }
 
-func NewUserDelivery(userUsecase *usecase.UserUsecase) *UserDelivery {
+func NewUserDelivery(userUsecase user.UserUsecase) *UserDelivery {
 	return &UserDelivery{
 		userUsecase: userUsecase,
 	}

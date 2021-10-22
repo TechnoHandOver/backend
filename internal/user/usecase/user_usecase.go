@@ -4,26 +4,26 @@ import (
 	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
-	"github.com/TechnoHandOver/backend/internal/user/repository"
+	"github.com/TechnoHandOver/backend/internal/user"
 	"log"
 	"net/http"
 )
 
 type UserUsecase struct {
-	userRepository *repository.UserRepository
+	userRepository user.UserRepository
 }
 
-func NewUserUsecase(userRepository *repository.UserRepository) *UserUsecase {
+func NewUserUsecase(userRepository user.UserRepository) *UserUsecase {
 	return &UserUsecase{
 		userRepository: userRepository,
 	}
 }
 
-func (userUsecase *UserUsecase) Login(user *models.User) *response.Response {
-	user2, err := userUsecase.userRepository.SelectByVkId(user.VkId)
+func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
+	user2, err := userUsecase.userRepository.SelectByVkId(user_.VkId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			user2, err = userUsecase.userRepository.Insert(user)
+			user2, err = userUsecase.userRepository.Insert(user_)
 			if err != nil {
 				log.Println(err)
 				return response.NewErrorResponse(http.StatusInternalServerError, nil)
@@ -32,15 +32,15 @@ func (userUsecase *UserUsecase) Login(user *models.User) *response.Response {
 			log.Println(err)
 			return response.NewErrorResponse(http.StatusInternalServerError, nil)
 		}
-	} else if user2.Name != user.Name || user2.Avatar != user.Avatar {
+	} else if user2.Name != user_.Name || user2.Avatar != user_.Avatar {
 		userUpdate := new(models.UserUpdate)
 
-		if user2.Name != user.Name {
-			userUpdate.Name = user.Name
+		if user2.Name != user_.Name {
+			userUpdate.Name = user_.Name
 		}
 
-		if user2.Avatar != user.Avatar {
-			userUpdate.Avatar = user.Avatar
+		if user2.Avatar != user_.Avatar {
+			userUpdate.Avatar = user_.Avatar
 		}
 
 		user2, err = userUsecase.userRepository.Update(user2.Id, userUpdate)

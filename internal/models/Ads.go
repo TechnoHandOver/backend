@@ -9,7 +9,7 @@ type Ads struct {
 	UserAuthorVkId uint32   `json:"userAuthorVkId"`
 	LocDep         string   `json:"locDep"`
 	LocArr         string   `json:"locArr"`
-	DateArr        DateTime `json:"dateTimeArr"`
+	DateTimeArr    DateTime `json:"dateTimeArr"`
 	MinPrice       uint32   `json:"minPrice,omitempty"`
 	Comment        string   `json:"comment,omitempty"`
 }
@@ -19,7 +19,7 @@ type Adses []*Ads
 type AdsUpdate struct {
 	LocDep         string   `json:"locDep"`
 	LocArr         string   `json:"locArr"`
-	DateArr        DateTime `json:"dateTimeArr"`
+	DateTimeArr    DateTime `json:"dateTimeArr"`
 	MinPrice       uint32   `json:"minPrice,omitempty"`
 	Comment        string   `json:"comment,omitempty"`
 }

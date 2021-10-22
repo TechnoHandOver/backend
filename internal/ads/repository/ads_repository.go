@@ -23,7 +23,7 @@ INSERT INTO ads (user_author_id, user_author_vk_id, loc_dep, loc_arr, date_arr, 
 SELECT user_.id, user_.vk_id, $2, $3, $4, $5, $6 FROM user_ WHERE user_.vk_id = $1
 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, min_price, comment`
 
-	var dateArrTime = time.Time(ads.DateArr)
+	var dateArrTime = time.Time(ads.DateTimeArr)
 	if err := adsRepository.db.QueryRow(query, ads.UserAuthorVkId, ads.LocDep, ads.LocArr, dateArrTime, ads.MinPrice,
 		ads.Comment).Scan(&ads.Id, &ads.UserAuthorVkId, &ads.LocDep, &ads.LocArr, &dateArrTime, &ads.MinPrice,
 			&ads.Comment); err != nil {
@@ -41,7 +41,7 @@ WHERE id = $1`
 
 	ads := new(models.Ads)
 	if err := adsRepository.db.QueryRow(query, id).Scan(&ads.Id, &ads.UserAuthorVkId, &ads.LocDep, &ads.LocArr,
-		&ads.DateArr, &ads.MinPrice, &ads.Comment); err != nil {
+		&ads.DateTimeArr, &ads.MinPrice, &ads.Comment); err != nil {
 		return nil, err
 	}
 
@@ -73,7 +73,7 @@ func (adsRepository *AdsRepository) Update(id uint32, adsUpdate *models.AdsUpdat
 		queryArgs = append(queryArgs, adsUpdate.LocArr)
 	}
 
-	if dateArrTime := time.Time(adsUpdate.DateArr); !dateArrTime.IsZero() {
+	if dateArrTime := time.Time(adsUpdate.DateTimeArr); !dateArrTime.IsZero() {
 		query += queryDateArr + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
 		queryArgs = append(queryArgs, dateArrTime)
 	}
@@ -96,7 +96,7 @@ func (adsRepository *AdsRepository) Update(id uint32, adsUpdate *models.AdsUpdat
 
 	updatedAds := new(models.Ads)
 	if err := adsRepository.db.QueryRow(query, queryArgs...).Scan(&updatedAds.Id, &updatedAds.UserAuthorVkId,
-		&updatedAds.LocDep, &updatedAds.LocArr, &updatedAds.DateArr, &updatedAds.MinPrice,
+		&updatedAds.LocDep, &updatedAds.LocArr, &updatedAds.DateTimeArr, &updatedAds.MinPrice,
 		&updatedAds.Comment); err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ ORDER BY date_arr`
 	adses := make(models.Adses, 0)
 	for rows.Next() {
 		ads := new(models.Ads)
-		if err := rows.Scan(&ads.Id, &ads.UserAuthorVkId, &ads.LocDep, &ads.LocArr, &ads.DateArr, &ads.MinPrice,
+		if err := rows.Scan(&ads.Id, &ads.UserAuthorVkId, &ads.LocDep, &ads.LocArr, &ads.DateTimeArr, &ads.MinPrice,
 			&ads.Comment); err != nil {
 			return nil, err
 		}

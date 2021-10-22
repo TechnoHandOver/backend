@@ -1,4 +1,4 @@
-FROM golang:latest AS build
+FROM golang:latest
 
 MAINTAINER Nikita Lobaev
 
@@ -11,5 +11,3 @@ WORKDIR /go/src/backend/app/main
 RUN go build -o backend .
 
 WORKDIR /go/src/backend
-
-CMD ./app/main/backend configFileName=config.json logFileName=logs.log
