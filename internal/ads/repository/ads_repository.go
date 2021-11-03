@@ -132,3 +132,68 @@ ORDER BY date_arr`
 
 	return &adses, nil
 }
+
+// SelectArray2 TODO: переименовать метод после удаления запроса на список объявлений
+func (adsRepository *AdsRepository) SelectArray2(adsSearch *models.AdsSearch) (*models.Adses, error) {
+	const queryStart = "SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, min_price, comment FROM ads"
+	const queryWhere = " WHERE "
+	const queryLocDep1 = "to_tsvector('russian', loc_dep) @@ plainto_tsquery('russian', $"
+	const queryLocDep2 = ")"
+	const queryLocArr1 = "to_tsvector('russian', loc_arr) @@ plainto_tsquery('russian', $"
+	const queryLocArr2 = ")"
+	const queryDateArr = "date_arr = $"
+	const queryMinPrice = "min_price <= $"
+	const queryAnd = " AND "
+	const queryEnd = " ORDER BY min_price"
+
+	query := queryStart + queryWhere
+	queryArgs := make([]interface{}, 0)
+
+	if adsSearch.LocDep != "" {
+		query += queryLocDep1 + strconv.Itoa(len(queryArgs) + 1) + queryLocDep2 + queryAnd
+		queryArgs = append(queryArgs, adsSearch.LocDep)
+	}
+
+	if adsSearch.LocArr != "" {
+		query += queryLocArr1 + strconv.Itoa(len(queryArgs) + 1) + queryLocArr2 + queryAnd
+		queryArgs = append(queryArgs, adsSearch.LocArr)
+	}
+
+	if dateTimeArrTime := time.Time(adsSearch.DateTimeArr); !dateTimeArrTime.IsZero() {
+		query += queryDateArr + strconv.Itoa(len(queryArgs) + 1) + queryAnd
+		queryArgs = append(queryArgs, dateTimeArrTime)
+	}
+
+	if adsSearch.MaxPrice != 0 {
+		query += queryMinPrice + strconv.Itoa(len(queryArgs) + 1) + queryAnd
+		queryArgs = append(queryArgs, adsSearch.MaxPrice)
+	}
+
+	if len(queryArgs) == 0 {
+		query = query[:len(query)-len(queryWhere)]
+	} else {
+		query = query[:len(query)-len(queryAnd)]
+	}
+	query += queryEnd
+
+	rows, err := adsRepository.db.Query(query, queryArgs...)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	adses := make(models.Adses, 0)
+	for rows.Next() {
+		ads := new(models.Ads)
+		if err := rows.Scan(&ads.Id, &ads.UserAuthorVkId, &ads.LocDep, &ads.LocArr, &ads.DateTimeArr, &ads.MinPrice,
+			&ads.Comment); err != nil {
+			return nil, err
+		}
+
+		adses = append(adses, ads)
+	}
+
+	return &adses, nil
+}

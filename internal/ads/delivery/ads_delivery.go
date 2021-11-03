@@ -25,6 +25,7 @@ func (adsDelivery *AdsDelivery) Configure(echo_ *echo.Echo) {
 	echo_.GET("/api/ads/:id", adsDelivery.HandlerAdsGet())
 	echo_.PUT("/api/ads/:id", adsDelivery.HandlerAdsUpdate())
 	echo_.GET("/api/ads/list", adsDelivery.HandlerAdsList())
+	echo_.GET("/api/ads/search", adsDelivery.HandlerAdsSearch())
 }
 
 func (adsDelivery *AdsDelivery) HandlerAdsCreate() echo.HandlerFunc {
@@ -78,5 +79,17 @@ func (adsDelivery *AdsDelivery) HandlerAdsUpdate() echo.HandlerFunc {
 func (adsDelivery *AdsDelivery) HandlerAdsList() echo.HandlerFunc {
 	return func(context echo.Context) error {
 		return responser.Respond(context, adsDelivery.adsUsecase.List())
+	}
+}
+
+func (adsDelivery *AdsDelivery) HandlerAdsSearch() echo.HandlerFunc {
+	return func(context echo.Context) error {
+		adsSearch := new(models.AdsSearch)
+		if err := context.Bind(adsSearch); err != nil {
+			log.Println(err)
+			return context.NoContent(http.StatusInternalServerError)
+		}
+
+		return responser.Respond(context, adsDelivery.adsUsecase.Search(adsSearch))
 	}
 }

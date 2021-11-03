@@ -76,3 +76,13 @@ func (adsUsecase *AdsUsecase) List() *response.Response {
 
 	return response.NewResponse(http.StatusOK, adses)
 }
+
+func (adsUsecase *AdsUsecase) Search(adsSearch *models.AdsSearch) *response.Response {
+	adses, err := adsUsecase.adsRepository.SelectArray2(adsSearch)
+	if err != nil {
+		log.Println(err)
+		return response.NewErrorResponse(http.StatusInternalServerError, nil)
+	}
+
+	return response.NewResponse(http.StatusOK, adses)
+}
