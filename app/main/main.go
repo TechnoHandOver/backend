@@ -4,13 +4,14 @@ import (
 	"database/sql"
 	"flag"
 	"github.com/TechnoHandOver/backend/config"
-	AdsDelivery "github.com/TechnoHandOver/backend/internal/ads/delivery"
-	AdsRepository "github.com/TechnoHandOver/backend/internal/ads/repository"
-	AdsUsecase "github.com/TechnoHandOver/backend/internal/ads/usecase"
+	AdsDelivery "github.com/TechnoHandOver/backend/internal/ad/delivery"
+	AdsRepository "github.com/TechnoHandOver/backend/internal/ad/repository"
+	AdsUsecase "github.com/TechnoHandOver/backend/internal/ad/usecase"
 	UserDelivery "github.com/TechnoHandOver/backend/internal/user/delivery"
 	UserRepository "github.com/TechnoHandOver/backend/internal/user/repository"
 	UserUsecase "github.com/TechnoHandOver/backend/internal/user/usecase"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
 	"log"
 	"os"
@@ -31,10 +32,11 @@ func main() {
 	}
 
 	var logFileName string
-	flag.StringVar(&logFileName, "logFileName", "", "path to server log file")
+	flag.StringVar(&logFileName, "logFileName", "logs.log", "path to server log file")
 
+	var logFile *os.File
 	if logFileName != "" {
-		logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		logFile, err = os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -51,40 +53,39 @@ func main() {
 
 	db, err := sql.Open(driverName, config_.GetDatabaseConfigString())
 	if err != nil {
-		log.Print(err)
 		log.Fatal(err)
 	}
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			log.Print(err)
 			log.Fatal(err)
 		}
 	}()
 
 	if err := db.Ping(); err != nil {
-		log.Print(err)
 		log.Fatal(err)
 	}
 
 	log.Println(config_.GetDatabaseConfigString())
 
-	adsRepository := AdsRepository.NewAdsRepository(db)
-	userRepository := UserRepository.NewUserRepository(db)
+	adsRepository := AdsRepository.NewAdRepositoryImpl(db)
+	userRepository := UserRepository.NewUserRepositoryImpl(db)
 
-	adsUsecase := AdsUsecase.NewAdsUsecase(adsRepository)
-	userUsecase := UserUsecase.NewUserUsecase(userRepository)
+	adsUsecase := AdsUsecase.NewAdUsecaseImpl(adsRepository)
+	userUsecase := UserUsecase.NewUserUsecaseImpl(userRepository)
 
-	adsDelivery := AdsDelivery.NewAdsDelivery(adsUsecase)
+	adsDelivery := AdsDelivery.NewAdDelivery(adsUsecase)
 	userDelivery := UserDelivery.NewUserDelivery(userUsecase)
 
 	echo_ := echo.New()
+	echo_.Logger.SetLevel(4)
+	echo_.Logger.SetOutput(logFile)
+	echo_.Use(middleware.Recover())
 
 	adsDelivery.Configure(echo_)
 	userDelivery.Configure(echo_)
 
 	if err := echo_.Start(config_.GetServerConfigString()); err != nil {
-		log.Print(err)
 		log.Fatal(err)
 	}
 }

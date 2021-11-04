@@ -20,25 +20,23 @@ func TestUserDelivery_HandlerUserLogin(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	mockUserUsecase := mock_user.NewMockUserUsecase(controller)
-
-	const id uint32 = 1
+	mockUserUsecase := mock_user.NewMockUsecase(controller)
 
 	user := &models.User{
 		VkId: 2,
 		Name: "Василий Петров",
 	}
 	expectedUser := &models.User {
-		Id: id,
+		Id: 1,
 		VkId: user.VkId,
 		Name: user.Name,
 	}
 
 	mockUserUsecase.
 		EXPECT().
-		Login(user).
+		Login(gomock.Eq(user)).
 		DoAndReturn(func(user *models.User) *response.Response {
-			user.Id = id
+			user.Id = expectedUser.Id
 			return response.NewResponse(http.StatusOK, user)
 		})
 

@@ -6,8 +6,3 @@ type User struct {
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 }
-
-type UserUpdate struct {
-	Name   string `json:"name,omitempty"`
-	Avatar string `json:"avatar,omitempty"`
-}

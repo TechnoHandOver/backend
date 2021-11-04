@@ -2,18 +2,17 @@ package delivery
 
 import (
 	"github.com/TechnoHandOver/backend/internal/models"
+	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
 	"github.com/TechnoHandOver/backend/internal/user"
 	"github.com/labstack/echo/v4"
-	"log"
-	"net/http"
 )
 
 type UserDelivery struct {
-	userUsecase user.UserUsecase
+	userUsecase user.Usecase
 }
 
-func NewUserDelivery(userUsecase user.UserUsecase) *UserDelivery {
+func NewUserDelivery(userUsecase user.Usecase) *UserDelivery {
 	return &UserDelivery{
 		userUsecase: userUsecase,
 	}
@@ -25,12 +24,11 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo) {
 
 func (userDelivery *UserDelivery) HandlerUserLogin() echo.HandlerFunc {
 	return func(context echo.Context) error {
-		user := new(models.User)
-		if err := context.Bind(user); err != nil {
-			log.Println(err)
-			return context.NoContent(http.StatusInternalServerError)
+		user_ := new(models.User)
+		if err := context.Bind(user_); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(err))
 		}
 
-		return responser.Respond(context, userDelivery.userUsecase.Login(user))
+		return responser.Respond(context, userDelivery.userUsecase.Login(user_))
 	}
 }

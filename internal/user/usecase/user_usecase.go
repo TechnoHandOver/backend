@@ -5,15 +5,14 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/user"
-	"log"
 	"net/http"
 )
 
 type UserUsecase struct {
-	userRepository user.UserRepository
+	userRepository user.Repository
 }
 
-func NewUserUsecase(userRepository user.UserRepository) *UserUsecase {
+func NewUserUsecaseImpl(userRepository user.Repository) user.Usecase {
 	return &UserUsecase{
 		userRepository: userRepository,
 	}
@@ -25,28 +24,18 @@ func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 		if err == sql.ErrNoRows {
 			user2, err = userUsecase.userRepository.Insert(user_)
 			if err != nil {
-				log.Println(err)
-				return response.NewErrorResponse(http.StatusInternalServerError, nil)
+				return response.NewErrorResponse(err)
 			}
 		} else {
-			log.Println(err)
-			return response.NewErrorResponse(http.StatusInternalServerError, nil)
+			return response.NewErrorResponse(err)
 		}
 	} else if user2.Name != user_.Name || user2.Avatar != user_.Avatar {
-		userUpdate := new(models.UserUpdate)
+		user2.Name = user_.Name
+		user2.Avatar = user_.Avatar
 
-		if user2.Name != user_.Name {
-			userUpdate.Name = user_.Name
-		}
-
-		if user2.Avatar != user_.Avatar {
-			userUpdate.Avatar = user_.Avatar
-		}
-
-		user2, err = userUsecase.userRepository.Update(user2.Id, userUpdate)
+		user2, err = userUsecase.userRepository.Update(user2)
 		if err != nil {
-			log.Println(err)
-			return response.NewErrorResponse(http.StatusInternalServerError, nil)
+			return response.NewErrorResponse(err)
 		}
 	}
 

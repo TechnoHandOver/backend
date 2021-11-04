@@ -1,34 +1,35 @@
 package response
 
-import "github.com/TechnoHandOver/backend/internal/models"
+import "net/http"
 
 type Response struct {
-	Code       int
-	JSONObject interface{}
+	Code  int
+	Data  *DataResponse
+	Error *error
 }
 
 type DataResponse struct {
 	Data interface{} `json:"data"`
 }
 
-type ErrorResponse struct {
-	Error *models.Error `json:"error"`
-}
-
 func NewResponse(code int, jsonObject interface{}) *Response {
 	return &Response{
 		Code: code,
-		JSONObject: DataResponse{
+		Data: &DataResponse{
 			Data: jsonObject,
 		},
 	}
 }
 
-func NewErrorResponse(code int, error *models.Error) *Response {
+func NewEmptyResponse(code int) *Response {
 	return &Response{
 		Code: code,
-		JSONObject: ErrorResponse{
-			Error: error,
-		},
+	}
+}
+
+func NewErrorResponse(error_ error) *Response {
+	return &Response{
+		Code:  http.StatusInternalServerError,
+		Error: &error_,
 	}
 }

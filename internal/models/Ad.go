@@ -4,7 +4,7 @@ import (
 	. "github.com/TechnoHandOver/backend/internal/models/timestamps"
 )
 
-type Ads struct {
+type Ad struct {
 	Id             uint32   `json:"id"`
 	UserAuthorVkId uint32   `json:"userAuthorVkId"`
 	LocDep         string   `json:"locDep"`
@@ -14,12 +14,11 @@ type Ads struct {
 	Comment        string   `json:"comment,omitempty"`
 }
 
-type Adses []*Ads
+type Ads []*Ad
 
-type AdsUpdate struct {
-	LocDep         string   `json:"locDep"`
-	LocArr         string   `json:"locArr"`
-	DateTimeArr    DateTime `json:"dateTimeArr"`
-	MinPrice       uint32   `json:"minPrice,omitempty"`
-	Comment        string   `json:"comment,omitempty"`
+type AdsSearch struct {
+	LocDep      string   `query:"loc_dep"`
+	LocArr      string   `query:"loc_arr"`
+	DateTimeArr DateTime `query:"date_time_arr"`
+	MaxPrice    uint32   `query:"max_price"`
 }

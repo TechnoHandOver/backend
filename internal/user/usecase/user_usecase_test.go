@@ -16,8 +16,36 @@ func TestUserUsecase_Login(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	mockUserRepository := mock_user.NewMockUserRepository(controller)
-	mockUserUsecase := usecase.NewUserUsecase(mockUserRepository)
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	user := &models.User{
+		VkId: 2,
+		Name: "Василий Петров",
+		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
+	}
+	expectedUser := &models.User {
+		Id: 1,
+		VkId: user.VkId,
+		Name: user.Name,
+		Avatar: user.Avatar,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectByVkId(gomock.Eq(user.VkId)).
+		Return(expectedUser, nil)
+
+	response_ := userUsecase.Login(user)
+	assert.Equal(t, response.NewResponse(http.StatusOK, expectedUser), response_)
+}
+
+func TestUserUsecase_Login_create(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	user := &models.User{
 		VkId: 2,
@@ -33,59 +61,58 @@ func TestUserUsecase_Login(t *testing.T) {
 
 	selectByIdCall := mockUserRepository.
 		EXPECT().
-		SelectByVkId(user.VkId).
+		SelectByVkId(gomock.Eq(user.VkId)).
 		Return(nil, sql.ErrNoRows)
 
 	mockUserRepository.
 		EXPECT().
-		Insert(user).
-		Return(expectedUser, nil).
+		Insert(gomock.Eq(user)).
+		DoAndReturn(func(user *models.User) (*models.User, error) {
+			user.Id = expectedUser.Id
+			return user, nil
+		}).
 		After(selectByIdCall)
 
-	response_ := mockUserUsecase.Login(user)
+	response_ := userUsecase.Login(user)
 	assert.Equal(t, response.NewResponse(http.StatusOK, expectedUser), response_)
 }
 
-/*func TestUserUsecase_Login_Update(t *testing.T) {
+func TestUserUsecase_Login_update(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
-	mockUserRepository := mock_user.NewMockUserRepository(controller)
-	mockUserUsecase := usecase.NewUserUsecase(mockUserRepository)
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
-	oldUser := &models.User{
+	existingUser := &models.User{
 		Id: 1,
 		VkId: 2,
 		Name: "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
-	newUser := &models.User {
-		VkId: oldUser.VkId,
-		Name: "Василий Данилов",
-		Avatar: "https://mail.ru/vasiliy_danilov_avatar.jpg",
+	updatedUser := &models.User{
+		VkId: existingUser.VkId,
+		Name: "Пётр Васильев",
+		Avatar: "https://mail.ru/petr_vasiliev_avatar.jpg",
 	}
-	newUser2 := &models.User {
-		Id: oldUser.Id,
-		VkId: oldUser.VkId,
-		Name: "Василий Данилов",
-		Avatar: "https://mail.ru/vasiliy_danilov_avatar.jpg",
-	}
-	newUserUpdate := &models.UserUpdate{
-		Name: newUser.Name,
-		Avatar: newUser.Avatar,
+	expectedUser := &models.User {
+		Id: existingUser.Id,
+		VkId: updatedUser.VkId,
+		Name: updatedUser.Name,
+		Avatar: updatedUser.Avatar,
 	}
 
 	selectByIdCall := mockUserRepository.
 		EXPECT().
-		SelectByVkId(vkId). //TODO: gomock.equals?
-		Return(oldUser)
+		SelectByVkId(gomock.Eq(updatedUser.VkId)).
+		Return(existingUser, nil)
 
 	mockUserRepository.
 		EXPECT().
-		Update().
+		Update(gomock.Eq(expectedUser)).
 		Return(expectedUser, nil).
 		After(selectByIdCall)
 
-	response_ := mockUserUsecase.Login(newUser)
+	response_ := userUsecase.Login(updatedUser)
 	assert.Equal(t, response.NewResponse(http.StatusOK, expectedUser), response_)
-}*/
+}
