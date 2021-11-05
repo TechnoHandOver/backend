@@ -35,6 +35,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
 		MinPrice:       500,
 		Comment:        "Поеду на велосипеде",
 	}
@@ -44,6 +45,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 		LocDep:         ad.LocDep,
 		LocArr:         ad.LocArr,
 		DateTimeArr:    ad.DateTimeArr,
+		Item:           ad.Item,
 		MinPrice:       ad.MinPrice,
 		Comment:        ad.Comment,
 	}
@@ -106,6 +108,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
 		MinPrice:       500,
 		Comment:        "Поеду на велосипеде",
 	}
@@ -191,6 +194,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 		LocDep      string              `json:"locDep,omitempty"`
 		LocArr      string              `json:"locArr,omitempty"`
 		DateTimeArr timestamps.DateTime `json:"dateTimeArr,omitempty"`
+		Item        string              `json:"item,omitempty"`
 		MinPrice    uint32              `json:"minPrice,omitempty"`
 		Comment     string              `json:"comment,omitempty"`
 	}
@@ -202,6 +206,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
 		MinPrice:       500,
 		Comment:        "Поеду на велосипеде",
 	}
@@ -210,6 +215,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 		LocDep: adUpdateRequest.LocDep,
 		LocArr: adUpdateRequest.LocArr,
 		DateTimeArr: adUpdateRequest.DateTimeArr,
+		Item: adUpdateRequest.Item,
 		MinPrice: adUpdateRequest.MinPrice,
 		Comment: adUpdateRequest.Comment,
 	}
@@ -219,6 +225,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 		LocDep:         ad.LocDep,
 		LocArr:         ad.LocArr,
 		DateTimeArr:    ad.DateTimeArr,
+		Item:           ad.Item,
 		MinPrice:       ad.MinPrice,
 		Comment:        ad.Comment,
 	}
@@ -271,6 +278,7 @@ func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
 		LocDep      string              `json:"locDep,omitempty"`
 		LocArr      string              `json:"locArr,omitempty"`
 		DateTimeArr timestamps.DateTime `json:"dateTimeArr,omitempty"`
+		Item        string              `json:"item,omitempty"`
 		MinPrice    uint32              `json:"minPrice,omitempty"`
 		Comment     string              `json:"comment,omitempty"`
 	}
@@ -282,6 +290,7 @@ func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
 		MinPrice:       500,
 		Comment:        "Поеду на велосипеде",
 	}
@@ -290,6 +299,7 @@ func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
 		LocDep: adUpdateRequest.LocDep,
 		LocArr: adUpdateRequest.LocArr,
 		DateTimeArr: adUpdateRequest.DateTimeArr,
+		Item: adUpdateRequest.Item,
 		MinPrice: adUpdateRequest.MinPrice,
 		Comment: adUpdateRequest.Comment,
 	}
@@ -341,8 +351,9 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 		&models.Ad{
 			Id: 1,
 			LocDep: "Общежитие №10",
-			LocArr: "СК",
+			LocArr: "УЛК",
 			DateTimeArr: *dateTimeArr1,
+			Item: "Тубус",
 			MinPrice: 500,
 			Comment: "Поеду на коньках",
 		},
@@ -351,6 +362,7 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 			LocDep: "Общежитие №9",
 			LocArr: "СК",
 			DateTimeArr: *dateTimeArr2,
+			Item: "Спортивная форма",
 			MinPrice: 600,
 			Comment: "Поеду на роликах :)",
 		},

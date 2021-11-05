@@ -20,14 +20,14 @@ func NewAdRepositoryImpl(db *sql.DB) ad.Repository {
 
 func (adsRepository *AdRepository) Insert(ad_ *models.Ad) (*models.Ad, error) {
 	const query = `
-INSERT INTO ad (user_author_id, user_author_vk_id, loc_dep, loc_arr, date_arr, min_price, comment)
-SELECT user_.id, user_.vk_id, $2, $3, $4, $5, $6 FROM user_ WHERE user_.vk_id = $1
-RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, min_price, comment`
+INSERT INTO ad (user_author_id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment)
+SELECT user_.id, user_.vk_id, $2, $3, $4, $5, $6, $7 FROM user_ WHERE user_.vk_id = $1
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment`
 
 	var dateArrTime = time.Time(ad_.DateTimeArr)
-	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorVkId, ad_.LocDep, ad_.LocArr, dateArrTime, ad_.MinPrice,
-		ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &dateArrTime, &ad_.MinPrice,
-			&ad_.Comment); err != nil {
+	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorVkId, ad_.LocDep, ad_.LocArr, dateArrTime, ad_.Item,
+		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &dateArrTime, &ad_.Item,
+			&ad_.MinPrice, &ad_.Comment); err != nil {
 		return nil, err
 	}
 
@@ -36,13 +36,13 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, min_price, comment`
 
 func (adsRepository *AdRepository) Select(id uint32) (*models.Ad, error) {
 	const query = `
-SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, min_price, comment
+SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment
 FROM ad
 WHERE id = $1`
 
 	ad_ := new(models.Ad)
 	if err := adsRepository.db.QueryRow(query, id).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr,
-		&ad_.DateTimeArr, &ad_.MinPrice, &ad_.Comment); err != nil {
+		&ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
 		return nil, err
 	}
 
@@ -54,11 +54,12 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 	const queryLocDep = "loc_dep"
 	const queryLocArr = "loc_arr"
 	const queryDateArr = "date_arr"
+	const queryItem = "item"
 	const queryMinPrice = "min_price"
 	const queryComment = "comment"
 	const queryEquals = " = $"
 	const queryComma = ", "
-	const queryEnd = "WHERE id = $1 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, min_price, comment"
+	const queryEnd = "WHERE id = $1 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment"
 
 	query := queryStart
 	queryArgs := make([]interface{}, 1)
@@ -79,6 +80,11 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 		queryArgs = append(queryArgs, dateArrTime)
 	}
 
+	if ad_.Item != "" {
+		query += queryItem + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		queryArgs = append(queryArgs, ad_.Item)
+	}
+
 	if ad_.MinPrice != 0 {
 		query += queryMinPrice + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
 		queryArgs = append(queryArgs, ad_.MinPrice)
@@ -97,7 +103,7 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 
 	updatedAd := new(models.Ad)
 	if err := adsRepository.db.QueryRow(query, queryArgs...).Scan(&updatedAd.Id, &updatedAd.UserAuthorVkId,
-		&updatedAd.LocDep, &updatedAd.LocArr, &updatedAd.DateTimeArr, &updatedAd.MinPrice,
+		&updatedAd.LocDep, &updatedAd.LocArr, &updatedAd.DateTimeArr, &updatedAd.Item, &updatedAd.MinPrice,
 		&updatedAd.Comment); err != nil {
 		return nil, err
 	}
@@ -106,7 +112,7 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 }
 
 func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error) {
-	const queryStart = "SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, min_price, comment FROM ad"
+	const queryStart = "SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment FROM ad"
 	const queryWhere = " WHERE "
 	const queryLocDep1 = "to_tsvector('russian', loc_dep) @@ plainto_tsquery('russian', $"
 	const queryLocDep2 = ")"
@@ -158,8 +164,8 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 	ads := make(models.Ads, 0)
 	for rows.Next() {
 		ad_ := new(models.Ad)
-		if err := rows.Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr, &ad_.MinPrice,
-			&ad_.Comment); err != nil {
+		if err := rows.Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr, &ad_.Item,
+			&ad_.MinPrice, &ad_.Comment); err != nil {
 			return nil, err
 		}
 

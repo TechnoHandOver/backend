@@ -1,4 +1,4 @@
-\c postgres;
+\c handover;
 
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
@@ -16,8 +16,8 @@ CREATE TABLE ad (
     user_author_vk_id INT NOT NULL REFERENCES user_ (vk_id) ON DELETE CASCADE,
     loc_dep VARCHAR(100) NOT NULL,
     loc_arr VARCHAR(100) NOT NULL,
-    date_arr TIMESTAMP NOT NULL, --TODO: not timestamp
-    --item VARCHAR(50) CHECK (length(item) >= 3),
+    date_arr TIMESTAMP NOT NULL, --TODO: not timestamp?
+    item VARCHAR(50) CHECK (length(item) >= 3),
     min_price INT NOT NULL CHECK (min_price >= 0),
     comment VARCHAR(100) NOT NULL
 );

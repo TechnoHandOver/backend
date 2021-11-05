@@ -26,6 +26,7 @@ func TestAdUsecase_Create(t *testing.T) {
 		LocDep: "Общежитие №10",
 		LocArr: "УЛК",
 		DateTimeArr: *dateTimeArr,
+		Item: "Зачётная книжка",
 		MinPrice: 500,
 		Comment: "Поеду на велосипеде",
 	}
@@ -34,6 +35,7 @@ func TestAdUsecase_Create(t *testing.T) {
 		LocDep: ad.LocDep,
 		LocArr: ad.LocArr,
 		DateTimeArr: ad.DateTimeArr,
+		Item: ad.Item,
 		MinPrice: ad.MinPrice,
 		Comment: ad.Comment,
 	}
@@ -64,6 +66,7 @@ func TestAdUsecase_Get(t *testing.T) {
 		LocDep: "Общежитие №10",
 		LocArr: "УЛК",
 		DateTimeArr: *dateTimeArr,
+		Item: "Зачётная книжка",
 		MinPrice: 500,
 		Comment: "Поеду на велосипеде",
 	}
@@ -109,6 +112,7 @@ func TestAdUsecase_Update(t *testing.T) {
 		LocDep: "Общежитие №10",
 		LocArr: "УЛК",
 		DateTimeArr: *dateTimeArr,
+		Item: "Зачётная книжка",
 		MinPrice: 500,
 		Comment: "Поеду на велосипеде",
 	}
@@ -136,6 +140,7 @@ func TestAdUsecase_Update_notFound(t *testing.T) {
 		LocDep: "Общежитие №10",
 		LocArr: "УЛК",
 		DateTimeArr: *dateTimeArr,
+		Item: "Зачётная книжка",
 		MinPrice: 500,
 		Comment: "Поеду на велосипеде",
 	}
@@ -170,8 +175,9 @@ func TestAdUsecase_Search(t *testing.T) {
 		&models.Ad{
 			Id: 1,
 			LocDep: "Общежитие №10",
-			LocArr: "СК",
+			LocArr: "УЛК",
 			DateTimeArr: *dateTimeArr1,
+			Item: "Тубус",
 			MinPrice: 500,
 			Comment: "Поеду на коньках",
 		},
@@ -180,6 +186,7 @@ func TestAdUsecase_Search(t *testing.T) {
 			LocDep: "Общежитие №9",
 			LocArr: "СК",
 			DateTimeArr: *dateTimeArr2,
+			Item: "Спортивная форма",
 			MinPrice: 600,
 			Comment: "Поеду на роликах :)",
 		},

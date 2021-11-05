@@ -60,6 +60,7 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 		LocDep      string   `json:"locDep,omitempty"`
 		LocArr      string   `json:"locArr,omitempty"`
 		DateTimeArr DateTime `json:"dateTimeArr,omitempty"`
+		Item        string   `json:"item"`
 		MinPrice    uint32   `json:"minPrice,omitempty"`
 		Comment     string   `json:"comment,omitempty"` //TODO: нужны валидаторы моделей (length(str) <= 100 и подобное...)
 	}
@@ -75,6 +76,7 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 			LocDep: adUpdateRequest.LocDep,
 			LocArr: adUpdateRequest.LocArr,
 			DateTimeArr: adUpdateRequest.DateTimeArr,
+			Item: adUpdateRequest.Item,
 			MinPrice: adUpdateRequest.MinPrice,
 			Comment: adUpdateRequest.Comment,
 		}

@@ -10,6 +10,7 @@ type Ad struct {
 	LocDep         string   `json:"locDep"`
 	LocArr         string   `json:"locArr"`
 	DateTimeArr    DateTime `json:"dateTimeArr"`
+	Item           string   `json:"item"`
 	MinPrice       uint32   `json:"minPrice,omitempty"`
 	Comment        string   `json:"comment,omitempty"`
 }
