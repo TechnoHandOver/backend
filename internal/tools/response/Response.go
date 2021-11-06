@@ -1,27 +1,25 @@
 package response
 
-import "net/http"
+import "github.com/TechnoHandOver/backend/internal/consts"
 
 type Response struct {
-	Code  int
-	Data  *DataResponse
-	Error *error
+	Code  consts.Code
+	Data  interface{}
+	Error error
 }
 
 type DataResponse struct {
 	Data interface{} `json:"data"`
 }
 
-func NewResponse(code int, jsonObject interface{}) *Response {
+func NewResponse(code consts.Code, data interface{}) *Response {
 	return &Response{
 		Code: code,
-		Data: &DataResponse{
-			Data: jsonObject,
-		},
+		Data: data,
 	}
 }
 
-func NewEmptyResponse(code int) *Response {
+func NewEmptyResponse(code consts.Code) *Response {
 	return &Response{
 		Code: code,
 	}
@@ -29,7 +27,7 @@ func NewEmptyResponse(code int) *Response {
 
 func NewErrorResponse(error_ error) *Response {
 	return &Response{
-		Code:  http.StatusInternalServerError,
-		Error: &error_,
+		Code:  consts.InternalError,
+		Error: error_,
 	}
 }

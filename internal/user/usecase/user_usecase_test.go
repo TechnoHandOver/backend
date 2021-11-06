@@ -2,13 +2,13 @@ package usecase_test
 
 import (
 	"database/sql"
+	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/user/mock_user"
 	"github.com/TechnoHandOver/backend/internal/user/usecase"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"net/http"
 	"testing"
 )
 
@@ -20,14 +20,14 @@ func TestUserUsecase_Login(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	user := &models.User{
-		VkId: 2,
-		Name: "Василий Петров",
+		VkId:   2,
+		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
-	expectedUser := &models.User {
-		Id: 1,
-		VkId: user.VkId,
-		Name: user.Name,
+	expectedUser := &models.User{
+		Id:     1,
+		VkId:   user.VkId,
+		Name:   user.Name,
 		Avatar: user.Avatar,
 	}
 
@@ -37,7 +37,7 @@ func TestUserUsecase_Login(t *testing.T) {
 		Return(expectedUser, nil)
 
 	response_ := userUsecase.Login(user)
-	assert.Equal(t, response.NewResponse(http.StatusOK, expectedUser), response_)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedUser), response_)
 }
 
 func TestUserUsecase_Login_create(t *testing.T) {
@@ -48,14 +48,14 @@ func TestUserUsecase_Login_create(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	user := &models.User{
-		VkId: 2,
-		Name: "Василий Петров",
+		VkId:   2,
+		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
-	expectedUser := &models.User {
-		Id: 1,
-		VkId: user.VkId,
-		Name: user.Name,
+	expectedUser := &models.User{
+		Id:     1,
+		VkId:   user.VkId,
+		Name:   user.Name,
 		Avatar: user.Avatar,
 	}
 
@@ -74,7 +74,7 @@ func TestUserUsecase_Login_create(t *testing.T) {
 		After(selectByIdCall)
 
 	response_ := userUsecase.Login(user)
-	assert.Equal(t, response.NewResponse(http.StatusOK, expectedUser), response_)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedUser), response_)
 }
 
 func TestUserUsecase_Login_update(t *testing.T) {
@@ -85,20 +85,20 @@ func TestUserUsecase_Login_update(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	existingUser := &models.User{
-		Id: 1,
-		VkId: 2,
-		Name: "Василий Петров",
+		Id:     1,
+		VkId:   2,
+		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
 	updatedUser := &models.User{
-		VkId: existingUser.VkId,
-		Name: "Пётр Васильев",
+		VkId:   existingUser.VkId,
+		Name:   "Пётр Васильев",
 		Avatar: "https://mail.ru/petr_vasiliev_avatar.jpg",
 	}
-	expectedUser := &models.User {
-		Id: existingUser.Id,
-		VkId: updatedUser.VkId,
-		Name: updatedUser.Name,
+	expectedUser := &models.User{
+		Id:     existingUser.Id,
+		VkId:   updatedUser.VkId,
+		Name:   updatedUser.Name,
 		Avatar: updatedUser.Avatar,
 	}
 
@@ -114,5 +114,5 @@ func TestUserUsecase_Login_update(t *testing.T) {
 		After(selectByIdCall)
 
 	response_ := userUsecase.Login(updatedUser)
-	assert.Equal(t, response.NewResponse(http.StatusOK, expectedUser), response_)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedUser), response_)
 }

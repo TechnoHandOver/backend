@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"github.com/TechnoHandOver/backend/internal/ad/delivery"
 	"github.com/TechnoHandOver/backend/internal/ad/mock_ad"
+	"github.com/TechnoHandOver/backend/internal/consts"
+	"github.com/TechnoHandOver/backend/internal/middlewares"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
@@ -25,7 +27,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	adDelivery.Configure(echo_)
+	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:31")
 	assert.Nil(t, err)
@@ -55,7 +57,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 		Create(gomock.Eq(ad)).
 		DoAndReturn(func(ad *models.Ad) *response.Response {
 			ad.Id = expectedAd.Id
-			return response.NewResponse(http.StatusCreated, ad)
+			return response.NewResponse(consts.Created, ad)
 		})
 
 	jsonRequest, err := json.Marshal(ad)
@@ -72,6 +74,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
+	context.Set(consts.EchoContextKeyUserVkId, ad.UserAuthorVkId)
 
 	handler := adDelivery.HandlerAdCreate()
 
@@ -91,7 +94,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	adDelivery.Configure(echo_)
+	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	type AdGetRequest struct {
 		Id uint32 `param:"id"`
@@ -116,7 +119,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 	mockAdUsecase.
 		EXPECT().
 		Get(gomock.Eq(adGetRequest.Id)).
-		Return(response.NewResponse(http.StatusOK, expectedAd))
+		Return(response.NewResponse(consts.OK, expectedAd))
 
 	jsonExpectedResponse, err := json.Marshal(response.DataResponse{
 		Data: expectedAd,
@@ -150,7 +153,7 @@ func TestAdDelivery_HandlerAdGet_notFound(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	adDelivery.Configure(echo_)
+	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	type AdGetRequest struct {
 		Id uint32
@@ -163,7 +166,7 @@ func TestAdDelivery_HandlerAdGet_notFound(t *testing.T) {
 	mockAdUsecase.
 		EXPECT().
 		Get(gomock.Eq(adGetRequest.Id)).
-		Return(response.NewEmptyResponse(http.StatusNotFound))
+		Return(response.NewEmptyResponse(consts.NotFound))
 
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 
@@ -187,7 +190,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	adDelivery.Configure(echo_)
+	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	type AdUpdateRequest struct {
 		Id          uint32
@@ -202,26 +205,26 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:50")
 	assert.Nil(t, err)
 	adUpdateRequest := &AdUpdateRequest{
-		Id: 1,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		Id:          1,
+		LocDep:      "Общежитие №10",
+		LocArr:      "УЛК",
+		DateTimeArr: *dateTimeArr,
+		Item:        "Зачётная книжка",
+		MinPrice:    500,
+		Comment:     "Поеду на велосипеде",
 	}
 	ad := &models.Ad{
-		Id: adUpdateRequest.Id,
-		LocDep: adUpdateRequest.LocDep,
-		LocArr: adUpdateRequest.LocArr,
+		Id:          adUpdateRequest.Id,
+		LocDep:      adUpdateRequest.LocDep,
+		LocArr:      adUpdateRequest.LocArr,
 		DateTimeArr: adUpdateRequest.DateTimeArr,
-		Item: adUpdateRequest.Item,
-		MinPrice: adUpdateRequest.MinPrice,
-		Comment: adUpdateRequest.Comment,
+		Item:        adUpdateRequest.Item,
+		MinPrice:    adUpdateRequest.MinPrice,
+		Comment:     adUpdateRequest.Comment,
 	}
 	expectedAd := &models.Ad{
 		Id:             ad.Id,
-		UserAuthorVkId: 1,
+		UserAuthorVkId: 2,
 		LocDep:         ad.LocDep,
 		LocArr:         ad.LocArr,
 		DateTimeArr:    ad.DateTimeArr,
@@ -233,7 +236,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	mockAdUsecase.
 		EXPECT().
 		Update(gomock.Eq(ad)).
-		Return(response.NewResponse(http.StatusOK, expectedAd))
+		Return(response.NewResponse(consts.OK, expectedAd))
 
 	jsonRequest, err := json.Marshal(ad)
 	assert.Nil(t, err)
@@ -252,6 +255,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	context.SetPath("/api/ad/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(adUpdateRequest.Id), 10))
+	context.Set(consts.EchoContextKeyUserVkId, expectedAd.UserAuthorVkId)
 
 	handler := adDelivery.HandlerAdUpdate()
 
@@ -271,7 +275,7 @@ func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	adDelivery.Configure(echo_)
+	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	type AdUpdateRequest struct {
 		Id          uint32
@@ -286,28 +290,28 @@ func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:50")
 	assert.Nil(t, err)
 	adUpdateRequest := &AdUpdateRequest{
-		Id: 1,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		Id:          1,
+		LocDep:      "Общежитие №10",
+		LocArr:      "УЛК",
+		DateTimeArr: *dateTimeArr,
+		Item:        "Зачётная книжка",
+		MinPrice:    500,
+		Comment:     "Поеду на велосипеде",
 	}
 	ad := &models.Ad{
-		Id: adUpdateRequest.Id,
-		LocDep: adUpdateRequest.LocDep,
-		LocArr: adUpdateRequest.LocArr,
+		Id:          adUpdateRequest.Id,
+		LocDep:      adUpdateRequest.LocDep,
+		LocArr:      adUpdateRequest.LocArr,
 		DateTimeArr: adUpdateRequest.DateTimeArr,
-		Item: adUpdateRequest.Item,
-		MinPrice: adUpdateRequest.MinPrice,
-		Comment: adUpdateRequest.Comment,
+		Item:        adUpdateRequest.Item,
+		MinPrice:    adUpdateRequest.MinPrice,
+		Comment:     adUpdateRequest.Comment,
 	}
 
 	mockAdUsecase.
 		EXPECT().
 		Update(gomock.Eq(ad)).
-		Return(response.NewEmptyResponse(http.StatusNotFound))
+		Return(response.NewEmptyResponse(consts.NotFound))
 
 	jsonRequest, err := json.Marshal(adUpdateRequest)
 	assert.Nil(t, err)
@@ -320,6 +324,7 @@ func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
 	context.SetPath("/api/ad/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(adUpdateRequest.Id), 10))
+	context.Set(consts.EchoContextKeyUserVkId, uint32(2))
 
 	handler := adDelivery.HandlerAdUpdate()
 
@@ -335,43 +340,45 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	adDelivery.Configure(echo_)
+	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
 	adsSearch := &models.AdsSearch{
-		LocDep: "Общежитие",
-		LocArr: "СК",
+		LocDep:      "Общежитие",
+		LocArr:      "СК",
 		DateTimeArr: *dateTimeArr1,
-		MaxPrice: 1000,
+		MaxPrice:    1000,
 	}
 	expectedAds := &models.Ads{
 		&models.Ad{
-			Id: 1,
-			LocDep: "Общежитие №10",
-			LocArr: "УЛК",
+			Id:          1,
+			UserAuthorVkId: 10,
+			LocDep:      "Общежитие №10",
+			LocArr:      "УЛК",
 			DateTimeArr: *dateTimeArr1,
-			Item: "Тубус",
-			MinPrice: 500,
-			Comment: "Поеду на коньках",
+			Item:        "Тубус",
+			MinPrice:    500,
+			Comment:     "Поеду на коньках",
 		},
 		&models.Ad{
-			Id: 1,
-			LocDep: "Общежитие №9",
-			LocArr: "СК",
+			Id:          2,
+			UserAuthorVkId: 20,
+			LocDep:      "Общежитие №9",
+			LocArr:      "СК",
 			DateTimeArr: *dateTimeArr2,
-			Item: "Спортивная форма",
-			MinPrice: 600,
-			Comment: "Поеду на роликах :)",
+			Item:        "Спортивная форма",
+			MinPrice:    600,
+			Comment:     "Поеду на роликах :)",
 		},
 	}
 
 	mockAdUsecase.
 		EXPECT().
 		Search(gomock.Eq(adsSearch)).
-		Return(response.NewResponse(http.StatusOK, expectedAds))
+		Return(response.NewResponse(consts.OK, expectedAds))
 
 	jsonRequest, err := json.Marshal(adsSearch)
 	assert.Nil(t, err)

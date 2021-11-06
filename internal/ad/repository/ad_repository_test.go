@@ -24,22 +24,22 @@ func TestAdRepository_Insert(t *testing.T) {
 	assert.Nil(t, err)
 	ad := &models.Ad{
 		UserAuthorVkId: 2,
-		LocDep: "Общежитие №10",
-		LocArr: "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item: "Зачётная книжка",
-		MinPrice: 500,
-		Comment: "Поеду на велосипеде",
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 	expectedAd := &models.Ad{
-		Id: 1,
+		Id:             1,
 		UserAuthorVkId: ad.UserAuthorVkId,
-		LocDep: ad.LocDep,
-		LocArr: ad.LocArr,
-		DateTimeArr: ad.DateTimeArr,
-		Item: ad.Item,
-		MinPrice: ad.MinPrice,
-		Comment: ad.Comment,
+		LocDep:         ad.LocDep,
+		LocArr:         ad.LocArr,
+		DateTimeArr:    ad.DateTimeArr,
+		Item:           ad.Item,
+		MinPrice:       ad.MinPrice,
+		Comment:        ad.Comment,
 	}
 
 	sqlmock_.
@@ -69,14 +69,14 @@ func TestAdRepository_Select(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
-		Id: 1,
+		Id:             1,
 		UserAuthorVkId: 2,
-		LocDep: "Общежитие №10",
-		LocArr: "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item: "Зачётная книжка",
-		MinPrice: 500,
-		Comment: "Поеду на велосипеде",
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 
 	sqlmock_.
@@ -106,14 +106,14 @@ func TestAdRepository_Update(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
-		Id: 1,
+		Id:             1,
 		UserAuthorVkId: 2,
-		LocDep: "Общежитие №10",
-		LocArr: "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item: "Зачётная книжка",
-		MinPrice: 500,
-		Comment: "Поеду на велосипеде",
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 
 	sqlmock_.
@@ -142,20 +142,20 @@ func TestAdRepository_Update_select(t *testing.T) {
 	adRepository := repository.NewAdRepositoryImpl(db)
 
 	ad := &models.Ad{
-		Id: 1,
+		Id:             1,
 		UserAuthorVkId: 2,
 	}
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
-		Id: ad.Id,
+		Id:             ad.Id,
 		UserAuthorVkId: ad.UserAuthorVkId,
-		LocDep: "Общежитие №10",
-		LocArr: "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item: "Зачётная книжка",
-		MinPrice: 500,
-		Comment: "Поеду на велосипеде",
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 
 	sqlmock_.
@@ -187,29 +187,29 @@ func TestAdRepository_SelectArray(t *testing.T) {
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
 	adsSearch := &models.AdsSearch{
-		LocDep: "Общежитие",
-		LocArr: "СК",
+		LocDep:      "Общежитие",
+		LocArr:      "СК",
 		DateTimeArr: *dateTimeArr1,
-		MaxPrice: 1000,
+		MaxPrice:    1000,
 	}
 	expectedAds := &models.Ads{
 		&models.Ad{
-			Id: 1,
-			LocDep: "Общежитие №10",
-			LocArr: "УЛК",
+			Id:          1,
+			LocDep:      "Общежитие №10",
+			LocArr:      "УЛК",
 			DateTimeArr: *dateTimeArr1,
-			Item: "Тубус",
-			MinPrice: 500,
-			Comment: "Поеду на коньках",
+			Item:        "Тубус",
+			MinPrice:    500,
+			Comment:     "Поеду на коньках",
 		},
 		&models.Ad{
-			Id: 1,
-			LocDep: "Общежитие №9",
-			LocArr: "СК",
+			Id:          1,
+			LocDep:      "Общежитие №9",
+			LocArr:      "СК",
 			DateTimeArr: *dateTimeArr2,
-			Item: "Спортивная форма",
-			MinPrice: 600,
-			Comment: "Поеду на роликах :)",
+			Item:        "Спортивная форма",
+			MinPrice:    600,
+			Comment:     "Поеду на роликах :)",
 		},
 	}
 
@@ -246,20 +246,20 @@ func TestAdRepository_SelectArray_emptySearchQuery(t *testing.T) {
 	adsSearch := new(models.AdsSearch)
 	expectedAds := &models.Ads{
 		&models.Ad{
-			Id: 1,
-			LocDep: "Общежитие №10",
-			LocArr: "СК",
+			Id:          1,
+			LocDep:      "Общежитие №10",
+			LocArr:      "СК",
 			DateTimeArr: *dateTimeArr1,
-			MinPrice: 500,
-			Comment: "Поеду на коньках",
+			MinPrice:    500,
+			Comment:     "Поеду на коньках",
 		},
 		&models.Ad{
-			Id: 1,
-			LocDep: "Общежитие №9",
-			LocArr: "СК",
+			Id:          1,
+			LocDep:      "Общежитие №9",
+			LocArr:      "СК",
 			DateTimeArr: *dateTimeArr2,
-			MinPrice: 600,
-			Comment: "Поеду на роликах :)",
+			MinPrice:    600,
+			Comment:     "Поеду на роликах :)",
 		},
 	}
 

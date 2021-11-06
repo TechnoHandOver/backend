@@ -2,6 +2,7 @@ package delivery_test
 
 import (
 	"encoding/json"
+	"github.com/TechnoHandOver/backend/internal/middlewares"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/user/delivery"
@@ -26,8 +27,8 @@ func TestUserDelivery_HandlerUserLogin(t *testing.T) {
 		VkId: 2,
 		Name: "Василий Петров",
 	}
-	expectedUser := &models.User {
-		Id: 1,
+	expectedUser := &models.User{
+		Id:   1,
 		VkId: user.VkId,
 		Name: user.Name,
 	}
@@ -42,7 +43,7 @@ func TestUserDelivery_HandlerUserLogin(t *testing.T) {
 
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	userDelivery.Configure(echo_)
+	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	jsonRequest, err := json.Marshal(user)
 	assert.Nil(t, err)

@@ -27,7 +27,7 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, co
 	var dateArrTime = time.Time(ad_.DateTimeArr)
 	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorVkId, ad_.LocDep, ad_.LocArr, dateArrTime, ad_.Item,
 		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &dateArrTime, &ad_.Item,
-			&ad_.MinPrice, &ad_.Comment); err != nil {
+		&ad_.MinPrice, &ad_.Comment); err != nil {
 		return nil, err
 	}
 
@@ -66,32 +66,32 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 	queryArgs[0] = ad_.Id
 
 	if ad_.LocDep != "" {
-		query += queryLocDep + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		query += queryLocDep + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
 		queryArgs = append(queryArgs, ad_.LocDep)
 	}
 
 	if ad_.LocArr != "" {
-		query += queryLocArr + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		query += queryLocArr + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
 		queryArgs = append(queryArgs, ad_.LocArr)
 	}
 
 	if dateArrTime := time.Time(ad_.DateTimeArr); !dateArrTime.IsZero() {
-		query += queryDateArr + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		query += queryDateArr + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
 		queryArgs = append(queryArgs, dateArrTime)
 	}
 
 	if ad_.Item != "" {
-		query += queryItem + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		query += queryItem + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
 		queryArgs = append(queryArgs, ad_.Item)
 	}
 
 	if ad_.MinPrice != 0 {
-		query += queryMinPrice + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		query += queryMinPrice + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
 		queryArgs = append(queryArgs, ad_.MinPrice)
 	}
 
 	if ad_.Comment != "" {
-		query += queryComment + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		query += queryComment + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
 		queryArgs = append(queryArgs, ad_.Comment)
 	}
 
@@ -127,22 +127,22 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 	queryArgs := make([]interface{}, 0)
 
 	if adsSearch.LocDep != "" {
-		query += queryLocDep1 + strconv.Itoa(len(queryArgs) + 1) + queryLocDep2 + queryAnd
+		query += queryLocDep1 + strconv.Itoa(len(queryArgs)+1) + queryLocDep2 + queryAnd
 		queryArgs = append(queryArgs, adsSearch.LocDep)
 	}
 
 	if adsSearch.LocArr != "" {
-		query += queryLocArr1 + strconv.Itoa(len(queryArgs) + 1) + queryLocArr2 + queryAnd
+		query += queryLocArr1 + strconv.Itoa(len(queryArgs)+1) + queryLocArr2 + queryAnd
 		queryArgs = append(queryArgs, adsSearch.LocArr)
 	}
 
 	if dateTimeArrTime := time.Time(adsSearch.DateTimeArr); !dateTimeArrTime.IsZero() {
-		query += queryDateArr + strconv.Itoa(len(queryArgs) + 1) + queryAnd
+		query += queryDateArr + strconv.Itoa(len(queryArgs)+1) + queryAnd
 		queryArgs = append(queryArgs, dateTimeArrTime)
 	}
 
 	if adsSearch.MaxPrice != 0 {
-		query += queryMinPrice + strconv.Itoa(len(queryArgs) + 1) + queryAnd
+		query += queryMinPrice + strconv.Itoa(len(queryArgs)+1) + queryAnd
 		queryArgs = append(queryArgs, adsSearch.MaxPrice)
 	}
 

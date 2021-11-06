@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/ad/mock_ad"
 	"github.com/TechnoHandOver/backend/internal/ad/usecase"
+	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"net/http"
 	"testing"
 )
 
@@ -23,21 +23,21 @@ func TestAdUsecase_Create(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		LocDep: "Общежитие №10",
-		LocArr: "УЛК",
+		LocDep:      "Общежитие №10",
+		LocArr:      "УЛК",
 		DateTimeArr: *dateTimeArr,
-		Item: "Зачётная книжка",
-		MinPrice: 500,
-		Comment: "Поеду на велосипеде",
+		Item:        "Зачётная книжка",
+		MinPrice:    500,
+		Comment:     "Поеду на велосипеде",
 	}
 	expectedAd := &models.Ad{
-		Id: 1,
-		LocDep: ad.LocDep,
-		LocArr: ad.LocArr,
+		Id:          1,
+		LocDep:      ad.LocDep,
+		LocArr:      ad.LocArr,
 		DateTimeArr: ad.DateTimeArr,
-		Item: ad.Item,
-		MinPrice: ad.MinPrice,
-		Comment: ad.Comment,
+		Item:        ad.Item,
+		MinPrice:    ad.MinPrice,
+		Comment:     ad.Comment,
 	}
 
 	mockAdRepository.
@@ -49,7 +49,7 @@ func TestAdUsecase_Create(t *testing.T) {
 		})
 
 	response_ := adUsecase.Create(ad)
-	assert.Equal(t, response.NewResponse(http.StatusCreated, expectedAd), response_)
+	assert.Equal(t, response.NewResponse(consts.Created, expectedAd), response_)
 }
 
 func TestAdUsecase_Get(t *testing.T) {
@@ -62,13 +62,13 @@ func TestAdUsecase_Get(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
-		Id: 1,
-		LocDep: "Общежитие №10",
-		LocArr: "УЛК",
+		Id:          1,
+		LocDep:      "Общежитие №10",
+		LocArr:      "УЛК",
 		DateTimeArr: *dateTimeArr,
-		Item: "Зачётная книжка",
-		MinPrice: 500,
-		Comment: "Поеду на велосипеде",
+		Item:        "Зачётная книжка",
+		MinPrice:    500,
+		Comment:     "Поеду на велосипеде",
 	}
 
 	mockAdRepository.
@@ -77,7 +77,7 @@ func TestAdUsecase_Get(t *testing.T) {
 		Return(expectedAd, nil)
 
 	response_ := adUsecase.Get(expectedAd.Id)
-	assert.Equal(t, response.NewResponse(http.StatusOK, expectedAd), response_)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedAd), response_)
 }
 
 func TestAdUsecase_Get_notFound(t *testing.T) {
@@ -95,7 +95,7 @@ func TestAdUsecase_Get_notFound(t *testing.T) {
 		Return(nil, sql.ErrNoRows)
 
 	response_ := adUsecase.Get(id)
-	assert.Equal(t, response.NewEmptyResponse(http.StatusNotFound), response_)
+	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
 func TestAdUsecase_Update(t *testing.T) {
@@ -108,13 +108,13 @@ func TestAdUsecase_Update(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:30")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		Id: 1,
-		LocDep: "Общежитие №10",
-		LocArr: "УЛК",
+		Id:          1,
+		LocDep:      "Общежитие №10",
+		LocArr:      "УЛК",
 		DateTimeArr: *dateTimeArr,
-		Item: "Зачётная книжка",
-		MinPrice: 500,
-		Comment: "Поеду на велосипеде",
+		Item:        "Зачётная книжка",
+		MinPrice:    500,
+		Comment:     "Поеду на велосипеде",
 	}
 
 	mockAdRepository.
@@ -123,7 +123,7 @@ func TestAdUsecase_Update(t *testing.T) {
 		Return(ad, nil)
 
 	response_ := adUsecase.Update(ad)
-	assert.Equal(t, response.NewResponse(http.StatusOK, ad), response_)
+	assert.Equal(t, response.NewResponse(consts.OK, ad), response_)
 }
 
 func TestAdUsecase_Update_notFound(t *testing.T) {
@@ -136,13 +136,13 @@ func TestAdUsecase_Update_notFound(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:35")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		Id: 1,
-		LocDep: "Общежитие №10",
-		LocArr: "УЛК",
+		Id:          1,
+		LocDep:      "Общежитие №10",
+		LocArr:      "УЛК",
 		DateTimeArr: *dateTimeArr,
-		Item: "Зачётная книжка",
-		MinPrice: 500,
-		Comment: "Поеду на велосипеде",
+		Item:        "Зачётная книжка",
+		MinPrice:    500,
+		Comment:     "Поеду на велосипеде",
 	}
 
 	mockAdRepository.
@@ -151,7 +151,7 @@ func TestAdUsecase_Update_notFound(t *testing.T) {
 		Return(nil, sql.ErrNoRows)
 
 	response_ := adUsecase.Update(ad)
-	assert.Equal(t, response.NewEmptyResponse(http.StatusNotFound), response_)
+	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
 func TestAdUsecase_Search(t *testing.T) {
@@ -166,29 +166,29 @@ func TestAdUsecase_Search(t *testing.T) {
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
 	adsSearch := &models.AdsSearch{
-		LocDep: "Общежитие",
-		LocArr: "СК",
+		LocDep:      "Общежитие",
+		LocArr:      "СК",
 		DateTimeArr: *dateTimeArr1,
-		MaxPrice: 1000,
+		MaxPrice:    1000,
 	}
 	expectedAds := &models.Ads{
 		&models.Ad{
-			Id: 1,
-			LocDep: "Общежитие №10",
-			LocArr: "УЛК",
+			Id:          1,
+			LocDep:      "Общежитие №10",
+			LocArr:      "УЛК",
 			DateTimeArr: *dateTimeArr1,
-			Item: "Тубус",
-			MinPrice: 500,
-			Comment: "Поеду на коньках",
+			Item:        "Тубус",
+			MinPrice:    500,
+			Comment:     "Поеду на коньках",
 		},
 		&models.Ad{
-			Id: 1,
-			LocDep: "Общежитие №9",
-			LocArr: "СК",
+			Id:          1,
+			LocDep:      "Общежитие №9",
+			LocArr:      "СК",
 			DateTimeArr: *dateTimeArr2,
-			Item: "Спортивная форма",
-			MinPrice: 600,
-			Comment: "Поеду на роликах :)",
+			Item:        "Спортивная форма",
+			MinPrice:    600,
+			Comment:     "Поеду на роликах :)",
 		},
 	}
 
@@ -198,5 +198,5 @@ func TestAdUsecase_Search(t *testing.T) {
 		Return(expectedAds, nil)
 
 	response_ := adUsecase.Search(adsSearch)
-	assert.Equal(t, response.NewResponse(http.StatusOK, expectedAds), response_)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedAds), response_)
 }

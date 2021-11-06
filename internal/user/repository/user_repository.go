@@ -67,12 +67,12 @@ func (userRepository *UserRepository) Update(user_ *models.User) (*models.User, 
 	queryArgs[0] = user_.Id
 
 	if user_.Name != "" {
-		query += queryName + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		query += queryName + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
 		queryArgs = append(queryArgs, user_.Name)
 	}
 
 	if user_.Avatar != "" {
-		query += queryAvatar + queryEquals + strconv.Itoa(len(queryArgs) + 1) + queryComma
+		query += queryAvatar + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
 		queryArgs = append(queryArgs, user_.Avatar)
 	}
 

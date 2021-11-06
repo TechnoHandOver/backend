@@ -19,14 +19,14 @@ func TestUserRepository_Insert(t *testing.T) {
 	userRepository := repository.NewUserRepositoryImpl(db)
 
 	user := &models.User{
-		VkId: 2,
-		Name: "Василий Петров",
+		VkId:   2,
+		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
-	expectedUser := &models.User {
-		Id: 1,
-		VkId: user.VkId,
-		Name: user.Name,
+	expectedUser := &models.User{
+		Id:     1,
+		VkId:   user.VkId,
+		Name:   user.Name,
 		Avatar: user.Avatar,
 	}
 
@@ -54,9 +54,9 @@ func TestUserRepository_Select(t *testing.T) {
 	userRepository := repository.NewUserRepositoryImpl(db)
 
 	expectedUser := &models.User{
-		Id: 1,
-		VkId: 2,
-		Name: "Василий Петров",
+		Id:     1,
+		VkId:   2,
+		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
 
@@ -84,9 +84,9 @@ func TestUserRepository_SelectByVkId(t *testing.T) {
 	userRepository := repository.NewUserRepositoryImpl(db)
 
 	expectedUser := &models.User{
-		Id: 1,
-		VkId: 2,
-		Name: "Василий Петров",
+		Id:     1,
+		VkId:   2,
+		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
 
@@ -114,9 +114,9 @@ func TestUserRepository_Update(t *testing.T) {
 	userRepository := repository.NewUserRepositoryImpl(db)
 
 	expectedUser := &models.User{
-		Id: 1,
-		VkId: 2,
-		Name: "Василий Петров",
+		Id:     1,
+		VkId:   2,
+		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
 
@@ -144,15 +144,15 @@ func TestUserRepository_Update_select(t *testing.T) {
 	userRepository := repository.NewUserRepositoryImpl(db)
 
 	user := &models.User{
-		Id: 1,
-		VkId: 2,
-		Name: "",
+		Id:     1,
+		VkId:   2,
+		Name:   "",
 		Avatar: "",
 	}
 	expectedUser := &models.User{
-		Id: user.Id,
-		VkId: user.VkId,
-		Name: "Василий Петров",
+		Id:     user.Id,
+		VkId:   user.VkId,
+		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
 

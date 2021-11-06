@@ -3,19 +3,18 @@ package usecase
 import (
 	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/ad"
+	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
-
-	"net/http"
 )
 
 type AdUsecase struct {
 	adRepository ad.Repository
 }
 
-func NewAdUsecaseImpl(adRepository ad.Repository) ad.Usecase {
+func NewAdUsecaseImpl(repository ad.Repository) ad.Usecase {
 	return &AdUsecase{
-		adRepository: adRepository,
+		adRepository: repository,
 	}
 }
 
@@ -26,33 +25,34 @@ func (adUsecase *AdUsecase) Create(ad_ *models.Ad) *response.Response {
 		return response.NewErrorResponse(err)
 	}
 
-	return response.NewResponse(http.StatusCreated, ad_)
+	return response.NewResponse(consts.Created, ad_)
 }
 
 func (adUsecase *AdUsecase) Get(id uint32) *response.Response {
 	ad_, err := adUsecase.adRepository.Select(id)
 	if err != nil {
+		//TODO: никаких sql.ErrNoRows тут быть не должно, только кастомные ошибки независимо от типа репозитория!
 		if err == sql.ErrNoRows {
-			return response.NewEmptyResponse(http.StatusNotFound) //TODO: вообще, тут отдавать не http.StatusNotFound, а SomeMapClass.NOT_FOUND_ERROR...; везде так
+			return response.NewEmptyResponse(consts.NotFound)
 		}
 
 		return response.NewErrorResponse(err)
 	}
 
-	return response.NewResponse(http.StatusOK, ad_)
+	return response.NewResponse(consts.OK, ad_)
 }
 
 func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 	ad_, err := adUsecase.adRepository.Update(ad_)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return response.NewEmptyResponse(http.StatusNotFound)
+			return response.NewEmptyResponse(consts.NotFound)
 		}
 
 		return response.NewErrorResponse(err)
 	}
 
-	return response.NewResponse(http.StatusOK, ad_)
+	return response.NewResponse(consts.OK, ad_)
 }
 
 func (adUsecase *AdUsecase) Search(adsSearch *models.AdsSearch) *response.Response {
@@ -61,5 +61,5 @@ func (adUsecase *AdUsecase) Search(adsSearch *models.AdsSearch) *response.Respon
 		return response.NewErrorResponse(err)
 	}
 
-	return response.NewResponse(http.StatusOK, ads)
+	return response.NewResponse(consts.OK, ads)
 }

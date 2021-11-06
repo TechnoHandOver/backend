@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"github.com/TechnoHandOver/backend/internal/middlewares"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
@@ -18,7 +19,7 @@ func NewUserDelivery(userUsecase user.Usecase) *UserDelivery {
 	}
 }
 
-func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo) {
+func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, _ *middlewares.Manager) {
 	echo_.POST("/api/user", userDelivery.HandlerUserLogin())
 }
 

@@ -2,10 +2,10 @@ package usecase
 
 import (
 	"database/sql"
+	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/user"
-	"net/http"
 )
 
 type UserUsecase struct {
@@ -39,5 +39,14 @@ func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 		}
 	}
 
-	return response.NewResponse(http.StatusOK, user2)
+	return response.NewResponse(consts.OK, user2)
+}
+
+func (userUsecase *UserUsecase) Get(vkId uint32) *response.Response {
+	user_, err := userUsecase.userRepository.SelectByVkId(vkId)
+	if err != nil {
+		return response.NewEmptyResponse(consts.NotFound)
+	}
+
+	return response.NewResponse(consts.OK, user_)
 }

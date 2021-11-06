@@ -7,11 +7,14 @@ import (
 	AdsDelivery "github.com/TechnoHandOver/backend/internal/ad/delivery"
 	AdsRepository "github.com/TechnoHandOver/backend/internal/ad/repository"
 	AdsUsecase "github.com/TechnoHandOver/backend/internal/ad/usecase"
+	"github.com/TechnoHandOver/backend/internal/middlewares"
+	SessionDelivery "github.com/TechnoHandOver/backend/internal/session/delivery"
+	SessionRepository "github.com/TechnoHandOver/backend/internal/session/repository"
+	SessionUsecase "github.com/TechnoHandOver/backend/internal/session/usecase"
 	UserDelivery "github.com/TechnoHandOver/backend/internal/user/delivery"
 	UserRepository "github.com/TechnoHandOver/backend/internal/user/repository"
 	UserUsecase "github.com/TechnoHandOver/backend/internal/user/usecase"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
 	"log"
 	"os"
@@ -32,7 +35,7 @@ func main() {
 	}
 
 	var logFileName string
-	flag.StringVar(&logFileName, "logFileName", "logs.log", "path to server log file")
+	flag.StringVar(&logFileName, "logFileName", "", "path to server log file")
 
 	var logFile *os.File
 	if logFileName != "" {
@@ -69,21 +72,31 @@ func main() {
 	log.Println(config_.GetDatabaseConfigString())
 
 	adsRepository := AdsRepository.NewAdRepositoryImpl(db)
+	sessionRepository := SessionRepository.NewSessionRepositoryImpl()
 	userRepository := UserRepository.NewUserRepositoryImpl(db)
 
 	adsUsecase := AdsUsecase.NewAdUsecaseImpl(adsRepository)
 	userUsecase := UserUsecase.NewUserUsecaseImpl(userRepository)
+	sessionUsecase := SessionUsecase.NewSessionUsecaseImpl(sessionRepository)
 
 	adsDelivery := AdsDelivery.NewAdDelivery(adsUsecase)
+	sessionDelivery := SessionDelivery.NewSessionDelivery(sessionUsecase, userUsecase)
 	userDelivery := UserDelivery.NewUserDelivery(userUsecase)
 
-	echo_ := echo.New()
-	echo_.Logger.SetLevel(4)
-	echo_.Logger.SetOutput(logFile)
-	echo_.Use(middleware.Recover())
+	recoverMiddleware := middlewares.NewRecoverMiddleware()
+	authMiddleware := middlewares.NewAuthMiddleware(sessionUsecase, userUsecase)
+	middlewaresManager := middlewares.NewManager(recoverMiddleware, authMiddleware)
 
-	adsDelivery.Configure(echo_)
-	userDelivery.Configure(echo_)
+	echo_ := echo.New()
+	//echo_.Logger.SetLevel(LabstackLog.ERROR)
+	if logFile != nil {
+		echo_.Logger.SetOutput(logFile)
+	}
+	echo_.Use(middlewaresManager.RecoverMiddleware.Recover())
+
+	adsDelivery.Configure(echo_, middlewaresManager)
+	sessionDelivery.Configure(echo_, middlewaresManager)
+	userDelivery.Configure(echo_, middlewaresManager)
 
 	if err := echo_.Start(config_.GetServerConfigString()); err != nil {
 		log.Fatal(err)

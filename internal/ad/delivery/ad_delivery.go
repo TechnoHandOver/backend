@@ -2,6 +2,8 @@ package delivery
 
 import (
 	"github.com/TechnoHandOver/backend/internal/ad"
+	"github.com/TechnoHandOver/backend/internal/consts"
+	"github.com/TechnoHandOver/backend/internal/middlewares"
 	"github.com/TechnoHandOver/backend/internal/models"
 	. "github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
@@ -13,16 +15,16 @@ type AdDelivery struct {
 	adUsecase ad.Usecase
 }
 
-func NewAdDelivery(adUsecase ad.Usecase) *AdDelivery {
+func NewAdDelivery(usecase ad.Usecase) *AdDelivery {
 	return &AdDelivery{
-		adUsecase: adUsecase,
+		adUsecase: usecase,
 	}
 }
 
-func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo) {
-	echo_.POST("/api/ad", adDelivery.HandlerAdCreate())
+func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *middlewares.Manager) {
+	echo_.POST("/api/ad", adDelivery.HandlerAdCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ad/:id", adDelivery.HandlerAdGet())
-	echo_.PUT("/api/ad/:id", adDelivery.HandlerAdUpdate())
+	echo_.PUT("/api/ad/:id", adDelivery.HandlerAdUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ad/search", adDelivery.HandlerAdSearch())
 }
 
@@ -33,7 +35,7 @@ func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(err))
 		}
 
-		ad_.UserAuthorVkId = 2 //TODO: убрать, когда будет реализована авторизация
+		ad_.UserAuthorVkId = context.Get(consts.EchoContextKeyUserVkId).(uint32)
 
 		return responser.Respond(context, adDelivery.adUsecase.Create(ad_))
 	}
@@ -72,13 +74,13 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 		}
 
 		ad_ := &models.Ad{
-			Id: adUpdateRequest.Id,
-			LocDep: adUpdateRequest.LocDep,
-			LocArr: adUpdateRequest.LocArr,
+			Id:          adUpdateRequest.Id,
+			LocDep:      adUpdateRequest.LocDep,
+			LocArr:      adUpdateRequest.LocArr,
 			DateTimeArr: adUpdateRequest.DateTimeArr,
-			Item: adUpdateRequest.Item,
-			MinPrice: adUpdateRequest.MinPrice,
-			Comment: adUpdateRequest.Comment,
+			Item:        adUpdateRequest.Item,
+			MinPrice:    adUpdateRequest.MinPrice,
+			Comment:     adUpdateRequest.Comment,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Update(ad_))
