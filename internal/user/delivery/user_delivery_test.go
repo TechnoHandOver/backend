@@ -54,7 +54,7 @@ func TestUserDelivery_HandlerUserLogin(t *testing.T) {
 	assert.Nil(t, err)
 	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
 
-	request := httptest.NewRequest(http.MethodPost, "/api/user", strings.NewReader(string(jsonRequest)))
+	request := httptest.NewRequest(http.MethodPost, "/api/users", strings.NewReader(string(jsonRequest)))
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	recorder := httptest.NewRecorder()

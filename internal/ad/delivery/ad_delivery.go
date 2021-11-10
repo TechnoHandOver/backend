@@ -22,10 +22,10 @@ func NewAdDelivery(usecase ad.Usecase) *AdDelivery {
 }
 
 func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *middlewares.Manager) {
-	echo_.POST("/api/ad", adDelivery.HandlerAdCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.GET("/api/ad/:id", adDelivery.HandlerAdGet())
-	echo_.PUT("/api/ad/:id", adDelivery.HandlerAdUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.GET("/api/ad/search", adDelivery.HandlerAdSearch())
+	echo_.POST("/api/ads", adDelivery.HandlerAdCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.GET("/api/ads/:id", adDelivery.HandlerAdGet())
+	echo_.PUT("/api/ads/:id", adDelivery.HandlerAdUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.GET("/api/ads/search", adDelivery.HandlerAdSearch())
 }
 
 func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {

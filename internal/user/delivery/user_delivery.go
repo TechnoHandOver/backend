@@ -20,7 +20,7 @@ func NewUserDelivery(userUsecase user.Usecase) *UserDelivery {
 }
 
 func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, _ *middlewares.Manager) {
-	echo_.POST("/api/user", userDelivery.HandlerUserLogin())
+	echo_.POST("/api/users", userDelivery.HandlerUserLogin())
 }
 
 func (userDelivery *UserDelivery) HandlerUserLogin() echo.HandlerFunc {

@@ -25,7 +25,7 @@ func NewSessionDelivery(sessionUsecase session.Usecase, userUsecase user.Usecase
 }
 
 func (sessionDelivery *SessionDelivery) Configure(echo_ *echo.Echo, _ *middlewares.Manager) {
-	echo_.POST("/api/session", sessionDelivery.HandlerLogin())
+	echo_.POST("/api/sessions", sessionDelivery.HandlerLogin())
 }
 
 func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {

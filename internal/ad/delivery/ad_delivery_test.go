@@ -69,7 +69,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 	assert.Nil(t, err)
 	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
 
-	request := httptest.NewRequest(http.MethodPost, "/api/ad", strings.NewReader(string(jsonRequest)))
+	request := httptest.NewRequest(http.MethodPost, "/api/ads", strings.NewReader(string(jsonRequest)))
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	recorder := httptest.NewRecorder()
@@ -131,7 +131,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
-	context.SetPath("/api/ad/:id")
+	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(adGetRequest.Id), 10))
 
@@ -172,7 +172,7 @@ func TestAdDelivery_HandlerAdGet_notFound(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
-	context.SetPath("/api/ad/:id")
+	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(adGetRequest.Id), 10))
 
@@ -252,7 +252,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
-	context.SetPath("/api/ad/:id")
+	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(adUpdateRequest.Id), 10))
 	context.Set(consts.EchoContextKeyUserVkId, expectedAd.UserAuthorVkId)
@@ -321,7 +321,7 @@ func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
-	context.SetPath("/api/ad/:id")
+	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(adUpdateRequest.Id), 10))
 	context.Set(consts.EchoContextKeyUserVkId, uint32(2))
@@ -389,7 +389,7 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 	assert.Nil(t, err)
 	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
 
-	request := httptest.NewRequest(http.MethodPost, "/api/ad/search", strings.NewReader(string(jsonRequest)))
+	request := httptest.NewRequest(http.MethodPost, "/api/ads/search", strings.NewReader(string(jsonRequest)))
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	recorder := httptest.NewRecorder()
