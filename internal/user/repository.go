@@ -7,4 +7,5 @@ type Repository interface {
 	Select(id uint32) (*models.User, error)
 	SelectByVkId(vkId uint32) (*models.User, error)
 	Update(user *models.User) (*models.User, error)
+	InsertRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error)
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
+	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/user/mock_user"
 	"github.com/TechnoHandOver/backend/internal/user/usecase"
@@ -115,4 +116,86 @@ func TestUserUsecase_Login_update(t *testing.T) {
 
 	response_ := userUsecase.Login(updatedUser)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedUser), response_)
+}
+
+func TestUserUsecase_Get(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	expectedUser := &models.User{
+		Id:     1,
+		VkId:   2,
+		Name:   "Василий Петров",
+		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectByVkId(gomock.Eq(expectedUser.VkId)).
+		Return(expectedUser, nil)
+
+	response_ := userUsecase.Get(expectedUser.VkId)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedUser), response_)
+}
+
+func TestUserUsecase_Get_notFound(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	const vkId uint32 = 2
+
+	mockUserRepository.
+		EXPECT().
+		SelectByVkId(gomock.Eq(vkId)).
+		Return(nil, sql.ErrNoRows)
+
+	response_ := userUsecase.Get(vkId)
+	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
+}
+
+func TestUserUsecase_CreateRouteTmp(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	dateTimeDep, err := timestamps.NewDateTime("10.11.2021 18:10")
+	assert.Nil(t, err)
+	dateTimeArr, err := timestamps.NewDateTime("10.11.2021 18:15")
+	assert.Nil(t, err)
+	routeTmp := &models.RouteTmp{
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep,
+		DateTimeArr:    *dateTimeArr,
+	}
+	expectedRouteTmp := &models.RouteTmp{
+		Id:             1,
+		UserAuthorVkId: routeTmp.UserAuthorVkId,
+		LocDep:         routeTmp.LocDep,
+		LocArr:         routeTmp.LocArr,
+		MinPrice:       routeTmp.MinPrice,
+		DateTimeDep:    routeTmp.DateTimeDep,
+		DateTimeArr:    routeTmp.DateTimeArr,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		InsertRouteTmp(gomock.Eq(routeTmp)).
+		DoAndReturn(func(routeTmp *models.RouteTmp) (*models.RouteTmp, error) {
+			routeTmp.Id = expectedRouteTmp.Id
+			return routeTmp, nil
+		})
+
+	response_ := userUsecase.CreateRouteTmp(routeTmp)
+	assert.Equal(t, response.NewResponse(consts.Created, expectedRouteTmp), response_)
 }

@@ -14,13 +14,13 @@ import (
 
 type SessionDelivery struct {
 	sessionUsecase session.Usecase
-	userUsecase user.Usecase
+	userUsecase    user.Usecase
 }
 
 func NewSessionDelivery(sessionUsecase session.Usecase, userUsecase user.Usecase) *SessionDelivery {
 	return &SessionDelivery{
 		sessionUsecase: sessionUsecase,
-		userUsecase: userUsecase,
+		userUsecase:    userUsecase,
 	}
 }
 
@@ -35,8 +35,8 @@ func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(err))
 		}
 
-		if err := responser.Respond(context, sessionDelivery.userUsecase.Login(user_)); err != nil {
-			return err
+		if response_ := sessionDelivery.userUsecase.Login(user_); response_.Error != nil {
+			return responser.Respond(context, response_)
 		}
 
 		response_ := sessionDelivery.sessionUsecase.Create(user_.VkId)
@@ -45,14 +45,11 @@ func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {
 		}
 
 		session_ := response_.Data.(*models.Session)
-		cookie := &http.Cookie{
-			Name: consts.EchoCookieAuthName,
+		context.SetCookie(&http.Cookie{
+			Name:  consts.EchoCookieAuthName,
 			Value: session_.Id,
-			Secure: true,
-			SameSite: http.SameSiteNoneMode,
-		}
-		context.SetCookie(cookie)
+		})
 
-		return nil
+		return responser.Respond(context, response_)
 	}
 }

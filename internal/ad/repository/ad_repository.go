@@ -20,14 +20,14 @@ func NewAdRepositoryImpl(db *sql.DB) ad.Repository {
 
 func (adsRepository *AdRepository) Insert(ad_ *models.Ad) (*models.Ad, error) {
 	const query = `
-INSERT INTO ad (user_author_id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment)
+INSERT INTO ad (user_author_id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment)
 SELECT user_.id, user_.vk_id, $2, $3, $4, $5, $6, $7 FROM user_ WHERE user_.vk_id = $1
-RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment`
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
 
-	var dateArrTime = time.Time(ad_.DateTimeArr)
-	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorVkId, ad_.LocDep, ad_.LocArr, dateArrTime, ad_.Item,
-		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &dateArrTime, &ad_.Item,
-		&ad_.MinPrice, &ad_.Comment); err != nil {
+	var dateTimeArr = time.Time(ad_.DateTimeArr)
+	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorVkId, ad_.LocDep, ad_.LocArr, dateTimeArr, ad_.Item,
+		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr,
+		&ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
 		return nil, err
 	}
 
@@ -36,7 +36,7 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, co
 
 func (adsRepository *AdRepository) Select(id uint32) (*models.Ad, error) {
 	const query = `
-SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment
+SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment
 FROM ad
 WHERE id = $1`
 
@@ -59,7 +59,7 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 	const queryComment = "comment"
 	const queryEquals = " = $"
 	const queryComma = ", "
-	const queryEnd = "WHERE id = $1 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment"
+	const queryEnd = "WHERE id = $1 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment"
 
 	query := queryStart
 	queryArgs := make([]interface{}, 1)
@@ -112,7 +112,7 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 }
 
 func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error) {
-	const queryStart = "SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment FROM ad"
+	const queryStart = "SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad"
 	const queryWhere = " WHERE "
 	const queryLocDep1 = "to_tsvector('russian', loc_dep) @@ plainto_tsquery('russian', $"
 	const queryLocDep2 = ")"

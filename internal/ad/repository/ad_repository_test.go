@@ -46,9 +46,10 @@ func TestAdRepository_Insert(t *testing.T) {
 		ExpectQuery("INSERT INTO ad").
 		WithArgs(ad.UserAuthorVkId, ad.LocDep, ad.LocArr, time.Time(ad.DateTimeArr), ad.Item, ad.MinPrice, ad.Comment).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_arr", "item", "min_price", "comment"}).
-				AddRow(expectedAd.Id, expectedAd.UserAuthorVkId, expectedAd.LocDep, expectedAd.LocArr,
-					time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment))
+			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item",
+				"min_price", "comment"}).
+				AddRow(expectedAd.Id, ad.UserAuthorVkId, ad.LocDep, ad.LocArr, time.Time(ad.DateTimeArr), ad.Item,
+					ad.MinPrice, ad.Comment))
 
 	resultAd, resultErr := adRepository.Insert(ad)
 	assert.Nil(t, resultErr)
@@ -80,10 +81,11 @@ func TestAdRepository_Select(t *testing.T) {
 	}
 
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment FROM ad").
+		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WithArgs(expectedAd.Id).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_arr", "item", "min_price", "comment"}).
+			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item",
+				"min_price", "comment"}).
 				AddRow(expectedAd.Id, expectedAd.UserAuthorVkId, expectedAd.LocDep, expectedAd.LocArr,
 					time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment))
 
@@ -121,7 +123,8 @@ func TestAdRepository_Update(t *testing.T) {
 		WithArgs(expectedAd.Id, expectedAd.LocDep, expectedAd.LocArr, time.Time(expectedAd.DateTimeArr),
 			expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_arr", "item", "min_price", "comment"}).
+			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item",
+				"min_price", "comment"}).
 				AddRow(expectedAd.Id, expectedAd.UserAuthorVkId, expectedAd.LocDep, expectedAd.LocArr,
 					time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment))
 
@@ -159,10 +162,11 @@ func TestAdRepository_Update_select(t *testing.T) {
 	}
 
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment FROM ad").
+		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WithArgs(expectedAd.Id).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_arr", "item", "min_price", "comment"}).
+			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item",
+				"min_price", "comment"}).
 				AddRow(expectedAd.Id, expectedAd.UserAuthorVkId, expectedAd.LocDep, expectedAd.LocArr,
 					time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment))
 
@@ -213,13 +217,14 @@ func TestAdRepository_SelectArray(t *testing.T) {
 		},
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_arr", "item", "min_price", "comment"})
+	rows := sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item",
+		"min_price", "comment"})
 	for _, expectedAd := range *expectedAds {
 		rows.AddRow(expectedAd.Id, expectedAd.UserAuthorVkId, expectedAd.LocDep, expectedAd.LocArr,
 			time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment)
 	}
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment FROM ad").
+		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WithArgs(adsSearch.LocDep, adsSearch.LocArr, time.Time(adsSearch.DateTimeArr), adsSearch.MaxPrice).
 		WillReturnRows(rows)
 
@@ -263,14 +268,14 @@ func TestAdRepository_SelectArray_emptySearchQuery(t *testing.T) {
 		},
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_arr", "item", "min_price",
-		"comment"})
+	rows := sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item",
+		"min_price", "comment"})
 	for _, expectedAd := range *expectedAds {
 		rows.AddRow(expectedAd.Id, expectedAd.UserAuthorVkId, expectedAd.LocDep, expectedAd.LocArr,
 			time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment)
 	}
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_arr, item, min_price, comment FROM ad").
+		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WillReturnRows(rows)
 
 	resultAds, resultErr := adRepository.SelectArray(adsSearch)

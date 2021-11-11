@@ -5,6 +5,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/user"
 	"strconv"
+	"time"
 )
 
 type UserRepository struct {
@@ -89,4 +90,20 @@ func (userRepository *UserRepository) Update(user_ *models.User) (*models.User, 
 	}
 
 	return updatedUser, nil
+}
+
+func (userRepository *UserRepository) InsertRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error) {
+	const query = `
+INSERT INTO view_route_tmp (user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
+
+	if err := userRepository.db.QueryRow(query, routeTmp.UserAuthorVkId, routeTmp.LocDep, routeTmp.LocArr,
+		routeTmp.MinPrice, time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)).Scan(&routeTmp.Id,
+		&routeTmp.UserAuthorVkId, &routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
+		&routeTmp.DateTimeArr); err != nil {
+		return nil, err
+	}
+
+	return routeTmp, nil
 }

@@ -35,6 +35,20 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
+// CreateRouteTmp mocks base method.
+func (m *MockUsecase) CreateRouteTmp(arg0 *models.RouteTmp) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRouteTmp", arg0)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// CreateRouteTmp indicates an expected call of CreateRouteTmp.
+func (mr *MockUsecaseMockRecorder) CreateRouteTmp(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRouteTmp", reflect.TypeOf((*MockUsecase)(nil).CreateRouteTmp), arg0)
+}
+
 // Get mocks base method.
 func (m *MockUsecase) Get(arg0 uint32) *response.Response {
 	m.ctrl.T.Helper()
@@ -99,6 +113,21 @@ func (m *MockRepository) Insert(arg0 *models.User) (*models.User, error) {
 func (mr *MockRepositoryMockRecorder) Insert(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), arg0)
+}
+
+// InsertRouteTmp mocks base method.
+func (m *MockRepository) InsertRouteTmp(arg0 *models.RouteTmp) (*models.RouteTmp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertRouteTmp", arg0)
+	ret0, _ := ret[0].(*models.RouteTmp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertRouteTmp indicates an expected call of InsertRouteTmp.
+func (mr *MockRepositoryMockRecorder) InsertRouteTmp(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertRouteTmp", reflect.TypeOf((*MockRepository)(nil).InsertRouteTmp), arg0)
 }
 
 // Select mocks base method.

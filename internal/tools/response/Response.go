@@ -8,10 +8,6 @@ type Response struct {
 	Error error
 }
 
-type DataResponse struct {
-	Data interface{} `json:"data"`
-}
-
 func NewResponse(code consts.Code, data interface{}) *Response {
 	return &Response{
 		Code: code,

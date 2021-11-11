@@ -20,7 +20,7 @@ func NewSessionUsecaseImpl(sessionRepository session.Repository) *SessionUsecase
 
 func (sessionUsecase *SessionUsecase) Create(userVkId uint32) *response.Response {
 	session_ := &models.Session{
-		Id: uuid.NewString(),
+		Id:       uuid.NewString(),
 		UserVkId: userVkId,
 	}
 

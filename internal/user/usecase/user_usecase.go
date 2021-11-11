@@ -45,8 +45,21 @@ func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 func (userUsecase *UserUsecase) Get(vkId uint32) *response.Response {
 	user_, err := userUsecase.userRepository.SelectByVkId(vkId)
 	if err != nil {
-		return response.NewEmptyResponse(consts.NotFound)
+		if err == sql.ErrNoRows {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(err)
 	}
 
 	return response.NewResponse(consts.OK, user_)
+}
+
+func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response {
+	routeTmp, err := userUsecase.userRepository.InsertRouteTmp(routeTmp)
+	if err != nil {
+		return response.NewErrorResponse(err)
+	}
+
+	return response.NewResponse(consts.Created, routeTmp)
 }

@@ -35,6 +35,10 @@ func (authMiddleware *AuthMiddleware) checkAuth(next echo.HandlerFunc) echo.Hand
 
 		response_ := authMiddleware.sessionUsecase.Get(cookie.Value)
 		if response_.Code != consts.OK {
+			if response_.Code == consts.NotFound {
+				return responser.Respond(context, response.NewEmptyResponse(consts.Unauthorized))
+			}
+
 			return responser.Respond(context, response_)
 		}
 

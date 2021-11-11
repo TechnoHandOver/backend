@@ -8,4 +8,5 @@ import (
 type Usecase interface {
 	Login(user *models.User) *response.Response
 	Get(vkId uint32) *response.Response
+	CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response
 }

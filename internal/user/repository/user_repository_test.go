@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/TechnoHandOver/backend/internal/models"
+	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/user/repository"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestUserRepository_Insert(t *testing.T) {
@@ -166,6 +168,54 @@ func TestUserRepository_Update_select(t *testing.T) {
 	resultUser, resultErr := userRepository.Update(user)
 	assert.Nil(t, resultErr)
 	assert.Equal(t, expectedUser, resultUser)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
+func TestUserRepository_InsertRouteTmp(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	userRepository := repository.NewUserRepositoryImpl(db)
+
+	dateTimeDep, err := timestamps.NewDateTime("10.11.2021 18:10")
+	assert.Nil(t, err)
+	dateTimeArr, err := timestamps.NewDateTime("10.11.2021 18:15")
+	assert.Nil(t, err)
+	routeTmp := &models.RouteTmp{
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep,
+		DateTimeArr:    *dateTimeArr,
+	}
+	expectedRouteTmp := &models.RouteTmp{
+		Id:             1,
+		UserAuthorVkId: routeTmp.UserAuthorVkId,
+		LocDep:         routeTmp.LocDep,
+		LocArr:         routeTmp.LocArr,
+		MinPrice:       routeTmp.MinPrice,
+		DateTimeDep:    routeTmp.DateTimeDep,
+		DateTimeArr:    routeTmp.DateTimeArr,
+	}
+
+	sqlmock_.
+		ExpectQuery("INSERT INTO view_route_tmp").
+		WithArgs(routeTmp.UserAuthorVkId, routeTmp.LocDep, routeTmp.LocArr, routeTmp.MinPrice,
+			time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
+				"date_time_arr"}).
+				AddRow(expectedRouteTmp.Id, routeTmp.UserAuthorVkId, routeTmp.LocDep, routeTmp.LocArr,
+					routeTmp.MinPrice, time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)))
+
+	resultRouteTmp, resultErr := userRepository.InsertRouteTmp(routeTmp)
+	assert.Nil(t, resultErr)
+	assert.Equal(t, expectedRouteTmp, resultRouteTmp)
 
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }

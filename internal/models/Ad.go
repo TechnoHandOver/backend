@@ -1,8 +1,6 @@
 package models
 
-import (
-	. "github.com/TechnoHandOver/backend/internal/models/timestamps"
-)
+import . "github.com/TechnoHandOver/backend/internal/models/timestamps"
 
 type Ad struct {
 	Id             uint32   `json:"id"`

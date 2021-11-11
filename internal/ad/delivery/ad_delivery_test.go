@@ -9,6 +9,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
+	"github.com/TechnoHandOver/backend/internal/tools/responser"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -63,7 +64,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 	jsonRequest, err := json.Marshal(ad)
 	assert.Nil(t, err)
 
-	jsonExpectedResponse, err := json.Marshal(response.DataResponse{
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
 		Data: expectedAd,
 	})
 	assert.Nil(t, err)
@@ -121,7 +122,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 		Get(gomock.Eq(adGetRequest.Id)).
 		Return(response.NewResponse(consts.OK, expectedAd))
 
-	jsonExpectedResponse, err := json.Marshal(response.DataResponse{
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
 		Data: expectedAd,
 	})
 	assert.Nil(t, err)
@@ -241,7 +242,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	jsonRequest, err := json.Marshal(ad)
 	assert.Nil(t, err)
 
-	jsonExpectedResponse, err := json.Marshal(response.DataResponse{
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
 		Data: expectedAd,
 	})
 	assert.Nil(t, err)
@@ -354,24 +355,24 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 	}
 	expectedAds := &models.Ads{
 		&models.Ad{
-			Id:          1,
+			Id:             1,
 			UserAuthorVkId: 10,
-			LocDep:      "Общежитие №10",
-			LocArr:      "УЛК",
-			DateTimeArr: *dateTimeArr1,
-			Item:        "Тубус",
-			MinPrice:    500,
-			Comment:     "Поеду на коньках",
+			LocDep:         "Общежитие №10",
+			LocArr:         "УЛК",
+			DateTimeArr:    *dateTimeArr1,
+			Item:           "Тубус",
+			MinPrice:       500,
+			Comment:        "Поеду на коньках",
 		},
 		&models.Ad{
-			Id:          2,
+			Id:             2,
 			UserAuthorVkId: 20,
-			LocDep:      "Общежитие №9",
-			LocArr:      "СК",
-			DateTimeArr: *dateTimeArr2,
-			Item:        "Спортивная форма",
-			MinPrice:    600,
-			Comment:     "Поеду на роликах :)",
+			LocDep:         "Общежитие №9",
+			LocArr:         "СК",
+			DateTimeArr:    *dateTimeArr2,
+			Item:           "Спортивная форма",
+			MinPrice:       600,
+			Comment:        "Поеду на роликах :)",
 		},
 	}
 
@@ -383,7 +384,7 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 	jsonRequest, err := json.Marshal(adsSearch)
 	assert.Nil(t, err)
 
-	jsonExpectedResponse, err := json.Marshal(response.DataResponse{
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
 		Data: expectedAds,
 	})
 	assert.Nil(t, err)

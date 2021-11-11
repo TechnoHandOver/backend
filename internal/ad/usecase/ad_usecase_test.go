@@ -23,21 +23,23 @@ func TestAdUsecase_Create(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		LocDep:      "Общежитие №10",
-		LocArr:      "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item:        "Зачётная книжка",
-		MinPrice:    500,
-		Comment:     "Поеду на велосипеде",
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 	expectedAd := &models.Ad{
-		Id:          1,
-		LocDep:      ad.LocDep,
-		LocArr:      ad.LocArr,
-		DateTimeArr: ad.DateTimeArr,
-		Item:        ad.Item,
-		MinPrice:    ad.MinPrice,
-		Comment:     ad.Comment,
+		Id:             1,
+		UserAuthorVkId: ad.UserAuthorVkId,
+		LocDep:         ad.LocDep,
+		LocArr:         ad.LocArr,
+		DateTimeArr:    ad.DateTimeArr,
+		Item:           ad.Item,
+		MinPrice:       ad.MinPrice,
+		Comment:        ad.Comment,
 	}
 
 	mockAdRepository.
@@ -62,13 +64,14 @@ func TestAdUsecase_Get(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
-		Id:          1,
-		LocDep:      "Общежитие №10",
-		LocArr:      "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item:        "Зачётная книжка",
-		MinPrice:    500,
-		Comment:     "Поеду на велосипеде",
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 
 	mockAdRepository.
@@ -108,13 +111,14 @@ func TestAdUsecase_Update(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:30")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		Id:          1,
-		LocDep:      "Общежитие №10",
-		LocArr:      "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item:        "Зачётная книжка",
-		MinPrice:    500,
-		Comment:     "Поеду на велосипеде",
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 
 	mockAdRepository.
@@ -136,13 +140,14 @@ func TestAdUsecase_Update_notFound(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:35")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		Id:          1,
-		LocDep:      "Общежитие №10",
-		LocArr:      "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item:        "Зачётная книжка",
-		MinPrice:    500,
-		Comment:     "Поеду на велосипеде",
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 
 	mockAdRepository.
@@ -173,22 +178,24 @@ func TestAdUsecase_Search(t *testing.T) {
 	}
 	expectedAds := &models.Ads{
 		&models.Ad{
-			Id:          1,
-			LocDep:      "Общежитие №10",
-			LocArr:      "УЛК",
-			DateTimeArr: *dateTimeArr1,
-			Item:        "Тубус",
-			MinPrice:    500,
-			Comment:     "Поеду на коньках",
+			Id:             1,
+			UserAuthorVkId: 2,
+			LocDep:         "Общежитие №10",
+			LocArr:         "УЛК",
+			DateTimeArr:    *dateTimeArr1,
+			Item:           "Тубус",
+			MinPrice:       500,
+			Comment:        "Поеду на коньках",
 		},
 		&models.Ad{
-			Id:          1,
-			LocDep:      "Общежитие №9",
-			LocArr:      "СК",
-			DateTimeArr: *dateTimeArr2,
-			Item:        "Спортивная форма",
-			MinPrice:    600,
-			Comment:     "Поеду на роликах :)",
+			Id:             1,
+			UserAuthorVkId: 3,
+			LocDep:         "Общежитие №9",
+			LocArr:         "СК",
+			DateTimeArr:    *dateTimeArr2,
+			Item:           "Спортивная форма",
+			MinPrice:       600,
+			Comment:        "Поеду на роликах :)",
 		},
 	}
 
