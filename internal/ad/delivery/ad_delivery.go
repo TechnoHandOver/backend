@@ -6,6 +6,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/middlewares"
 	"github.com/TechnoHandOver/backend/internal/models"
 	. "github.com/TechnoHandOver/backend/internal/models/timestamps"
+	"github.com/TechnoHandOver/backend/internal/tools/parser"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
 	"github.com/labstack/echo/v4"
@@ -25,17 +26,34 @@ func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *mi
 	echo_.POST("/api/ads", adDelivery.HandlerAdCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ads/:id", adDelivery.HandlerAdGet())
 	echo_.PUT("/api/ads/:id", adDelivery.HandlerAdUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.GET("/api/ads/search", adDelivery.HandlerAdSearch())
+	echo_.GET("/api/ads/search", adDelivery.HandlerAdsSearch())
 }
 
 func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
+	type AdCreateRequest struct {
+		LocDep      string   `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr      string   `json:"locArr" validate:"required,gte=2,lte=100"`
+		DateTimeArr DateTime `json:"dateTimeArr,omitempty" validate:"omitempty"`
+		Item        string   `json:"item" validate:"required,gte=3,lte=50"`
+		MinPrice    uint32   `json:"minPrice,omitempty" validate:"required,gte=0"`
+		Comment     string   `json:"comment,omitempty" validate:"required,lte=100"`
+	}
+
 	return func(context echo.Context) error {
-		ad_ := new(models.Ad)
-		if err := context.Bind(ad_); err != nil {
-			return responser.Respond(context, response.NewErrorResponse(err))
+		adCreateRequest := new(AdCreateRequest)
+		if err := parser.ParseRequest(context, adCreateRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
-		ad_.UserAuthorVkId = context.Get(consts.EchoContextKeyUserVkId).(uint32)
+		ad_ := &models.Ad{
+			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
+			LocDep:         adCreateRequest.LocDep,
+			LocArr:         adCreateRequest.LocArr,
+			DateTimeArr:    adCreateRequest.DateTimeArr,
+			Item:           adCreateRequest.Item,
+			MinPrice:       adCreateRequest.MinPrice,
+			Comment:        adCreateRequest.Comment,
+		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Create(ad_))
 	}
@@ -43,13 +61,13 @@ func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
 
 func (adDelivery *AdDelivery) HandlerAdGet() echo.HandlerFunc {
 	type AdGetRequest struct {
-		Id uint32 `param:"id"`
+		Id uint32 `param:"id" validate:"required"`
 	}
 
 	return func(context echo.Context) error {
 		adGetRequest := new(AdGetRequest)
-		if err := context.Bind(adGetRequest); err != nil {
-			return responser.Respond(context, response.NewErrorResponse(err))
+		if err := parser.ParseRequest(context, adGetRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Get(adGetRequest.Id))
@@ -58,19 +76,19 @@ func (adDelivery *AdDelivery) HandlerAdGet() echo.HandlerFunc {
 
 func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 	type AdUpdateRequest struct {
-		Id          uint32   `param:"id"`
-		LocDep      string   `json:"locDep,omitempty"`
-		LocArr      string   `json:"locArr,omitempty"`
-		DateTimeArr DateTime `json:"dateTimeArr,omitempty"`
-		Item        string   `json:"item"`
-		MinPrice    uint32   `json:"minPrice,omitempty"`
-		Comment     string   `json:"comment,omitempty"` //TODO: нужны валидаторы моделей (length(str) <= 100 и подобное...)
+		Id          uint32   `param:"id" validate:"required"`
+		LocDep      string   `json:"locDep,omitempty" validate:"omitempty,gte=2,lte=100"`
+		LocArr      string   `json:"locArr,omitempty" validate:"omitempty,gte=2,lte=100"`
+		DateTimeArr DateTime `json:"dateTimeArr,omitempty" validate:"omitempty"`
+		Item        string   `json:"item,omitempty" validate:"omitempty,gte=3,lte=50"`
+		MinPrice    uint32   `json:"minPrice,omitempty" validate:"omitempty"`
+		Comment     string   `json:"comment,omitempty" validate:"omitempty,lte=100"`
 	}
 
 	return func(context echo.Context) error {
 		adUpdateRequest := new(AdUpdateRequest)
-		if err := context.Bind(adUpdateRequest); err != nil {
-			return responser.Respond(context, response.NewErrorResponse(err))
+		if err := parser.ParseRequest(context, adUpdateRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
 		ad_ := &models.Ad{
@@ -87,11 +105,25 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 	}
 }
 
-func (adDelivery *AdDelivery) HandlerAdSearch() echo.HandlerFunc {
+func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
+	type AdsSearchRequest struct {
+		LocDep      string   `query:"loc_dep" validate:"omitempty,gte=2,lte=100"`
+		LocArr      string   `query:"loc_arr" validate:"omitempty,gte=2,lte=100"`
+		DateTimeArr DateTime `query:"date_time_arr" validate:"omitempty"`
+		MaxPrice    uint32   `query:"max_price" validate:"omitempty"`
+	}
+
 	return func(context echo.Context) error {
-		adsSearch := new(models.AdsSearch)
-		if err := context.Bind(adsSearch); err != nil {
-			return responser.Respond(context, response.NewErrorResponse(err))
+		adsSearchRequest := new(AdsSearchRequest)
+		if err := parser.ParseRequest(context, adsSearchRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		adsSearch := &models.AdsSearch{
+			LocDep:      adsSearchRequest.LocDep,
+			LocArr:      adsSearchRequest.LocArr,
+			DateTimeArr: adsSearchRequest.DateTimeArr,
+			MaxPrice:    adsSearchRequest.MaxPrice,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Search(adsSearch))

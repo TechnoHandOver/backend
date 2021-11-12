@@ -4,6 +4,8 @@ import (
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/middlewares"
 	"github.com/TechnoHandOver/backend/internal/models"
+	. "github.com/TechnoHandOver/backend/internal/models/timestamps"
+	"github.com/TechnoHandOver/backend/internal/tools/parser"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
 	"github.com/TechnoHandOver/backend/internal/user"
@@ -21,30 +23,33 @@ func NewUserDelivery(userUsecase user.Usecase) *UserDelivery {
 }
 
 func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager *middlewares.Manager) {
-	echo_.POST("/api/users", userDelivery.HandlerUserLogin())
 	echo_.POST("/api/users/routes-tmp", userDelivery.HandlerRouteTmpCreate(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
-func (userDelivery *UserDelivery) HandlerUserLogin() echo.HandlerFunc {
-	return func(context echo.Context) error {
-		user_ := new(models.User)
-		if err := context.Bind(user_); err != nil {
-			return responser.Respond(context, response.NewErrorResponse(err))
-		}
-
-		return responser.Respond(context, userDelivery.userUsecase.Login(user_))
-	}
-}
-
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
+	type RouteTmpCreateRequest struct {
+		LocDep      string   `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr      string   `json:"locArr" validate:"required,gte=2,lte=100"`
+		MinPrice    uint32   `json:"minPrice,omitempty" validate:"omitempty"`
+		DateTimeDep DateTime `json:"dateTimeDep" validate:"required"`
+		DateTimeArr DateTime `json:"dateTimeArr" validate:"required"`
+	}
+
 	return func(context echo.Context) error {
-		routeTmp := new(models.RouteTmp)
-		if err := context.Bind(routeTmp); err != nil {
-			return responser.Respond(context, response.NewErrorResponse(err))
+		routeTmpCreateRequest := new(RouteTmpCreateRequest)
+		if err := parser.ParseRequest(context, routeTmpCreateRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
-		routeTmp.UserAuthorVkId = context.Get(consts.EchoContextKeyUserVkId).(uint32)
+		routeTmp := &models.RouteTmp{
+			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
+			LocDep:         routeTmpCreateRequest.LocDep,
+			LocArr:         routeTmpCreateRequest.LocArr,
+			MinPrice:       routeTmpCreateRequest.MinPrice,
+			DateTimeDep:    routeTmpCreateRequest.DateTimeDep,
+			DateTimeArr:    routeTmpCreateRequest.DateTimeArr,
+		}
 
 		return responser.Respond(context, userDelivery.userUsecase.CreateRouteTmp(routeTmp))
 	}

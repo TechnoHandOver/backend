@@ -11,9 +11,11 @@ import (
 	SessionDelivery "github.com/TechnoHandOver/backend/internal/session/delivery"
 	SessionRepository "github.com/TechnoHandOver/backend/internal/session/repository"
 	SessionUsecase "github.com/TechnoHandOver/backend/internal/session/usecase"
+	RequestValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	UserDelivery "github.com/TechnoHandOver/backend/internal/user/delivery"
 	UserRepository "github.com/TechnoHandOver/backend/internal/user/repository"
 	UserUsecase "github.com/TechnoHandOver/backend/internal/user/usecase"
+	Validator "github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	"log"
@@ -58,7 +60,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defer func() {
 		if err := db.Close(); err != nil {
 			log.Fatal(err)
@@ -87,12 +88,16 @@ func main() {
 	authMiddleware := middlewares.NewAuthMiddleware(sessionUsecase, userUsecase)
 	middlewaresManager := middlewares.NewManager(recoverMiddleware, authMiddleware)
 
+	//validator := Validator.New()
+	//validator.RegisterCustomTypeFunc(timestamps.ValidateDateTime, timestamps.DateTime{})
+
 	echo_ := echo.New()
 	//echo_.Logger.SetLevel(LabstackLog.ERROR)
 	if logFile != nil {
 		echo_.Logger.SetOutput(logFile)
 	}
 	echo_.Use(middlewaresManager.RecoverMiddleware.Recover())
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 
 	adsDelivery.Configure(echo_, middlewaresManager)
 	sessionDelivery.Configure(echo_, middlewaresManager)

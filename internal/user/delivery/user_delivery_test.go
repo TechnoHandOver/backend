@@ -8,8 +8,10 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
+	RequestValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	"github.com/TechnoHandOver/backend/internal/user/delivery"
 	"github.com/TechnoHandOver/backend/internal/user/mock_user"
+	Validator "github.com/go-playground/validator/v10"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -19,60 +21,6 @@ import (
 	"strings"
 	"testing"
 )
-
-func TestUserDelivery_HandlerUserLogin(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	mockUserUsecase := mock_user.NewMockUsecase(controller)
-
-	user := &models.User{
-		VkId: 2,
-		Name: "Василий Петров",
-	}
-	expectedUser := &models.User{
-		Id:   1,
-		VkId: user.VkId,
-		Name: user.Name,
-	}
-
-	mockUserUsecase.
-		EXPECT().
-		Login(gomock.Eq(user)).
-		DoAndReturn(func(user *models.User) *response.Response {
-			user.Id = expectedUser.Id
-			return response.NewResponse(http.StatusOK, user)
-		})
-
-	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
-	echo_ := echo.New()
-	userDelivery.Configure(echo_, &middlewares.Manager{})
-
-	jsonRequest, err := json.Marshal(user)
-	assert.Nil(t, err)
-
-	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
-		Data: expectedUser,
-	})
-	assert.Nil(t, err)
-	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
-
-	request := httptest.NewRequest(http.MethodPost, "/api/users", strings.NewReader(string(jsonRequest)))
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
-	recorder := httptest.NewRecorder()
-	context := echo_.NewContext(request, recorder)
-
-	handler := userDelivery.HandlerUserLogin()
-
-	err = handler(context)
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, recorder.Code)
-
-	responseBody, err := ioutil.ReadAll(recorder.Body)
-	assert.Nil(t, err)
-	assert.Equal(t, jsonExpectedResponse, responseBody)
-}
 
 func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 	controller := gomock.NewController(t)
@@ -113,6 +61,7 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	jsonRequest, err := json.Marshal(routeTmp)

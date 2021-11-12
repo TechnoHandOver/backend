@@ -5,6 +5,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/middlewares"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/session"
+	"github.com/TechnoHandOver/backend/internal/tools/parser"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
 	"github.com/TechnoHandOver/backend/internal/user"
@@ -29,27 +30,40 @@ func (sessionDelivery *SessionDelivery) Configure(echo_ *echo.Echo, _ *middlewar
 }
 
 func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {
+	type LoginRequest struct {
+		VkId   uint32 `json:"vkId" validate:"required"`
+		Name   string `json:"name" validate:"required,gte=2,lte=100"`
+		Avatar string `json:"avatar" validate:"required,url,lte=2000"`
+	}
+
 	return func(context echo.Context) error {
-		user_ := new(models.User)
-		if err := context.Bind(user_); err != nil {
-			return responser.Respond(context, response.NewErrorResponse(err))
+		userRequest := new(LoginRequest)
+		if err := parser.ParseRequest(context, userRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
-		if response_ := sessionDelivery.userUsecase.Login(user_); response_.Error != nil {
-			return responser.Respond(context, response_)
+		user_ := &models.User{
+			VkId:   userRequest.VkId,
+			Name:   userRequest.Name,
+			Avatar: userRequest.Avatar,
 		}
 
-		response_ := sessionDelivery.sessionUsecase.Create(user_.VkId)
-		if response_.Code != consts.OK {
-			return responser.Respond(context, response_)
+		userResponse := sessionDelivery.userUsecase.Login(user_)
+		if userResponse.Error != nil {
+			return responser.Respond(context, userResponse)
 		}
 
-		session_ := response_.Data.(*models.Session)
+		sessionResponse := sessionDelivery.sessionUsecase.Create(user_.VkId)
+		if sessionResponse.Code != consts.OK {
+			return responser.Respond(context, sessionResponse)
+		}
+
+		session_ := sessionResponse.Data.(*models.Session)
 		context.SetCookie(&http.Cookie{
 			Name:  consts.EchoCookieAuthName,
 			Value: session_.Id,
 		})
 
-		return responser.Respond(context, response_)
+		return responser.Respond(context, userResponse)
 	}
 }

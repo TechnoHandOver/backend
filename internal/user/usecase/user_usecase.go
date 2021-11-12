@@ -24,10 +24,10 @@ func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 		if err == sql.ErrNoRows {
 			user2, err = userUsecase.userRepository.Insert(user_)
 			if err != nil {
-				return response.NewErrorResponse(err)
+				return response.NewErrorResponse(consts.InternalError, err)
 			}
 		} else {
-			return response.NewErrorResponse(err)
+			return response.NewErrorResponse(consts.InternalError, err)
 		}
 	} else if user2.Name != user_.Name || user2.Avatar != user_.Avatar {
 		user2.Name = user_.Name
@@ -35,7 +35,7 @@ func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 
 		user2, err = userUsecase.userRepository.Update(user2)
 		if err != nil {
-			return response.NewErrorResponse(err)
+			return response.NewErrorResponse(consts.InternalError, err)
 		}
 	}
 
@@ -49,7 +49,7 @@ func (userUsecase *UserUsecase) Get(vkId uint32) *response.Response {
 			return response.NewEmptyResponse(consts.NotFound)
 		}
 
-		return response.NewErrorResponse(err)
+		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
 	return response.NewResponse(consts.OK, user_)
@@ -58,7 +58,7 @@ func (userUsecase *UserUsecase) Get(vkId uint32) *response.Response {
 func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response {
 	routeTmp, err := userUsecase.userRepository.InsertRouteTmp(routeTmp)
 	if err != nil {
-		return response.NewErrorResponse(err)
+		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
 	return response.NewResponse(consts.Created, routeTmp)

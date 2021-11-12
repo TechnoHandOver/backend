@@ -22,7 +22,7 @@ func (adUsecase *AdUsecase) Create(ad_ *models.Ad) *response.Response {
 	//TODO: assert.IsZero(ad_.Id) ?
 	ad_, err := adUsecase.adRepository.Insert(ad_)
 	if err != nil {
-		return response.NewErrorResponse(err)
+		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
 	return response.NewResponse(consts.Created, ad_)
@@ -36,7 +36,7 @@ func (adUsecase *AdUsecase) Get(id uint32) *response.Response {
 			return response.NewEmptyResponse(consts.NotFound)
 		}
 
-		return response.NewErrorResponse(err)
+		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
 	return response.NewResponse(consts.OK, ad_)
@@ -49,7 +49,7 @@ func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 			return response.NewEmptyResponse(consts.NotFound)
 		}
 
-		return response.NewErrorResponse(err)
+		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
 	return response.NewResponse(consts.OK, ad_)
@@ -58,7 +58,7 @@ func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 func (adUsecase *AdUsecase) Search(adsSearch *models.AdsSearch) *response.Response {
 	ads, err := adUsecase.adRepository.SelectArray(adsSearch)
 	if err != nil {
-		return response.NewErrorResponse(err)
+		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
 	return response.NewResponse(consts.OK, ads)

@@ -10,6 +10,8 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
+	RequestValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
+	Validator "github.com/go-playground/validator/v10"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -28,6 +30,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:31")
@@ -95,6 +98,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	type AdGetRequest struct {
@@ -154,6 +158,7 @@ func TestAdDelivery_HandlerAdGet_notFound(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	type AdGetRequest struct {
@@ -191,6 +196,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	type AdUpdateRequest struct {
@@ -276,6 +282,7 @@ func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	type AdUpdateRequest struct {
@@ -341,6 +348,7 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
@@ -396,7 +404,7 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
 
-	handler := adDelivery.HandlerAdSearch()
+	handler := adDelivery.HandlerAdsSearch()
 
 	err = handler(context)
 	assert.Nil(t, err)

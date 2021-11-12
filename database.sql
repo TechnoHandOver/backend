@@ -7,15 +7,15 @@ CREATE TABLE user_ (
     id SERIAL PRIMARY KEY,
     vk_id INT NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL CHECK (length(name) >= 2), --TODO: точно 100?
-    avatar TEXT CHECK (avatar IS NULL OR length(avatar) >= 10) --TODO: VARCHAR(...)
+    avatar TEXT CHECK (length(avatar) <= 2000) --TODO: а лучше VARCHAR(2000) или TEXT???
 );
 
 CREATE TABLE ad (
     id SERIAL PRIMARY KEY,
     user_author_id INT NOT NULL REFERENCES user_ (id) ON DELETE CASCADE,
     user_author_vk_id INT NOT NULL REFERENCES user_ (vk_id) ON DELETE CASCADE,
-    loc_dep VARCHAR(100) NOT NULL,
-    loc_arr VARCHAR(100) NOT NULL,
+    loc_dep VARCHAR(100) NOT NULL CHECK (length(loc_dep) >= 2),
+    loc_arr VARCHAR(100) NOT NULL CHECK (length(loc_arr) >= 2),
     date_time_arr TIMESTAMP NOT NULL, --TODO: not timestamp?
     item VARCHAR(50) CHECK (length(item) >= 3),
     min_price INT NOT NULL CHECK (min_price >= 0),

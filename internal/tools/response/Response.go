@@ -15,15 +15,15 @@ func NewResponse(code consts.Code, data interface{}) *Response {
 	}
 }
 
-func NewEmptyResponse(code consts.Code) *Response {
+func NewErrorResponse(code consts.Code, error_ error) *Response {
 	return &Response{
-		Code: code,
+		Code:  code,
+		Error: error_,
 	}
 }
 
-func NewErrorResponse(error_ error) *Response {
+func NewEmptyResponse(code consts.Code) *Response {
 	return &Response{
-		Code:  consts.InternalError,
-		Error: error_,
+		Code: code,
 	}
 }
