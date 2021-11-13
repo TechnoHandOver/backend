@@ -25,6 +25,7 @@ func NewUserDelivery(userUsecase user.Usecase) *UserDelivery {
 func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager *middlewares.Manager) {
 	echo_.POST("/api/users/routes-tmp", userDelivery.HandlerRouteTmpCreate(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.GET("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpGet())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -52,5 +53,20 @@ func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.CreateRouteTmp(routeTmp))
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRouteTmpGet() echo.HandlerFunc {
+	type RouteTmpGetRequest struct {
+		Id uint32 `param:"id" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		routeTmpGetRequest := new(RouteTmpGetRequest)
+		if err := parser.ParseRequest(context, routeTmpGetRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		return responser.Respond(context, userDelivery.userUsecase.GetRouteTmp(routeTmpGetRequest.Id))
 	}
 }

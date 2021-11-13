@@ -31,7 +31,7 @@ func (adUsecase *AdUsecase) Create(ad_ *models.Ad) *response.Response {
 func (adUsecase *AdUsecase) Get(id uint32) *response.Response {
 	ad_, err := adUsecase.adRepository.Select(id)
 	if err != nil {
-		//TODO: никаких sql.ErrNoRows тут быть не должно, только кастомные ошибки независимо от типа репозитория!
+		//TODO: никаких sql.ErrNoRows тут быть не должно, только кастомные ошибки независимо от типа репозитория!; не только здесь так
 		if err == sql.ErrNoRows {
 			return response.NewEmptyResponse(consts.NotFound)
 		}

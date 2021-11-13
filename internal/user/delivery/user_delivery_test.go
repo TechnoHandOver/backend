@@ -18,6 +18,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -27,6 +28,10 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 	defer controller.Finish()
 
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
+	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	const vkId uint32 = 2
 	dateTimeDep, err := timestamps.NewDateTime("10.11.2021 18:10")
@@ -59,11 +64,6 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 			return response.NewResponse(http.StatusOK, routeTmp)
 		})
 
-	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
-	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
-	userDelivery.Configure(echo_, &middlewares.Manager{})
-
 	jsonRequest, err := json.Marshal(routeTmp)
 	assert.Nil(t, err)
 
@@ -89,4 +89,103 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 	responseBody, err := ioutil.ReadAll(recorder.Body)
 	assert.Nil(t, err)
 	assert.Equal(t, jsonExpectedResponse, responseBody)
+}
+
+func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserUsecase := mock_user.NewMockUsecase(controller)
+	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	userDelivery.Configure(echo_, &middlewares.Manager{})
+
+	type RouteTmpGetRequest struct {
+		Id uint32 `param:"id"`
+	}
+
+	routeTmpGetRequest := &RouteTmpGetRequest{
+		Id: 1,
+	}
+	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 11:30")
+	assert.Nil(t, err)
+	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 11:35")
+	assert.Nil(t, err)
+	expectedRouteTmp := &models.RouteTmp{
+		Id:             routeTmpGetRequest.Id,
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep,
+		DateTimeArr:    *dateTimeArr,
+	}
+
+	mockUserUsecase.
+		EXPECT().
+		GetRouteTmp(gomock.Eq(routeTmpGetRequest.Id)).
+		Return(response.NewResponse(consts.OK, expectedRouteTmp))
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedRouteTmp,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.SetPath("/api/users/routes-tmp/:id")
+	context.SetParamNames("id")
+	context.SetParamValues(strconv.FormatUint(uint64(routeTmpGetRequest.Id), 10))
+
+	handler := userDelivery.HandlerRouteTmpGet()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}
+
+func TestUserDelivery_HandlerRouteTmpGet_notFound(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserUsecase := mock_user.NewMockUsecase(controller)
+	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	userDelivery.Configure(echo_, &middlewares.Manager{})
+
+	type RouteTmpGetRequest struct {
+		Id uint32 `param:"id"`
+	}
+
+	routeTmpGetRequest := &RouteTmpGetRequest{
+		Id: 1,
+	}
+
+	mockUserUsecase.
+		EXPECT().
+		GetRouteTmp(gomock.Eq(routeTmpGetRequest.Id)).
+		Return(response.NewEmptyResponse(consts.NotFound))
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.SetPath("/api/users/routes-tmp/:id")
+	context.SetParamNames("id")
+	context.SetParamValues(strconv.FormatUint(uint64(routeTmpGetRequest.Id), 10))
+
+	handler := userDelivery.HandlerRouteTmpGet()
+
+	err := handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusNotFound, recorder.Code)
 }

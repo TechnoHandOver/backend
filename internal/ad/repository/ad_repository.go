@@ -24,7 +24,7 @@ INSERT INTO ad (user_author_id, user_author_vk_id, loc_dep, loc_arr, date_time_a
 SELECT user_.id, user_.vk_id, $2, $3, $4, $5, $6, $7 FROM user_ WHERE user_.vk_id = $1
 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
 
-	var dateTimeArr = time.Time(ad_.DateTimeArr)
+	var dateTimeArr = time.Time(ad_.DateTimeArr) //TODO: а тут точно нужна эта дополнительная переменная?...
 	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorVkId, ad_.LocDep, ad_.LocArr, dateTimeArr, ad_.Item,
 		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr,
 		&ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {

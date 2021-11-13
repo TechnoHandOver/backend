@@ -63,3 +63,16 @@ func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *respo
 
 	return response.NewResponse(consts.Created, routeTmp)
 }
+
+func (userUsecase *UserUsecase) GetRouteTmp(routeTmpId uint32) *response.Response {
+	routeTmp, err := userUsecase.userRepository.SelectRouteTmp(routeTmpId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, routeTmp)
+}
