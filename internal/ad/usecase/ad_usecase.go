@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/ad"
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
@@ -31,8 +30,7 @@ func (adUsecase *AdUsecase) Create(ad_ *models.Ad) *response.Response {
 func (adUsecase *AdUsecase) Get(id uint32) *response.Response {
 	ad_, err := adUsecase.adRepository.Select(id)
 	if err != nil {
-		//TODO: никаких sql.ErrNoRows тут быть не должно, только кастомные ошибки независимо от типа репозитория!; не только здесь так
-		if err == sql.ErrNoRows {
+		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
 		}
 
@@ -45,7 +43,7 @@ func (adUsecase *AdUsecase) Get(id uint32) *response.Response {
 func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 	ad_, err := adUsecase.adRepository.Update(ad_)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
 		}
 

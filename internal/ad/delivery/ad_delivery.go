@@ -35,7 +35,7 @@ func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
 		LocArr      string   `json:"locArr" validate:"required,gte=2,lte=100"`
 		DateTimeArr DateTime `json:"dateTimeArr,omitempty" validate:"omitempty"`
 		Item        string   `json:"item" validate:"required,gte=3,lte=50"`
-		MinPrice    uint32   `json:"minPrice,omitempty" validate:"required,gte=0"`
+		MinPrice    uint32   `json:"minPrice,omitempty" validate:"omitempty"`
 		Comment     string   `json:"comment,omitempty" validate:"required,lte=100"`
 	}
 

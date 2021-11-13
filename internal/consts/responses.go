@@ -9,6 +9,7 @@ const (
 	Created
 	BadRequest
 	Unauthorized
+	Forbidden
 	NotFound
 	InternalError
 )
@@ -18,6 +19,7 @@ var StatusCodes = map[Code]int{
 	Created:       http.StatusCreated,
 	BadRequest:    http.StatusBadRequest,
 	Unauthorized:  http.StatusUnauthorized,
+	Forbidden:     http.StatusForbidden,
 	NotFound:      http.StatusNotFound,
 	InternalError: http.StatusInternalServerError,
 }

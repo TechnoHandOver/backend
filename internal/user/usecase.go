@@ -10,4 +10,5 @@ type Usecase interface {
 	Get(vkId uint32) *response.Response
 	CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response
 	GetRouteTmp(routeTmpId uint32) *response.Response
+	UpdateRouteTmp(routeTmp *models.RouteTmp) *response.Response
 }

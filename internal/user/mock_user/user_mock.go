@@ -91,6 +91,20 @@ func (mr *MockUsecaseMockRecorder) Login(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUsecase)(nil).Login), arg0)
 }
 
+// UpdateRouteTmp mocks base method.
+func (m *MockUsecase) UpdateRouteTmp(arg0 *models.RouteTmp) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRouteTmp", arg0)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// UpdateRouteTmp indicates an expected call of UpdateRouteTmp.
+func (mr *MockUsecaseMockRecorder) UpdateRouteTmp(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRouteTmp", reflect.TypeOf((*MockUsecase)(nil).UpdateRouteTmp), arg0)
+}
+
 // MockRepository is a mock of Repository interface.
 type MockRepository struct {
 	ctrl     *gomock.Controller
@@ -202,4 +216,19 @@ func (m *MockRepository) Update(arg0 *models.User) (*models.User, error) {
 func (mr *MockRepositoryMockRecorder) Update(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), arg0)
+}
+
+// UpdateRouteTmp mocks base method.
+func (m *MockRepository) UpdateRouteTmp(arg0 *models.RouteTmp) (*models.RouteTmp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRouteTmp", arg0)
+	ret0, _ := ret[0].(*models.RouteTmp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateRouteTmp indicates an expected call of UpdateRouteTmp.
+func (mr *MockRepositoryMockRecorder) UpdateRouteTmp(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRouteTmp", reflect.TypeOf((*MockRepository)(nil).UpdateRouteTmp), arg0)
 }

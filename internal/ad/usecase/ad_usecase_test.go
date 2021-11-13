@@ -1,7 +1,6 @@
 package usecase_test
 
 import (
-	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/ad/mock_ad"
 	"github.com/TechnoHandOver/backend/internal/ad/usecase"
 	"github.com/TechnoHandOver/backend/internal/consts"
@@ -95,7 +94,7 @@ func TestAdUsecase_Get_notFound(t *testing.T) {
 	mockAdRepository.
 		EXPECT().
 		Select(gomock.Eq(id)).
-		Return(nil, sql.ErrNoRows)
+		Return(nil, consts.RepErrNotFound)
 
 	response_ := adUsecase.Get(id)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
@@ -108,26 +107,38 @@ func TestAdUsecase_Update(t *testing.T) {
 	mockAdRepository := mock_ad.NewMockRepository(controller)
 	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
 
-	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:30")
+	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
+	assert.Nil(t, err)
+	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
 	ad := &models.Ad{
 		Id:             1,
 		UserAuthorVkId: 2,
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
+		DateTimeArr:    *dateTimeArr1,
 		Item:           "Зачётная книжка",
 		MinPrice:       500,
 		Comment:        "Поеду на велосипеде",
+	}
+	expectedAd := &models.Ad{
+		Id:             ad.Id,
+		UserAuthorVkId: ad.UserAuthorVkId,
+		LocDep:         "Общежитие №9",
+		LocArr:         "СК",
+		DateTimeArr:    *dateTimeArr2,
+		Item:           "Спортивная форма",
+		MinPrice:       600,
+		Comment:        "Поеду на роликах :)",
 	}
 
 	mockAdRepository.
 		EXPECT().
 		Update(gomock.Eq(ad)).
-		Return(ad, nil)
+		Return(expectedAd, nil)
 
 	response_ := adUsecase.Update(ad)
-	assert.Equal(t, response.NewResponse(consts.OK, ad), response_)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedAd), response_)
 }
 
 func TestAdUsecase_Update_notFound(t *testing.T) {
@@ -153,7 +164,7 @@ func TestAdUsecase_Update_notFound(t *testing.T) {
 	mockAdRepository.
 		EXPECT().
 		Update(gomock.Eq(ad)).
-		Return(nil, sql.ErrNoRows)
+		Return(nil, consts.RepErrNotFound)
 
 	response_ := adUsecase.Update(ad)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)

@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
@@ -21,7 +20,7 @@ func NewUserUsecaseImpl(userRepository user.Repository) user.Usecase {
 func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 	user2, err := userUsecase.userRepository.SelectByVkId(user_.VkId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == consts.RepErrNotFound {
 			user2, err = userUsecase.userRepository.Insert(user_)
 			if err != nil {
 				return response.NewErrorResponse(consts.InternalError, err)
@@ -45,7 +44,7 @@ func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 func (userUsecase *UserUsecase) Get(vkId uint32) *response.Response {
 	user_, err := userUsecase.userRepository.SelectByVkId(vkId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
 		}
 
@@ -67,8 +66,37 @@ func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *respo
 func (userUsecase *UserUsecase) GetRouteTmp(routeTmpId uint32) *response.Response {
 	routeTmp, err := userUsecase.userRepository.SelectRouteTmp(routeTmpId)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, routeTmp)
+}
+
+func (userUsecase *UserUsecase) UpdateRouteTmp(routeTmp *models.RouteTmp) *response.Response {
+	existingRouteTmp, err := userUsecase.userRepository.SelectRouteTmp(routeTmp.Id)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if routeTmp.UserAuthorVkId != existingRouteTmp.UserAuthorVkId {
+		return response.NewErrorResponse(consts.Forbidden, err)
+	}
+
+	routeTmp, err = userUsecase.userRepository.UpdateRouteTmp(routeTmp)
+	if err != nil {
+		switch err {
+		case consts.RepErrNotFound:
+			return response.NewEmptyResponse(consts.NotFound)
+		case consts.RepErrNothingToUpdate:
+			return response.NewEmptyResponse(consts.BadRequest)
 		}
 
 		return response.NewErrorResponse(consts.InternalError, err)

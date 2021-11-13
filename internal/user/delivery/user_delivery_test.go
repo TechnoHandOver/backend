@@ -101,19 +101,12 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
-	type RouteTmpGetRequest struct {
-		Id uint32 `param:"id"`
-	}
-
-	routeTmpGetRequest := &RouteTmpGetRequest{
-		Id: 1,
-	}
 	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 11:30")
 	assert.Nil(t, err)
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 11:35")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             routeTmpGetRequest.Id,
+		Id:             1,
 		UserAuthorVkId: 2,
 		LocDep:         "Корпус Энерго",
 		LocArr:         "Корпус УЛК",
@@ -124,7 +117,7 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 
 	mockUserUsecase.
 		EXPECT().
-		GetRouteTmp(gomock.Eq(routeTmpGetRequest.Id)).
+		GetRouteTmp(gomock.Eq(expectedRouteTmp.Id)).
 		Return(response.NewResponse(consts.OK, expectedRouteTmp))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -139,7 +132,7 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 	context := echo_.NewContext(request, recorder)
 	context.SetPath("/api/users/routes-tmp/:id")
 	context.SetParamNames("id")
-	context.SetParamValues(strconv.FormatUint(uint64(routeTmpGetRequest.Id), 10))
+	context.SetParamValues(strconv.FormatUint(uint64(expectedRouteTmp.Id), 10))
 
 	handler := userDelivery.HandlerRouteTmpGet()
 
@@ -152,7 +145,7 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 	assert.Equal(t, jsonExpectedResponse, responseBody)
 }
 
-func TestUserDelivery_HandlerRouteTmpGet_notFound(t *testing.T) {
+func TestUserDelivery_HandlerRouteTmpUpdate(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
@@ -162,30 +155,51 @@ func TestUserDelivery_HandlerRouteTmpGet_notFound(t *testing.T) {
 	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
-	type RouteTmpGetRequest struct {
-		Id uint32 `param:"id"`
-	}
-
-	routeTmpGetRequest := &RouteTmpGetRequest{
-		Id: 1,
+	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 13:30")
+	assert.Nil(t, err)
+	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 13:35")
+	assert.Nil(t, err)
+	expectedRouteTmp := &models.RouteTmp{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep,
+		DateTimeArr:    *dateTimeArr,
 	}
 
 	mockUserUsecase.
 		EXPECT().
-		GetRouteTmp(gomock.Eq(routeTmpGetRequest.Id)).
-		Return(response.NewEmptyResponse(consts.NotFound))
+		UpdateRouteTmp(gomock.Eq(expectedRouteTmp)).
+		Return(response.NewResponse(consts.OK, expectedRouteTmp))
 
-	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	jsonRequest, err := json.Marshal(expectedRouteTmp)
+	assert.Nil(t, err)
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedRouteTmp,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodPut, "/", strings.NewReader(string(jsonRequest)))
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
 	context.SetPath("/api/users/routes-tmp/:id")
 	context.SetParamNames("id")
-	context.SetParamValues(strconv.FormatUint(uint64(routeTmpGetRequest.Id), 10))
+	context.SetParamValues(strconv.FormatUint(uint64(expectedRouteTmp.Id), 10))
+	context.Set(consts.EchoContextKeyUserVkId, expectedRouteTmp.UserAuthorVkId)
 
-	handler := userDelivery.HandlerRouteTmpGet()
+	handler := userDelivery.HandlerRouteTmpUpdate()
 
-	err := handler(context)
+	err = handler(context)
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/TechnoHandOver/backend/internal/ad/repository"
+	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/stretchr/testify/assert"
@@ -135,7 +136,7 @@ func TestAdRepository_Update(t *testing.T) {
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }
 
-func TestAdRepository_Update_select(t *testing.T) {
+func TestAdRepository_Update_nothing(t *testing.T) {
 	db, sqlmock_, err := sqlmock.New()
 	assert.Nil(t, err)
 	defer func(db *sql.DB) {
@@ -148,31 +149,10 @@ func TestAdRepository_Update_select(t *testing.T) {
 		Id:             1,
 		UserAuthorVkId: 2,
 	}
-	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
-	assert.Nil(t, err)
-	expectedAd := &models.Ad{
-		Id:             ad.Id,
-		UserAuthorVkId: ad.UserAuthorVkId,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
-	}
-
-	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
-		WithArgs(expectedAd.Id).
-		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item",
-				"min_price", "comment"}).
-				AddRow(expectedAd.Id, expectedAd.UserAuthorVkId, expectedAd.LocDep, expectedAd.LocArr,
-					time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment))
 
 	resultAd, resultErr := adRepository.Update(ad)
-	assert.Nil(t, resultErr)
-	assert.Equal(t, expectedAd, resultAd)
+	assert.Equal(t, resultErr, consts.RepErrNothingToUpdate)
+	assert.Nil(t, resultAd)
 
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }

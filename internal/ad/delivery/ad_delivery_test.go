@@ -101,17 +101,10 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
-	type AdGetRequest struct {
-		Id uint32 `param:"id"`
-	}
-
-	adGetRequest := &AdGetRequest{
-		Id: 1,
-	}
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:44")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
-		Id:             adGetRequest.Id,
+		Id:             1,
 		UserAuthorVkId: 2,
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
@@ -123,7 +116,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 
 	mockAdUsecase.
 		EXPECT().
-		Get(gomock.Eq(adGetRequest.Id)).
+		Get(gomock.Eq(expectedAd.Id)).
 		Return(response.NewResponse(consts.OK, expectedAd))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -138,7 +131,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 	context := echo_.NewContext(request, recorder)
 	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
-	context.SetParamValues(strconv.FormatUint(uint64(adGetRequest.Id), 10))
+	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
 
 	handler := adDelivery.HandlerAdGet()
 
@@ -151,44 +144,6 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 	assert.Equal(t, jsonExpectedResponse, responseBody)
 }
 
-func TestAdDelivery_HandlerAdGet_notFound(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	mockAdUsecase := mock_ad.NewMockUsecase(controller)
-	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
-	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
-	adDelivery.Configure(echo_, &middlewares.Manager{})
-
-	type AdGetRequest struct {
-		Id uint32
-	}
-
-	adGetRequest := &AdGetRequest{
-		Id: 1,
-	}
-
-	mockAdUsecase.
-		EXPECT().
-		Get(gomock.Eq(adGetRequest.Id)).
-		Return(response.NewEmptyResponse(consts.NotFound))
-
-	request := httptest.NewRequest(http.MethodGet, "/", nil)
-
-	recorder := httptest.NewRecorder()
-	context := echo_.NewContext(request, recorder)
-	context.SetPath("/api/ads/:id")
-	context.SetParamNames("id")
-	context.SetParamValues(strconv.FormatUint(uint64(adGetRequest.Id), 10))
-
-	handler := adDelivery.HandlerAdGet()
-
-	err := handler(context)
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
-}
-
 func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
@@ -199,19 +154,9 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
-	type AdUpdateRequest struct {
-		Id          uint32
-		LocDep      string              `json:"locDep,omitempty"`
-		LocArr      string              `json:"locArr,omitempty"`
-		DateTimeArr timestamps.DateTime `json:"dateTimeArr,omitempty"`
-		Item        string              `json:"item,omitempty"`
-		MinPrice    uint32              `json:"minPrice,omitempty"`
-		Comment     string              `json:"comment,omitempty"`
-	}
-
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:50")
 	assert.Nil(t, err)
-	adUpdateRequest := &AdUpdateRequest{
+	ad := &models.Ad{
 		Id:          1,
 		LocDep:      "Общежитие №10",
 		LocArr:      "УЛК",
@@ -219,15 +164,6 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 		Item:        "Зачётная книжка",
 		MinPrice:    500,
 		Comment:     "Поеду на велосипеде",
-	}
-	ad := &models.Ad{
-		Id:          adUpdateRequest.Id,
-		LocDep:      adUpdateRequest.LocDep,
-		LocArr:      adUpdateRequest.LocArr,
-		DateTimeArr: adUpdateRequest.DateTimeArr,
-		Item:        adUpdateRequest.Item,
-		MinPrice:    adUpdateRequest.MinPrice,
-		Comment:     adUpdateRequest.Comment,
 	}
 	expectedAd := &models.Ad{
 		Id:             ad.Id,
@@ -261,7 +197,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	context := echo_.NewContext(request, recorder)
 	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
-	context.SetParamValues(strconv.FormatUint(uint64(adUpdateRequest.Id), 10))
+	context.SetParamValues(strconv.FormatUint(uint64(ad.Id), 10))
 	context.Set(consts.EchoContextKeyUserVkId, expectedAd.UserAuthorVkId)
 
 	handler := adDelivery.HandlerAdUpdate()
@@ -273,72 +209,6 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	responseBody, err := ioutil.ReadAll(recorder.Body)
 	assert.Nil(t, err)
 	assert.Equal(t, jsonExpectedResponse, responseBody)
-}
-
-func TestAdDelivery_HandlerAdUpdate_notFound(t *testing.T) {
-	controller := gomock.NewController(t)
-	defer controller.Finish()
-
-	mockAdUsecase := mock_ad.NewMockUsecase(controller)
-	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
-	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
-	adDelivery.Configure(echo_, &middlewares.Manager{})
-
-	type AdUpdateRequest struct {
-		Id          uint32
-		LocDep      string              `json:"locDep,omitempty"`
-		LocArr      string              `json:"locArr,omitempty"`
-		DateTimeArr timestamps.DateTime `json:"dateTimeArr,omitempty"`
-		Item        string              `json:"item,omitempty"`
-		MinPrice    uint32              `json:"minPrice,omitempty"`
-		Comment     string              `json:"comment,omitempty"`
-	}
-
-	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:50")
-	assert.Nil(t, err)
-	adUpdateRequest := &AdUpdateRequest{
-		Id:          1,
-		LocDep:      "Общежитие №10",
-		LocArr:      "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item:        "Зачётная книжка",
-		MinPrice:    500,
-		Comment:     "Поеду на велосипеде",
-	}
-	ad := &models.Ad{
-		Id:          adUpdateRequest.Id,
-		LocDep:      adUpdateRequest.LocDep,
-		LocArr:      adUpdateRequest.LocArr,
-		DateTimeArr: adUpdateRequest.DateTimeArr,
-		Item:        adUpdateRequest.Item,
-		MinPrice:    adUpdateRequest.MinPrice,
-		Comment:     adUpdateRequest.Comment,
-	}
-
-	mockAdUsecase.
-		EXPECT().
-		Update(gomock.Eq(ad)).
-		Return(response.NewEmptyResponse(consts.NotFound))
-
-	jsonRequest, err := json.Marshal(adUpdateRequest)
-	assert.Nil(t, err)
-
-	request := httptest.NewRequest(http.MethodPut, "/", strings.NewReader(string(jsonRequest)))
-	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
-	recorder := httptest.NewRecorder()
-	context := echo_.NewContext(request, recorder)
-	context.SetPath("/api/ads/:id")
-	context.SetParamNames("id")
-	context.SetParamValues(strconv.FormatUint(uint64(adUpdateRequest.Id), 10))
-	context.Set(consts.EchoContextKeyUserVkId, uint32(2))
-
-	handler := adDelivery.HandlerAdUpdate()
-
-	err = handler(context)
-	assert.Nil(t, err)
-	assert.Equal(t, http.StatusNotFound, recorder.Code)
 }
 
 func TestAdDelivery_HandlerAdSearch(t *testing.T) {

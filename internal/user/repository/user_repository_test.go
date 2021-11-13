@@ -259,3 +259,44 @@ func TestUserRepository_SelectRouteTmp(t *testing.T) {
 
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }
+
+func TestUserRepository_UpdateRouteTmp(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	userRepository := repository.NewUserRepositoryImpl(db)
+
+	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 14:00")
+	assert.Nil(t, err)
+	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 14:05")
+	assert.Nil(t, err)
+	expectedRouteTmp := &models.RouteTmp{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep,
+		DateTimeArr:    *dateTimeArr,
+	}
+
+	sqlmock_.
+		ExpectQuery("UPDATE view_route_tmp").
+		WithArgs(expectedRouteTmp.Id, expectedRouteTmp.LocDep, expectedRouteTmp.LocArr, expectedRouteTmp.MinPrice,
+			time.Time(expectedRouteTmp.DateTimeDep), time.Time(expectedRouteTmp.DateTimeArr)).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
+				"date_time_arr"}).
+				AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorVkId, expectedRouteTmp.LocDep,
+					expectedRouteTmp.LocArr, expectedRouteTmp.MinPrice, time.Time(expectedRouteTmp.DateTimeDep),
+					time.Time(expectedRouteTmp.DateTimeArr)))
+
+	resultRouteTmp, resultErr := userRepository.UpdateRouteTmp(expectedRouteTmp)
+	assert.Nil(t, resultErr)
+	assert.Equal(t, expectedRouteTmp, resultRouteTmp)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}

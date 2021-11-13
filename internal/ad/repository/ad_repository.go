@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/ad"
+	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"strconv"
 	"time"
@@ -24,10 +25,9 @@ INSERT INTO ad (user_author_id, user_author_vk_id, loc_dep, loc_arr, date_time_a
 SELECT user_.id, user_.vk_id, $2, $3, $4, $5, $6, $7 FROM user_ WHERE user_.vk_id = $1
 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
 
-	var dateTimeArr = time.Time(ad_.DateTimeArr) //TODO: а тут точно нужна эта дополнительная переменная?...
-	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorVkId, ad_.LocDep, ad_.LocArr, dateTimeArr, ad_.Item,
-		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr,
-		&ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
+	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorVkId, ad_.LocDep, ad_.LocArr, time.Time(ad_.DateTimeArr),
+		ad_.Item, ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr,
+		&ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
 		return nil, err
 	}
 
@@ -43,6 +43,10 @@ WHERE id = $1`
 	ad_ := new(models.Ad)
 	if err := adsRepository.db.QueryRow(query, id).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr,
 		&ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, consts.RepErrNotFound
+		}
+
 		return nil, err
 	}
 
@@ -53,7 +57,7 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 	const queryStart = "UPDATE ad SET "
 	const queryLocDep = "loc_dep"
 	const queryLocArr = "loc_arr"
-	const queryDateArr = "date_time_arr"
+	const queryDateTimeArr = "date_time_arr"
 	const queryItem = "item"
 	const queryMinPrice = "min_price"
 	const queryComment = "comment"
@@ -62,8 +66,8 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 	const queryEnd = "WHERE id = $1 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment"
 
 	query := queryStart
-	queryArgs := make([]interface{}, 1)
-	queryArgs[0] = ad_.Id
+	queryArgs := make([]interface{}, 0)
+	queryArgs = append(queryArgs, ad_.Id)
 
 	if ad_.LocDep != "" {
 		query += queryLocDep + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
@@ -75,9 +79,9 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 		queryArgs = append(queryArgs, ad_.LocArr)
 	}
 
-	if dateArrTime := time.Time(ad_.DateTimeArr); !dateArrTime.IsZero() {
-		query += queryDateArr + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, dateArrTime)
+	if dateTimeArr := time.Time(ad_.DateTimeArr); !dateTimeArr.IsZero() {
+		query += queryDateTimeArr + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
+		queryArgs = append(queryArgs, dateTimeArr)
 	}
 
 	if ad_.Item != "" {
@@ -96,19 +100,21 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 	}
 
 	if len(queryArgs) == 1 {
-		return adsRepository.Select(ad_.Id) //TODO: возможно, нарушение логики и зон ответственности...; не только здесь так
+		return nil, consts.RepErrNothingToUpdate
 	}
 
 	query = query[:len(query)-2] + queryEnd
 
-	updatedAd := new(models.Ad)
-	if err := adsRepository.db.QueryRow(query, queryArgs...).Scan(&updatedAd.Id, &updatedAd.UserAuthorVkId,
-		&updatedAd.LocDep, &updatedAd.LocArr, &updatedAd.DateTimeArr, &updatedAd.Item, &updatedAd.MinPrice,
-		&updatedAd.Comment); err != nil {
+	if err := adsRepository.db.QueryRow(query, queryArgs...).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep,
+		&ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, consts.RepErrNotFound
+		}
+
 		return nil, err
 	}
 
-	return updatedAd, nil
+	return ad_, nil
 }
 
 func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error) {
@@ -118,7 +124,7 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 	const queryLocDep2 = ")"
 	const queryLocArr1 = "to_tsvector('russian', loc_arr) @@ plainto_tsquery('russian', $"
 	const queryLocArr2 = ")"
-	const queryDateArr = "date_time_arr = $"
+	const queryDateTimeArr = "date_time_arr = $"
 	const queryMinPrice = "min_price <= $"
 	const queryAnd = " AND "
 	const queryEnd = " ORDER BY min_price"
@@ -136,9 +142,9 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 		queryArgs = append(queryArgs, adsSearch.LocArr)
 	}
 
-	if dateTimeArrTime := time.Time(adsSearch.DateTimeArr); !dateTimeArrTime.IsZero() {
-		query += queryDateArr + strconv.Itoa(len(queryArgs)+1) + queryAnd
-		queryArgs = append(queryArgs, dateTimeArrTime)
+	if dateTimeArr := time.Time(adsSearch.DateTimeArr); !dateTimeArr.IsZero() {
+		query += queryDateTimeArr + strconv.Itoa(len(queryArgs)+1) + queryAnd
+		queryArgs = append(queryArgs, dateTimeArr)
 	}
 
 	if adsSearch.MaxPrice != 0 {

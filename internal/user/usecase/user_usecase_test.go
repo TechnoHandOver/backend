@@ -1,7 +1,6 @@
 package usecase_test
 
 import (
-	"database/sql"
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
@@ -63,7 +62,7 @@ func TestUserUsecase_Login_create(t *testing.T) {
 	selectByIdCall := mockUserRepository.
 		EXPECT().
 		SelectByVkId(gomock.Eq(user.VkId)).
-		Return(nil, sql.ErrNoRows)
+		Return(nil, consts.RepErrNotFound)
 
 	mockUserRepository.
 		EXPECT().
@@ -153,7 +152,7 @@ func TestUserUsecase_Get_notFound(t *testing.T) {
 	mockUserRepository.
 		EXPECT().
 		SelectByVkId(gomock.Eq(vkId)).
-		Return(nil, sql.ErrNoRows)
+		Return(nil, consts.RepErrNotFound)
 
 	response_ := userUsecase.Get(vkId)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
@@ -242,8 +241,130 @@ func TestUserUsecase_GetRouteTmp_notFound(t *testing.T) {
 	mockUserRepository.
 		EXPECT().
 		SelectRouteTmp(gomock.Eq(routeTmpId)).
-		Return(nil, sql.ErrNoRows)
+		Return(nil, consts.RepErrNotFound)
 
 	response_ := userUsecase.GetRouteTmp(routeTmpId)
+	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
+}
+
+func TestUserUsecase_UpdateRouteTmp(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	dateTimeDep1, err := timestamps.NewDateTime("13.11.2021 13:50")
+	assert.Nil(t, err)
+	dateTimeArr1, err := timestamps.NewDateTime("13.11.2021 13:55")
+	assert.Nil(t, err)
+	routeTmp := &models.RouteTmp{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep1,
+		DateTimeArr:    *dateTimeArr1,
+	}
+	dateTimeDep2, err := timestamps.NewDateTime("13.11.2021 14:00")
+	assert.Nil(t, err)
+	dateTimeArr2, err := timestamps.NewDateTime("13.11.2021 14:05")
+	assert.Nil(t, err)
+	expectedRouteTmp := &models.RouteTmp{
+		Id:             routeTmp.Id,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №9",
+		LocArr:         "СК",
+		MinPrice:       600,
+		DateTimeDep:    *dateTimeDep2,
+		DateTimeArr:    *dateTimeArr2,
+	}
+
+	call := mockUserRepository.
+		EXPECT().
+		SelectRouteTmp(gomock.Eq(routeTmp.Id)).
+		Return(routeTmp, nil)
+
+	mockUserRepository.
+		EXPECT().
+		UpdateRouteTmp(gomock.Eq(expectedRouteTmp)).
+		Return(expectedRouteTmp, nil).
+		After(call)
+
+	response_ := userUsecase.UpdateRouteTmp(expectedRouteTmp)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedRouteTmp), response_)
+}
+
+func TestUserUsecase_UpdateRouteTmp_forbidden(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	dateTimeDep1, err := timestamps.NewDateTime("13.11.2021 13:50")
+	assert.Nil(t, err)
+	dateTimeArr1, err := timestamps.NewDateTime("13.11.2021 13:55")
+	assert.Nil(t, err)
+	routeTmp := &models.RouteTmp{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep1,
+		DateTimeArr:    *dateTimeArr1,
+	}
+	dateTimeDep2, err := timestamps.NewDateTime("13.11.2021 14:00")
+	assert.Nil(t, err)
+	dateTimeArr2, err := timestamps.NewDateTime("13.11.2021 14:05")
+	assert.Nil(t, err)
+	expectedRouteTmp := &models.RouteTmp{
+		Id:             routeTmp.Id,
+		UserAuthorVkId: 3,
+		LocDep:         "Общежитие №9",
+		LocArr:         "СК",
+		MinPrice:       600,
+		DateTimeDep:    *dateTimeDep2,
+		DateTimeArr:    *dateTimeArr2,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectRouteTmp(gomock.Eq(routeTmp.Id)).
+		Return(routeTmp, nil)
+
+	response_ := userUsecase.UpdateRouteTmp(expectedRouteTmp)
+	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
+}
+
+func TestUserUsecase_UpdateRouteTmp_notFound(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 13:55")
+	assert.Nil(t, err)
+	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 14:00")
+	assert.Nil(t, err)
+	routeTmp := &models.RouteTmp{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep,
+		DateTimeArr:    *dateTimeArr,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectRouteTmp(gomock.Eq(routeTmp.Id)).
+		Return(nil, consts.RepErrNotFound)
+
+	response_ := userUsecase.UpdateRouteTmp(routeTmp)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }

@@ -26,6 +26,8 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 	echo_.POST("/api/users/routes-tmp", userDelivery.HandlerRouteTmpCreate(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpGet())
+	echo_.PUT("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpUpdate(),
+		middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -68,5 +70,35 @@ func (userDelivery *UserDelivery) HandlerRouteTmpGet() echo.HandlerFunc {
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.GetRouteTmp(routeTmpGetRequest.Id))
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRouteTmpUpdate() echo.HandlerFunc {
+	type RouteTmpUpdateRequest struct {
+		Id          uint32   `param:"id" validate:"required"`
+		LocDep      string   `json:"locDep,omitempty" validate:"omitempty,gte=2,lte=100"`
+		LocArr      string   `json:"locArr,omitempty" validate:"omitempty,gte=2,lte=100"`
+		MinPrice    uint32   `json:"minPrice,omitempty" validate:"omitempty"`
+		DateTimeDep DateTime `json:"dateTimeDep,omitempty" validate:"omitempty"`
+		DateTimeArr DateTime `json:"dateTimeArr,omitempty" validate:"omitempty"`
+	}
+
+	return func(context echo.Context) error {
+		routeTmpUpdateRequest := new(RouteTmpUpdateRequest)
+		if err := parser.ParseRequest(context, routeTmpUpdateRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		routeTmp := &models.RouteTmp{
+			Id:             routeTmpUpdateRequest.Id,
+			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
+			LocDep:         routeTmpUpdateRequest.LocDep,
+			LocArr:         routeTmpUpdateRequest.LocArr,
+			MinPrice:       routeTmpUpdateRequest.MinPrice,
+			DateTimeDep:    routeTmpUpdateRequest.DateTimeDep,
+			DateTimeArr:    routeTmpUpdateRequest.DateTimeArr,
+		}
+
+		return responser.Respond(context, userDelivery.userUsecase.UpdateRouteTmp(routeTmp))
 	}
 }

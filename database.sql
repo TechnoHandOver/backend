@@ -66,22 +66,40 @@ CREATE FUNCTION view_route_tmp_insert()
 AS $$
 DECLARE id_ route.id%TYPE;
 BEGIN
-    WITH zz AS
-        (INSERT INTO route (user_author_vk_id, loc_dep, loc_arr, min_price)
-            VALUES (new.user_author_vk_id, new.loc_dep, new.loc_arr, new.min_price)
-            RETURNING id)
+    INSERT INTO route (user_author_vk_id, loc_dep, loc_arr, min_price)
+    VALUES (new.user_author_vk_id, new.loc_dep, new.loc_arr, new.min_price)
+    RETURNING id INTO id_;
     INSERT INTO route_tmp (id, date_time_dep, date_time_arr)
-    SELECT (SELECT zz.id FROM zz), new.date_time_dep, new.date_time_arr
-    RETURNING id INTO id_; --TODO: упростить запрос, разделив на два?
+    SELECT id_, new.date_time_dep, new.date_time_arr;
     new.id := id_;
     RETURN new;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER view_route_tmp INSTEAD OF INSERT
+CREATE TRIGGER view_route_tmp_insert INSTEAD OF INSERT
     ON view_route_tmp
     FOR EACH ROW
     EXECUTE FUNCTION view_route_tmp_insert();
+
+CREATE FUNCTION view_route_tmp_update()
+    RETURNS TRIGGER
+AS $$
+BEGIN
+    IF old.user_author_vk_id != new.user_author_vk_id THEN
+        RAISE 'Forbidden to update author of temporary route';
+    END IF;
+    UPDATE route SET loc_dep = new.loc_dep, loc_arr = new.loc_arr, min_price = new.min_price
+    WHERE id = new.id AND user_author_vk_id = new.user_author_vk_id;
+    UPDATE route_tmp SET date_time_dep = new.date_time_dep, date_time_arr = new.date_time_arr
+    WHERE id = new.id;
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER view_route_tmp_update INSTEAD OF UPDATE
+    ON view_route_tmp
+    FOR EACH ROW
+EXECUTE FUNCTION view_route_tmp_update();
 
 CREATE INDEX ON user_ USING hash (vk_id);
 
