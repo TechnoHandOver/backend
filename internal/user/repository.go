@@ -10,4 +10,5 @@ type Repository interface {
 	InsertRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error)
 	SelectRouteTmp(routeTmpId uint32) (*models.RouteTmp, error)
 	UpdateRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error)
+	DeleteRouteTmp(routeTmpId uint32) (*models.RouteTmp, error)
 }

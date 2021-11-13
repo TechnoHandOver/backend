@@ -49,6 +49,20 @@ func (mr *MockUsecaseMockRecorder) CreateRouteTmp(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRouteTmp", reflect.TypeOf((*MockUsecase)(nil).CreateRouteTmp), arg0)
 }
 
+// DeleteRouteTmp mocks base method.
+func (m *MockUsecase) DeleteRouteTmp(arg0, arg1 uint32) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteRouteTmp", arg0, arg1)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// DeleteRouteTmp indicates an expected call of DeleteRouteTmp.
+func (mr *MockUsecaseMockRecorder) DeleteRouteTmp(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRouteTmp", reflect.TypeOf((*MockUsecase)(nil).DeleteRouteTmp), arg0, arg1)
+}
+
 // Get mocks base method.
 func (m *MockUsecase) Get(arg0 uint32) *response.Response {
 	m.ctrl.T.Helper()
@@ -126,6 +140,21 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// DeleteRouteTmp mocks base method.
+func (m *MockRepository) DeleteRouteTmp(arg0 uint32) (*models.RouteTmp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteRouteTmp", arg0)
+	ret0, _ := ret[0].(*models.RouteTmp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteRouteTmp indicates an expected call of DeleteRouteTmp.
+func (mr *MockRepositoryMockRecorder) DeleteRouteTmp(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRouteTmp", reflect.TypeOf((*MockRepository)(nil).DeleteRouteTmp), arg0)
 }
 
 // Insert mocks base method.

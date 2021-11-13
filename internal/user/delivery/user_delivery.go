@@ -28,6 +28,8 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 	echo_.GET("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpGet())
 	echo_.PUT("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpUpdate(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.DELETE("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpDelete(),
+		middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -100,5 +102,22 @@ func (userDelivery *UserDelivery) HandlerRouteTmpUpdate() echo.HandlerFunc {
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.UpdateRouteTmp(routeTmp))
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRouteTmpDelete() echo.HandlerFunc {
+	type RouteTmpDeleteRequest struct {
+		Id uint32 `param:"id" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		routeTmpDeleteRequest := new(RouteTmpDeleteRequest)
+		if err := parser.ParseRequest(context, routeTmpDeleteRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
+
+		return responser.Respond(context, userDelivery.userUsecase.DeleteRouteTmp(userVkId, routeTmpDeleteRequest.Id))
 	}
 }

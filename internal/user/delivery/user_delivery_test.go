@@ -203,3 +203,58 @@ func TestUserDelivery_HandlerRouteTmpUpdate(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, jsonExpectedResponse, responseBody)
 }
+
+func TestUserDelivery_HandlerRouteTmpDelete(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserUsecase := mock_user.NewMockUsecase(controller)
+	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	userDelivery.Configure(echo_, &middlewares.Manager{})
+
+	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 13:30")
+	assert.Nil(t, err)
+	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 13:35")
+	assert.Nil(t, err)
+	expectedRouteTmp := &models.RouteTmp{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		DateTimeDep:    *dateTimeDep,
+		DateTimeArr:    *dateTimeArr,
+	}
+
+	mockUserUsecase.
+		EXPECT().
+		DeleteRouteTmp(gomock.Eq(expectedRouteTmp.UserAuthorVkId), gomock.Eq(expectedRouteTmp.Id)).
+		Return(response.NewResponse(consts.OK, expectedRouteTmp))
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedRouteTmp,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.SetPath("/api/users/routes-tmp/:id")
+	context.SetParamNames("id")
+	context.SetParamValues(strconv.FormatUint(uint64(expectedRouteTmp.Id), 10))
+	context.Set(consts.EchoContextKeyUserVkId, expectedRouteTmp.UserAuthorVkId)
+
+	handler := userDelivery.HandlerRouteTmpDelete()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}

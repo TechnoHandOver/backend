@@ -11,4 +11,5 @@ type Usecase interface {
 	CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response
 	GetRouteTmp(routeTmpId uint32) *response.Response
 	UpdateRouteTmp(routeTmp *models.RouteTmp) *response.Response
+	DeleteRouteTmp(userVkId uint32, routeTmpId uint32) *response.Response
 }

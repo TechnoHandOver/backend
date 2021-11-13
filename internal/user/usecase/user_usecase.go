@@ -104,3 +104,32 @@ func (userUsecase *UserUsecase) UpdateRouteTmp(routeTmp *models.RouteTmp) *respo
 
 	return response.NewResponse(consts.OK, routeTmp)
 }
+
+func (userUsecase *UserUsecase) DeleteRouteTmp(userVkId uint32, routeTmpId uint32) *response.Response {
+	existingRouteTmp, err := userUsecase.userRepository.SelectRouteTmp(routeTmpId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if userVkId != existingRouteTmp.UserAuthorVkId {
+		return response.NewErrorResponse(consts.Forbidden, err)
+	}
+
+	routeTmp, err := userUsecase.userRepository.DeleteRouteTmp(routeTmpId)
+	if err != nil {
+		switch err {
+		case consts.RepErrNotFound:
+			return response.NewEmptyResponse(consts.NotFound)
+		case consts.RepErrNothingToUpdate:
+			return response.NewEmptyResponse(consts.BadRequest)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, routeTmp)
+}

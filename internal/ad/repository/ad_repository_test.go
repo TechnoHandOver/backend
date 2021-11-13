@@ -97,6 +97,29 @@ func TestAdRepository_Select(t *testing.T) {
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }
 
+func TestAdRepository_Select_notFound(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	adRepository := repository.NewAdRepositoryImpl(db)
+
+	const id uint32 = 1
+
+	sqlmock_.
+		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
+		WithArgs(id).
+		WillReturnError(sql.ErrNoRows)
+
+	resultAd, resultErr := adRepository.Select(id)
+	assert.Equal(t, resultErr, consts.RepErrNotFound)
+	assert.Nil(t, resultAd)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
 func TestAdRepository_Update(t *testing.T) {
 	db, sqlmock_, err := sqlmock.New()
 	assert.Nil(t, err)
@@ -132,6 +155,40 @@ func TestAdRepository_Update(t *testing.T) {
 	resultAd, resultErr := adRepository.Update(expectedAd)
 	assert.Nil(t, resultErr)
 	assert.Equal(t, expectedAd, resultAd)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
+func TestAdRepository_Update_notFound(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	adRepository := repository.NewAdRepositoryImpl(db)
+
+	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
+	assert.Nil(t, err)
+	ad := &models.Ad{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
+	}
+
+	sqlmock_.
+		ExpectQuery("UPDATE ad").
+		WithArgs(ad.Id, ad.LocDep, ad.LocArr, time.Time(ad.DateTimeArr), ad.Item, ad.MinPrice, ad.Comment).
+		WillReturnError(sql.ErrNoRows)
+
+	resultAd, resultErr := adRepository.Update(ad)
+	assert.Equal(t, resultErr, consts.RepErrNotFound)
+	assert.Nil(t, resultAd)
 
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }

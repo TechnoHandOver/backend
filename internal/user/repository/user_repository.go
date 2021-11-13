@@ -116,10 +116,6 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, dat
 		routeTmp.MinPrice, time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)).Scan(&routeTmp.Id,
 		&routeTmp.UserAuthorVkId, &routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
 		&routeTmp.DateTimeArr); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, consts.RepErrNotFound
-		}
-
 		return nil, err
 	}
 
@@ -128,8 +124,7 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, dat
 
 func (userRepository *UserRepository) SelectRouteTmp(routeTmpId uint32) (*models.RouteTmp, error) {
 	const query = `
-SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr
-FROM view_route_tmp
+SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp
 WHERE id = $1`
 
 	routeTmp := new(models.RouteTmp)
@@ -193,6 +188,26 @@ func (userRepository *UserRepository) UpdateRouteTmp(routeTmp *models.RouteTmp) 
 	query = query[:len(query)-2] + queryEnd
 
 	if err := userRepository.db.QueryRow(query, queryArgs...).Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId,
+		&routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
+		&routeTmp.DateTimeArr); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, consts.RepErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return routeTmp, nil
+}
+
+func (userRepository *UserRepository) DeleteRouteTmp(routeTmpId uint32) (*models.RouteTmp, error) {
+	const query = `
+DELETE FROM view_route_tmp
+WHERE id = $1
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
+
+	routeTmp := new(models.RouteTmp)
+	if err := userRepository.db.QueryRow(query, routeTmpId).Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId,
 		&routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
 		&routeTmp.DateTimeArr); err != nil {
 		if err == sql.ErrNoRows {
