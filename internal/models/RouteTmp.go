@@ -11,3 +11,5 @@ type RouteTmp struct {
 	DateTimeDep    DateTime `json:"dateTimeDep"`
 	DateTimeArr    DateTime `json:"dateTimeArr"`
 }
+
+type RoutesTmp []*RouteTmp

@@ -141,6 +141,33 @@ WHERE id = $1`
 	return routeTmp, nil
 }
 
+func (userRepository *UserRepository) SelectRouteTmpArray() (*models.RoutesTmp, error) {
+	const query = `
+SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp
+ORDER BY date_time_dep, date_time_arr, min_price DESC, id`
+
+	rows, err := userRepository.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	routesTmp := make(models.RoutesTmp, 0)
+	for rows.Next() {
+		routeTmp := new(models.RouteTmp)
+		if err := rows.Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId, &routeTmp.LocDep, &routeTmp.LocArr,
+			&routeTmp.MinPrice, &routeTmp.DateTimeDep, &routeTmp.DateTimeArr); err != nil {
+			return nil, err
+		}
+
+		routesTmp = append(routesTmp, routeTmp)
+	}
+
+	return &routesTmp, nil
+}
+
 func (userRepository *UserRepository) UpdateRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error) {
 	const queryStart = "UPDATE view_route_tmp SET "
 	const queryLocDep = "loc_dep"

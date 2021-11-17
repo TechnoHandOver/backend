@@ -258,3 +258,70 @@ func TestUserDelivery_HandlerRouteTmpDelete(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, jsonExpectedResponse, responseBody)
 }
+
+func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserUsecase := mock_user.NewMockUsecase(controller)
+	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	userDelivery.Configure(echo_, &middlewares.Manager{})
+
+	dateTimeDep1, err := timestamps.NewDateTime("17.11.2021 10:25")
+	assert.Nil(t, err)
+	dateTimeArr1, err := timestamps.NewDateTime("17.11.2021 10:30")
+	assert.Nil(t, err)
+	dateTimeDep2, err := timestamps.NewDateTime("17.11.2021 10:35")
+	assert.Nil(t, err)
+	dateTimeArr2, err := timestamps.NewDateTime("17.11.2021 10:40")
+	assert.Nil(t, err)
+	expectedRoutesTmp := &models.RoutesTmp{
+		&models.RouteTmp{
+			Id:             1,
+			UserAuthorVkId: 3,
+			LocDep:         "Общежитие №10",
+			LocArr:         "УЛК",
+			MinPrice:       500,
+			DateTimeDep:    *dateTimeDep1,
+			DateTimeArr:    *dateTimeArr1,
+		},
+		&models.RouteTmp{
+			Id:             2,
+			UserAuthorVkId: 4,
+			LocDep:         "Общежитие №9",
+			LocArr:         "СК",
+			MinPrice:       600,
+			DateTimeDep:    *dateTimeDep2,
+			DateTimeArr:    *dateTimeArr2,
+		},
+	}
+
+	mockUserUsecase.
+		EXPECT().
+		ListRouteTmp().
+		Return(response.NewResponse(consts.OK, expectedRoutesTmp))
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedRoutesTmp,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodGet, "/api/users/routes-tmp/list", nil)
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+
+	handler := userDelivery.HandlerRouteTmpList()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}

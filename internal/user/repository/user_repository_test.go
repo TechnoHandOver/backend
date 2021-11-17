@@ -469,3 +469,59 @@ func TestUserRepository_DeleteRouteTmp_notFound(t *testing.T) {
 
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }
+
+func TestUserRepository_SelectRouteTmpArray(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	userRepository := repository.NewUserRepositoryImpl(db)
+
+	dateTimeDep1, err := timestamps.NewDateTime("17.11.2021 10:25")
+	assert.Nil(t, err)
+	dateTimeArr1, err := timestamps.NewDateTime("17.11.2021 10:30")
+	assert.Nil(t, err)
+	dateTimeDep2, err := timestamps.NewDateTime("17.11.2021 10:35")
+	assert.Nil(t, err)
+	dateTimeArr2, err := timestamps.NewDateTime("17.11.2021 10:40")
+	assert.Nil(t, err)
+	expectedRoutesTmp := &models.RoutesTmp{
+		&models.RouteTmp{
+			Id:             1,
+			UserAuthorVkId: 3,
+			LocDep:         "Общежитие №10",
+			LocArr:         "УЛК",
+			MinPrice:       500,
+			DateTimeDep:    *dateTimeDep1,
+			DateTimeArr:    *dateTimeArr1,
+		},
+		&models.RouteTmp{
+			Id:             2,
+			UserAuthorVkId: 4,
+			LocDep:         "Общежитие №9",
+			LocArr:         "СК",
+			MinPrice:       600,
+			DateTimeDep:    *dateTimeDep2,
+			DateTimeArr:    *dateTimeArr2,
+		},
+	}
+
+	rows := sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
+		"date_time_arr"})
+	for _, expectedRouteTmp := range *expectedRoutesTmp {
+		rows.AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorVkId, expectedRouteTmp.LocDep,
+			expectedRouteTmp.LocArr, expectedRouteTmp.MinPrice, time.Time(expectedRouteTmp.DateTimeDep),
+			time.Time(expectedRouteTmp.DateTimeArr))
+	}
+	sqlmock_.
+		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp").
+		WillReturnRows(rows)
+
+	resultRouteTmp, resultErr := userRepository.SelectRouteTmpArray()
+	assert.Nil(t, resultErr)
+	assert.Equal(t, expectedRoutesTmp, resultRouteTmp)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}

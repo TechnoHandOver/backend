@@ -133,3 +133,12 @@ func (userUsecase *UserUsecase) DeleteRouteTmp(userVkId uint32, routeTmpId uint3
 
 	return response.NewResponse(consts.OK, routeTmp)
 }
+
+func (userUsecase *UserUsecase) ListRouteTmp() *response.Response {
+	routesTmp, err := userUsecase.userRepository.SelectRouteTmpArray()
+	if err != nil {
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, routesTmp)
+}

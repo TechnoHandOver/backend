@@ -9,6 +9,7 @@ type Repository interface {
 	Update(user *models.User) (*models.User, error)
 	InsertRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error)
 	SelectRouteTmp(routeTmpId uint32) (*models.RouteTmp, error)
+	SelectRouteTmpArray() (*models.RoutesTmp, error)
 	UpdateRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error)
 	DeleteRouteTmp(routeTmpId uint32) (*models.RouteTmp, error)
 }

@@ -30,6 +30,7 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 		middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpDelete(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.GET("/api/users/routes-tmp/list", userDelivery.HandlerRouteTmpList())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -119,5 +120,11 @@ func (userDelivery *UserDelivery) HandlerRouteTmpDelete() echo.HandlerFunc {
 		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
 
 		return responser.Respond(context, userDelivery.userUsecase.DeleteRouteTmp(userVkId, routeTmpDeleteRequest.Id))
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRouteTmpList() echo.HandlerFunc {
+	return func(context echo.Context) error {
+		return responser.Respond(context, userDelivery.userUsecase.ListRouteTmp())
 	}
 }

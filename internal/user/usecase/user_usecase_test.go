@@ -464,3 +464,48 @@ func TestUserUsecase_DeleteRouteTmp_notFound(t *testing.T) {
 	response_ := userUsecase.DeleteRouteTmp(expectedRouteTmp.UserAuthorVkId, expectedRouteTmp.Id)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
+
+func TestUserUsecase_ListRouteTmp(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	dateTimeDep1, err := timestamps.NewDateTime("17.11.2021 10:25")
+	assert.Nil(t, err)
+	dateTimeArr1, err := timestamps.NewDateTime("17.11.2021 10:30")
+	assert.Nil(t, err)
+	dateTimeDep2, err := timestamps.NewDateTime("17.11.2021 10:35")
+	assert.Nil(t, err)
+	dateTimeArr2, err := timestamps.NewDateTime("17.11.2021 10:40")
+	assert.Nil(t, err)
+	expectedRoutesTmp := &models.RoutesTmp{
+		&models.RouteTmp{
+			Id:             1,
+			UserAuthorVkId: 3,
+			LocDep:         "Общежитие №10",
+			LocArr:         "УЛК",
+			MinPrice:       500,
+			DateTimeDep:    *dateTimeDep1,
+			DateTimeArr:    *dateTimeArr1,
+		},
+		&models.RouteTmp{
+			Id:             2,
+			UserAuthorVkId: 4,
+			LocDep:         "Общежитие №9",
+			LocArr:         "СК",
+			MinPrice:       600,
+			DateTimeDep:    *dateTimeDep2,
+			DateTimeArr:    *dateTimeArr2,
+		},
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectRouteTmpArray().
+		Return(expectedRoutesTmp, nil)
+
+	response_ := userUsecase.ListRouteTmp()
+	assert.Equal(t, response.NewResponse(consts.OK, expectedRoutesTmp), response_)
+}

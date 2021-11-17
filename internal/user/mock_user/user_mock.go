@@ -91,6 +91,20 @@ func (mr *MockUsecaseMockRecorder) GetRouteTmp(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouteTmp", reflect.TypeOf((*MockUsecase)(nil).GetRouteTmp), arg0)
 }
 
+// ListRouteTmp mocks base method.
+func (m *MockUsecase) ListRouteTmp() *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListRouteTmp")
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// ListRouteTmp indicates an expected call of ListRouteTmp.
+func (mr *MockUsecaseMockRecorder) ListRouteTmp() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRouteTmp", reflect.TypeOf((*MockUsecase)(nil).ListRouteTmp))
+}
+
 // Login mocks base method.
 func (m *MockUsecase) Login(arg0 *models.User) *response.Response {
 	m.ctrl.T.Helper()
@@ -230,6 +244,21 @@ func (m *MockRepository) SelectRouteTmp(arg0 uint32) (*models.RouteTmp, error) {
 func (mr *MockRepositoryMockRecorder) SelectRouteTmp(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRouteTmp", reflect.TypeOf((*MockRepository)(nil).SelectRouteTmp), arg0)
+}
+
+// SelectRouteTmpArray mocks base method.
+func (m *MockRepository) SelectRouteTmpArray() (*models.RoutesTmp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectRouteTmpArray")
+	ret0, _ := ret[0].(*models.RoutesTmp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelectRouteTmpArray indicates an expected call of SelectRouteTmpArray.
+func (mr *MockRepositoryMockRecorder) SelectRouteTmpArray() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRouteTmpArray", reflect.TypeOf((*MockRepository)(nil).SelectRouteTmpArray))
 }
 
 // Update mocks base method.
