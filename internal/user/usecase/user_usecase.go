@@ -151,3 +151,16 @@ func (userUsecase *UserUsecase) CreateRoutePerm(routePerm *models.RoutePerm) *re
 
 	return response.NewResponse(consts.Created, routePerm)
 }
+
+func (userUsecase *UserUsecase) GetRoutePerm(routePermId uint32) *response.Response {
+	routePerm, err := userUsecase.userRepository.SelectRoutePerm(routePermId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, routePerm)
+}

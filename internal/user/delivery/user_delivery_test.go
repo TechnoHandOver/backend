@@ -398,3 +398,60 @@ func TestUserDelivery_HandlerRoutePermCreate(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, jsonExpectedResponse, responseBody)
 }
+
+func TestUserDelivery_HandlerRoutePermGet(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserUsecase := mock_user.NewMockUsecase(controller)
+	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator()
+	userDelivery.Configure(echo_, &middlewares.Manager{})
+
+	timeDep, err := timestamps.NewTime("15:00")
+	assert.Nil(t, err)
+	timeArr, err := timestamps.NewTime("15:05")
+	assert.Nil(t, err)
+	expectedRoutePerm := &models.RoutePerm{
+		Id: 1,
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		EvenWeek:       true,
+		OddWeek:        false,
+		DayOfWeek:      timestamps.DayOfWeekWednesday,
+		TimeDep:        *timeDep,
+		TimeArr:        *timeArr,
+	}
+
+	mockUserUsecase.
+		EXPECT().
+		GetRoutePerm(gomock.Eq(expectedRoutePerm.Id)).
+		Return(response.NewResponse(consts.OK, expectedRoutePerm))
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedRoutePerm,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.SetPath("/api/users/routes-perm/:id")
+	context.SetParamNames("id")
+	context.SetParamValues(strconv.FormatUint(uint64(expectedRoutePerm.Id), 10))
+
+	handler := userDelivery.HandlerRoutePermGet()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}

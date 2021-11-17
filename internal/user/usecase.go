@@ -14,4 +14,5 @@ type Usecase interface {
 	DeleteRouteTmp(userVkId uint32, routeTmpId uint32) *response.Response
 	ListRouteTmp() *response.Response
 	CreateRoutePerm(routePerm *models.RoutePerm) *response.Response
+	GetRoutePerm(routePermId uint32) *response.Response
 }

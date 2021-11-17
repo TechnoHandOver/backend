@@ -33,6 +33,7 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 	echo_.GET("/api/users/routes-tmp/list", userDelivery.HandlerRouteTmpList())
 	echo_.POST("/api/users/routes-perm", userDelivery.HandlerRoutePermCreate(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.GET("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermGet())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -162,5 +163,20 @@ func (userDelivery *UserDelivery) HandlerRoutePermCreate() echo.HandlerFunc {
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.CreateRoutePerm(routePerm))
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRoutePermGet() echo.HandlerFunc {
+	type RoutePermGetRequest struct {
+		Id uint32 `param:"id" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		routePermGetRequest := new(RoutePermGetRequest)
+		if err := parser.ParseRequest(context, routePermGetRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		return responser.Respond(context, userDelivery.userUsecase.GetRoutePerm(routePermGetRequest.Id))
 	}
 }
