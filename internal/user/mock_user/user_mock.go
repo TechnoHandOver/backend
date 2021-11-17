@@ -35,6 +35,20 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
+// CreateRoutePerm mocks base method.
+func (m *MockUsecase) CreateRoutePerm(arg0 *models.RoutePerm) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRoutePerm", arg0)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// CreateRoutePerm indicates an expected call of CreateRoutePerm.
+func (mr *MockUsecaseMockRecorder) CreateRoutePerm(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRoutePerm", reflect.TypeOf((*MockUsecase)(nil).CreateRoutePerm), arg0)
+}
+
 // CreateRouteTmp mocks base method.
 func (m *MockUsecase) CreateRouteTmp(arg0 *models.RouteTmp) *response.Response {
 	m.ctrl.T.Helper()
@@ -184,6 +198,21 @@ func (m *MockRepository) Insert(arg0 *models.User) (*models.User, error) {
 func (mr *MockRepositoryMockRecorder) Insert(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), arg0)
+}
+
+// InsertRoutePerm mocks base method.
+func (m *MockRepository) InsertRoutePerm(arg0 *models.RoutePerm) (*models.RoutePerm, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertRoutePerm", arg0)
+	ret0, _ := ret[0].(*models.RoutePerm)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertRoutePerm indicates an expected call of InsertRoutePerm.
+func (mr *MockRepositoryMockRecorder) InsertRoutePerm(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertRoutePerm", reflect.TypeOf((*MockRepository)(nil).InsertRoutePerm), arg0)
 }
 
 // InsertRouteTmp mocks base method.

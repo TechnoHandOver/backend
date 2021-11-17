@@ -35,11 +35,3 @@ func (dateTime *DateTime) UnmarshalJSON(b []byte) (err error) {
 func (dateTime *DateTime) MarshalJSON() ([]byte, error) {
 	return []byte(dateTime.String()), nil
 }
-
-/*func ValidateDateTime(field reflect.Value) interface{} {
-	if value, ok := field.Interface().(DateTime); ok {
-		return value
-	}
-
-	return nil
-}*/

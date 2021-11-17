@@ -246,3 +246,21 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, dat
 
 	return routeTmp, nil
 }
+
+func (userRepository *UserRepository) InsertRoutePerm(routePerm *models.RoutePerm) (*models.RoutePerm, error) {
+	const query = `
+INSERT INTO view_route_perm (user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep,
+                             time_arr)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr`
+
+	if err := userRepository.db.QueryRow(query, routePerm.UserAuthorVkId, routePerm.LocDep, routePerm.LocArr,
+		routePerm.MinPrice, routePerm.EvenWeek, routePerm.OddWeek, routePerm.DayOfWeek, time.Time(routePerm.TimeDep),
+		time.Time(routePerm.TimeArr)).Scan(&routePerm.Id, &routePerm.UserAuthorVkId, &routePerm.LocDep,
+		&routePerm.LocArr, &routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek, &routePerm.DayOfWeek,
+		&routePerm.TimeDep, &routePerm.TimeArr); err != nil {
+		return nil, err
+	}
+
+	return routePerm, nil
+}

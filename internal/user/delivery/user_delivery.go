@@ -31,6 +31,8 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 	echo_.DELETE("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpDelete(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-tmp/list", userDelivery.HandlerRouteTmpList())
+	echo_.POST("/api/users/routes-perm", userDelivery.HandlerRoutePermCreate(),
+		middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -126,5 +128,39 @@ func (userDelivery *UserDelivery) HandlerRouteTmpDelete() echo.HandlerFunc {
 func (userDelivery *UserDelivery) HandlerRouteTmpList() echo.HandlerFunc {
 	return func(context echo.Context) error {
 		return responser.Respond(context, userDelivery.userUsecase.ListRouteTmp())
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRoutePermCreate() echo.HandlerFunc {
+	type RoutePermCreateRequest struct {
+		LocDep    string    `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr    string    `json:"locArr" validate:"required,gte=2,lte=100"`
+		MinPrice  uint32    `json:"minPrice,omitempty" validate:"omitempty"`
+		EvenWeek  bool      `json:"evenWeek,omitempty" validate:"omitempty"`
+		OddWeek   bool      `json:"oddWeek,omitempty" validate:"omitempty"`
+		DayOfWeek DayOfWeek `json:"dayOfWeek" validate:"required,eq=Mon|eq=Tue|eq=Wed|eq=Thu|eq=Fri|eq=Sat|eq=Sun"`
+		TimeDep   Time      `json:"timeDep" validate:"required"`
+		TimeArr   Time      `json:"timeArr" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		routePermCreateRequest := new(RoutePermCreateRequest)
+		if err := parser.ParseRequest(context, routePermCreateRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		routePerm := &models.RoutePerm{
+			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
+			LocDep:         routePermCreateRequest.LocDep,
+			LocArr:         routePermCreateRequest.LocArr,
+			MinPrice:       routePermCreateRequest.MinPrice,
+			EvenWeek:       routePermCreateRequest.EvenWeek,
+			OddWeek:        routePermCreateRequest.OddWeek,
+			DayOfWeek:      routePermCreateRequest.DayOfWeek,
+			TimeDep:        routePermCreateRequest.TimeDep,
+			TimeArr:        routePermCreateRequest.TimeArr,
+		}
+
+		return responser.Respond(context, userDelivery.userUsecase.CreateRoutePerm(routePerm))
 	}
 }

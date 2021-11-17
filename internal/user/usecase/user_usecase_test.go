@@ -431,7 +431,7 @@ func TestUserUsecase_DeleteRouteTmp_forbidden(t *testing.T) {
 		SelectRouteTmp(gomock.Eq(expectedRouteTmp.Id)).
 		Return(expectedRouteTmp, nil)
 
-	response_ := userUsecase.DeleteRouteTmp(expectedRouteTmp.UserAuthorVkId + 1, expectedRouteTmp.Id)
+	response_ := userUsecase.DeleteRouteTmp(expectedRouteTmp.UserAuthorVkId+1, expectedRouteTmp.Id)
 	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }
 
@@ -508,4 +508,51 @@ func TestUserUsecase_ListRouteTmp(t *testing.T) {
 
 	response_ := userUsecase.ListRouteTmp()
 	assert.Equal(t, response.NewResponse(consts.OK, expectedRoutesTmp), response_)
+}
+
+func TestUserUsecase_CreateRoutePerm(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	timeDep, err := timestamps.NewTime("12:30")
+	assert.Nil(t, err)
+	timeArr, err := timestamps.NewTime("12:35")
+	assert.Nil(t, err)
+	routePerm := &models.RoutePerm{
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		EvenWeek:       true,
+		OddWeek:        false,
+		DayOfWeek:      timestamps.DayOfWeekWednesday,
+		TimeDep:        *timeDep,
+		TimeArr:        *timeArr,
+	}
+	expectedRoutePerm := &models.RoutePerm{
+		Id:             1,
+		UserAuthorVkId: routePerm.UserAuthorVkId,
+		LocDep:         routePerm.LocDep,
+		LocArr:         routePerm.LocArr,
+		MinPrice:       routePerm.MinPrice,
+		EvenWeek:       routePerm.EvenWeek,
+		OddWeek:        routePerm.OddWeek,
+		DayOfWeek:      routePerm.DayOfWeek,
+		TimeDep:        routePerm.TimeDep,
+		TimeArr:        routePerm.TimeArr,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		InsertRoutePerm(gomock.Eq(routePerm)).
+		DoAndReturn(func(routePerm *models.RoutePerm) (*models.RoutePerm, error) {
+			routePerm.Id = expectedRoutePerm.Id
+			return routePerm, nil
+		})
+
+	response_ := userUsecase.CreateRoutePerm(routePerm)
+	assert.Equal(t, response.NewResponse(consts.Created, expectedRoutePerm), response_)
 }

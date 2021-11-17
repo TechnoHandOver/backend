@@ -41,6 +41,15 @@ func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 	return response.NewResponse(consts.OK, user2)
 }
 
+func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response {
+	routeTmp, err := userUsecase.userRepository.InsertRouteTmp(routeTmp)
+	if err != nil {
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.Created, routeTmp)
+}
+
 func (userUsecase *UserUsecase) Get(vkId uint32) *response.Response {
 	user_, err := userUsecase.userRepository.SelectByVkId(vkId)
 	if err != nil {
@@ -52,15 +61,6 @@ func (userUsecase *UserUsecase) Get(vkId uint32) *response.Response {
 	}
 
 	return response.NewResponse(consts.OK, user_)
-}
-
-func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response {
-	routeTmp, err := userUsecase.userRepository.InsertRouteTmp(routeTmp)
-	if err != nil {
-		return response.NewErrorResponse(consts.InternalError, err)
-	}
-
-	return response.NewResponse(consts.Created, routeTmp)
 }
 
 func (userUsecase *UserUsecase) GetRouteTmp(routeTmpId uint32) *response.Response {
@@ -141,4 +141,13 @@ func (userUsecase *UserUsecase) ListRouteTmp() *response.Response {
 	}
 
 	return response.NewResponse(consts.OK, routesTmp)
+}
+
+func (userUsecase *UserUsecase) CreateRoutePerm(routePerm *models.RoutePerm) *response.Response {
+	routePerm, err := userUsecase.userRepository.InsertRoutePerm(routePerm)
+	if err != nil {
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.Created, routePerm)
 }

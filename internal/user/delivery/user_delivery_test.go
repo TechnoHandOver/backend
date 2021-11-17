@@ -11,7 +11,6 @@ import (
 	RequestValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	"github.com/TechnoHandOver/backend/internal/user/delivery"
 	"github.com/TechnoHandOver/backend/internal/user/mock_user"
-	Validator "github.com/go-playground/validator/v10"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -30,7 +29,7 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	echo_.Validator = RequestValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	const vkId uint32 = 2
@@ -61,7 +60,7 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 		CreateRouteTmp(gomock.Eq(routeTmp)).
 		DoAndReturn(func(routeTmp *models.RouteTmp) *response.Response {
 			routeTmp.Id = expectedRouteTmp.Id
-			return response.NewResponse(http.StatusOK, routeTmp)
+			return response.NewResponse(consts.Created, routeTmp)
 		})
 
 	jsonRequest, err := json.Marshal(routeTmp)
@@ -84,7 +83,7 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 
 	err = handler(context)
 	assert.Nil(t, err)
-	assert.Equal(t, http.StatusOK, recorder.Code)
+	assert.Equal(t, http.StatusCreated, recorder.Code)
 
 	responseBody, err := ioutil.ReadAll(recorder.Body)
 	assert.Nil(t, err)
@@ -98,7 +97,7 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	echo_.Validator = RequestValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 11:30")
@@ -152,7 +151,7 @@ func TestUserDelivery_HandlerRouteTmpUpdate(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	echo_.Validator = RequestValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 13:30")
@@ -211,7 +210,7 @@ func TestUserDelivery_HandlerRouteTmpDelete(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	echo_.Validator = RequestValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 13:30")
@@ -266,7 +265,7 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator(Validator.New())
+	echo_.Validator = RequestValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeDep1, err := timestamps.NewDateTime("17.11.2021 10:25")
@@ -320,6 +319,80 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 	err = handler(context)
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}
+
+func TestUserDelivery_HandlerRoutePermCreate(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserUsecase := mock_user.NewMockUsecase(controller)
+	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator()
+	userDelivery.Configure(echo_, &middlewares.Manager{})
+
+	const vkId uint32 = 2
+	timeDep, err := timestamps.NewTime("12:30")
+	assert.Nil(t, err)
+	timeArr, err := timestamps.NewTime("12:35")
+	assert.Nil(t, err)
+	routePerm := &models.RoutePerm{
+		UserAuthorVkId: vkId,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		EvenWeek:       true,
+		OddWeek:        false,
+		DayOfWeek:      timestamps.DayOfWeekWednesday,
+		TimeDep:        *timeDep,
+		TimeArr:        *timeArr,
+	}
+	expectedRoutePerm := &models.RoutePerm{
+		Id:             1,
+		UserAuthorVkId: routePerm.UserAuthorVkId,
+		LocDep:         routePerm.LocDep,
+		LocArr:         routePerm.LocArr,
+		MinPrice:       routePerm.MinPrice,
+		EvenWeek:       routePerm.EvenWeek,
+		OddWeek:        routePerm.OddWeek,
+		DayOfWeek:      routePerm.DayOfWeek,
+		TimeDep:        routePerm.TimeDep,
+		TimeArr:        routePerm.TimeArr,
+	}
+
+	mockUserUsecase.
+		EXPECT().
+		CreateRoutePerm(gomock.Eq(routePerm)).
+		DoAndReturn(func(routePerm *models.RoutePerm) *response.Response {
+			routePerm.Id = expectedRoutePerm.Id
+			return response.NewResponse(consts.Created, routePerm)
+		})
+
+	jsonRequest, err := json.Marshal(routePerm)
+	assert.Nil(t, err)
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedRoutePerm,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodPost, "/api/users/routes-perm", strings.NewReader(string(jsonRequest)))
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.Set(consts.EchoContextKeyUserVkId, vkId)
+
+	handler := userDelivery.HandlerRoutePermCreate()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusCreated, recorder.Code)
 
 	responseBody, err := ioutil.ReadAll(recorder.Body)
 	assert.Nil(t, err)
