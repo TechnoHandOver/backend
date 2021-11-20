@@ -575,3 +575,76 @@ func TestUserDelivery_HandlerRoutePermDelete(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, jsonExpectedResponse, responseBody)
 }
+
+func TestUserDelivery_HandlerRoutePermList(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserUsecase := mock_user.NewMockUsecase(controller)
+	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator()
+	userDelivery.Configure(echo_, &middlewares.Manager{})
+
+	timeDep1, err := timestamps.NewTime("17:30")
+	assert.Nil(t, err)
+	timeArr1, err := timestamps.NewTime("17:35")
+	assert.Nil(t, err)
+	timeDep2, err := timestamps.NewTime("17:40")
+	assert.Nil(t, err)
+	timeArr2, err := timestamps.NewTime("17:45")
+	assert.Nil(t, err)
+	expectedRoutesPerm := &models.RoutesPerm{
+		&models.RoutePerm{
+			Id:             1,
+			UserAuthorVkId: 2,
+			LocDep:         "Общежитие №10",
+			LocArr:         "УЛК",
+			MinPrice:       500,
+			EvenWeek:       true,
+			OddWeek:        false,
+			DayOfWeek:      timestamps.DayOfWeekWednesday,
+			TimeDep:        *timeDep1,
+			TimeArr:        *timeArr1,
+		},
+		&models.RoutePerm{
+			Id:             1,
+			UserAuthorVkId: 3,
+			LocDep:         "Общежитие №9",
+			LocArr:         "СК",
+			MinPrice:       600,
+			EvenWeek:       false,
+			OddWeek:        true,
+			DayOfWeek:      timestamps.DayOfWeekSaturday,
+			TimeDep:        *timeDep2,
+			TimeArr:        *timeArr2,
+		},
+	}
+
+	mockUserUsecase.
+		EXPECT().
+		ListRoutePerm().
+		Return(response.NewResponse(consts.OK, expectedRoutesPerm))
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedRoutesPerm,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodGet, "/api/users/routes-perm/list", nil)
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+
+	handler := userDelivery.HandlerRoutePermList()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}

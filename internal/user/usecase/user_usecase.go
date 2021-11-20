@@ -210,3 +210,12 @@ func (userUsecase *UserUsecase) DeleteRoutePerm(userVkId uint32, routePermId uin
 
 	return response.NewResponse(consts.OK, routePerm)
 }
+
+func (userUsecase *UserUsecase) ListRoutePerm() *response.Response {
+	routesPerm, err := userUsecase.userRepository.SelectRoutePermArray()
+	if err != nil {
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, routesPerm)
+}

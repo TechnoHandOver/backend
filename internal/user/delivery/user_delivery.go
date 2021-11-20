@@ -38,6 +38,7 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 		middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermDelete(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.GET("/api/users/routes-perm/list", userDelivery.HandlerRoutePermList())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -241,5 +242,11 @@ func (userDelivery *UserDelivery) HandlerRoutePermDelete() echo.HandlerFunc {
 		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
 
 		return responser.Respond(context, userDelivery.userUsecase.DeleteRoutePerm(userVkId, id))
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRoutePermList() echo.HandlerFunc {
+	return func(context echo.Context) error {
+		return responser.Respond(context, userDelivery.userUsecase.ListRoutePerm())
 	}
 }

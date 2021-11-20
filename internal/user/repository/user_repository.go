@@ -285,3 +285,31 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_wee
 
 	return routePerm, nil
 }
+
+func (userRepository *UserRepository) SelectRoutePermArray() (*models.RoutesPerm, error) {
+	const query = `
+SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm
+ORDER BY day_of_week, time_dep, time_arr, even_week, odd_week, min_price DESC, id`
+
+	rows, err := userRepository.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	routesPerm := make(models.RoutesPerm, 0)
+	for rows.Next() {
+		routePerm := new(models.RoutePerm)
+		if err := rows.Scan(&routePerm.Id, &routePerm.UserAuthorVkId, &routePerm.LocDep, &routePerm.LocArr,
+			&routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek, &routePerm.DayOfWeek, &routePerm.TimeDep,
+			&routePerm.TimeArr); err != nil {
+			return nil, err
+		}
+
+		routesPerm = append(routesPerm, routePerm)
+	}
+
+	return &routesPerm, nil
+}

@@ -16,4 +16,5 @@ type Repository interface {
 	SelectRoutePerm(routePermId uint32) (*models.RoutePerm, error)
 	UpdateRoutePerm(routePerm *models.RoutePerm) (*models.RoutePerm, error)
 	DeleteRoutePerm(routePermId uint32) (*models.RoutePerm, error)
+	SelectRoutePermArray() (*models.RoutesPerm, error)
 }

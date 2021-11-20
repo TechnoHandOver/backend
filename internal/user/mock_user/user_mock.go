@@ -133,6 +133,20 @@ func (mr *MockUsecaseMockRecorder) GetRouteTmp(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouteTmp", reflect.TypeOf((*MockUsecase)(nil).GetRouteTmp), arg0)
 }
 
+// ListRoutePerm mocks base method.
+func (m *MockUsecase) ListRoutePerm() *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListRoutePerm")
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// ListRoutePerm indicates an expected call of ListRoutePerm.
+func (mr *MockUsecaseMockRecorder) ListRoutePerm() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoutePerm", reflect.TypeOf((*MockUsecase)(nil).ListRoutePerm))
+}
+
 // ListRouteTmp mocks base method.
 func (m *MockUsecase) ListRouteTmp() *response.Response {
 	m.ctrl.T.Helper()
@@ -330,6 +344,21 @@ func (m *MockRepository) SelectRoutePerm(arg0 uint32) (*models.RoutePerm, error)
 func (mr *MockRepositoryMockRecorder) SelectRoutePerm(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRoutePerm", reflect.TypeOf((*MockRepository)(nil).SelectRoutePerm), arg0)
+}
+
+// SelectRoutePermArray mocks base method.
+func (m *MockRepository) SelectRoutePermArray() (*models.RoutesPerm, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectRoutePermArray")
+	ret0, _ := ret[0].(*models.RoutesPerm)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelectRoutePermArray indicates an expected call of SelectRoutePermArray.
+func (mr *MockRepositoryMockRecorder) SelectRoutePermArray() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRoutePermArray", reflect.TypeOf((*MockRepository)(nil).SelectRoutePermArray))
 }
 
 // SelectRouteTmp mocks base method.
