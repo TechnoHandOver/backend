@@ -63,6 +63,20 @@ func (mr *MockUsecaseMockRecorder) CreateRouteTmp(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRouteTmp", reflect.TypeOf((*MockUsecase)(nil).CreateRouteTmp), arg0)
 }
 
+// DeleteRoutePerm mocks base method.
+func (m *MockUsecase) DeleteRoutePerm(arg0, arg1 uint32) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteRoutePerm", arg0, arg1)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// DeleteRoutePerm indicates an expected call of DeleteRoutePerm.
+func (mr *MockUsecaseMockRecorder) DeleteRoutePerm(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRoutePerm", reflect.TypeOf((*MockUsecase)(nil).DeleteRoutePerm), arg0, arg1)
+}
+
 // DeleteRouteTmp mocks base method.
 func (m *MockUsecase) DeleteRouteTmp(arg0, arg1 uint32) *response.Response {
 	m.ctrl.T.Helper()
@@ -196,6 +210,21 @@ func NewMockRepository(ctrl *gomock.Controller) *MockRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
+}
+
+// DeleteRoutePerm mocks base method.
+func (m *MockRepository) DeleteRoutePerm(arg0 uint32) (*models.RoutePerm, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteRoutePerm", arg0)
+	ret0, _ := ret[0].(*models.RoutePerm)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteRoutePerm indicates an expected call of DeleteRoutePerm.
+func (mr *MockRepositoryMockRecorder) DeleteRoutePerm(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteRoutePerm", reflect.TypeOf((*MockRepository)(nil).DeleteRoutePerm), arg0)
 }
 
 // DeleteRouteTmp mocks base method.

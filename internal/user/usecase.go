@@ -16,4 +16,5 @@ type Usecase interface {
 	CreateRoutePerm(routePerm *models.RoutePerm) *response.Response
 	GetRoutePerm(routePermId uint32) *response.Response
 	UpdateRoutePerm(routePerm *models.RoutePerm) *response.Response
+	DeleteRoutePerm(userVkId uint32, routePermId uint32) *response.Response
 }

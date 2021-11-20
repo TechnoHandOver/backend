@@ -36,6 +36,8 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 	echo_.GET("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermGet())
 	echo_.PUT("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermUpdate(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.DELETE("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermDelete(),
+		middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -221,5 +223,23 @@ func (userDelivery *UserDelivery) HandlerRoutePermUpdate() echo.HandlerFunc {
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.UpdateRoutePerm(routePerm))
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRoutePermDelete() echo.HandlerFunc {
+	type RoutePermDeleteRequest struct {
+		Id *uint32 `param:"id" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		routePermDeleteRequest := new(RoutePermDeleteRequest)
+		if err := parser.ParseRequest(context, routePermDeleteRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		id := *routePermDeleteRequest.Id
+		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
+
+		return responser.Respond(context, userDelivery.userUsecase.DeleteRoutePerm(userVkId, id))
 	}
 }

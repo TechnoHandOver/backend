@@ -184,3 +184,29 @@ func (userUsecase *UserUsecase) UpdateRoutePerm(routePerm *models.RoutePerm) *re
 
 	return response.NewResponse(consts.OK, routePerm)
 }
+
+func (userUsecase *UserUsecase) DeleteRoutePerm(userVkId uint32, routePermId uint32) *response.Response {
+	existingRoutePerm, err := userUsecase.userRepository.SelectRoutePerm(routePermId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if userVkId != existingRoutePerm.UserAuthorVkId {
+		return response.NewErrorResponse(consts.Forbidden, err)
+	}
+
+	routePerm, err := userUsecase.userRepository.DeleteRoutePerm(routePermId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, routePerm)
+}

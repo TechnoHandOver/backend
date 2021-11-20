@@ -158,6 +158,20 @@ CREATE TRIGGER view_route_perm_update INSTEAD OF UPDATE
     FOR EACH ROW
 EXECUTE FUNCTION view_route_perm_update();
 
+CREATE FUNCTION view_route_perm_delete()
+    RETURNS TRIGGER
+AS $$
+BEGIN
+    DELETE FROM route WHERE id = old.id;
+    RETURN old;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER view_route_perm_delete INSTEAD OF DELETE
+    ON view_route_perm
+    FOR EACH ROW
+EXECUTE FUNCTION view_route_perm_delete();
+
 --CREATE INDEX ON user_ USING hash (vk_id);
 
 --CREATE INDEX ON ad (user_author_id);
