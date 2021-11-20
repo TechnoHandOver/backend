@@ -273,7 +273,7 @@ func TestUserUsecase_UpdateRouteTmp(t *testing.T) {
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
 		Id:             routeTmp.Id,
-		UserAuthorVkId: 2,
+		UserAuthorVkId: routeTmp.UserAuthorVkId,
 		LocDep:         "Общежитие №9",
 		LocArr:         "СК",
 		MinPrice:       600,
@@ -569,7 +569,7 @@ func TestUserUsecase_GetRoutePerm(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id: 1,
+		Id:             1,
 		UserAuthorVkId: 2,
 		LocDep:         "Корпус Энерго",
 		LocArr:         "Корпус УЛК",
@@ -605,5 +605,142 @@ func TestUserUsecase_GetRoutePerm_notFound(t *testing.T) {
 		Return(nil, consts.RepErrNotFound)
 
 	response_ := userUsecase.GetRoutePerm(routePermId)
+	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
+}
+
+func TestUserUsecase_UpdateRoutePerm(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	timeDep1, err := timestamps.NewTime("16:20")
+	assert.Nil(t, err)
+	timeArr1, err := timestamps.NewTime("16:25")
+	assert.Nil(t, err)
+	routePerm := &models.RoutePerm{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		MinPrice:       500,
+		EvenWeek:       true,
+		OddWeek:        false,
+		DayOfWeek:      timestamps.DayOfWeekWednesday,
+		TimeDep:        *timeDep1,
+		TimeArr:        *timeArr1,
+	}
+	timeDep2, err := timestamps.NewTime("16:30")
+	assert.Nil(t, err)
+	timeArr2, err := timestamps.NewTime("16:35")
+	assert.Nil(t, err)
+	expectedRoutePerm := &models.RoutePerm{
+		Id:             1,
+		UserAuthorVkId: routePerm.UserAuthorVkId,
+		LocDep:         "Общежитие №9",
+		LocArr:         "СК",
+		MinPrice:       600,
+		EvenWeek:       false,
+		OddWeek:        true,
+		DayOfWeek:      timestamps.DayOfWeekSaturday,
+		TimeDep:        *timeDep2,
+		TimeArr:        *timeArr2,
+	}
+
+	call := mockUserRepository.
+		EXPECT().
+		SelectRoutePerm(gomock.Eq(routePerm.Id)).
+		Return(routePerm, nil)
+
+	mockUserRepository.
+		EXPECT().
+		UpdateRoutePerm(gomock.Eq(expectedRoutePerm)).
+		Return(expectedRoutePerm, nil).
+		After(call)
+
+	response_ := userUsecase.UpdateRoutePerm(expectedRoutePerm)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedRoutePerm), response_)
+}
+
+func TestUserUsecase_UpdateRoutePerm_forbidden(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	timeDep1, err := timestamps.NewTime("16:20")
+	assert.Nil(t, err)
+	timeArr1, err := timestamps.NewTime("16:25")
+	assert.Nil(t, err)
+	routePerm := &models.RoutePerm{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		MinPrice:       500,
+		EvenWeek:       true,
+		OddWeek:        false,
+		DayOfWeek:      timestamps.DayOfWeekWednesday,
+		TimeDep:        *timeDep1,
+		TimeArr:        *timeArr1,
+	}
+	timeDep2, err := timestamps.NewTime("16:30")
+	assert.Nil(t, err)
+	timeArr2, err := timestamps.NewTime("16:35")
+	assert.Nil(t, err)
+	expectedRoutePerm := &models.RoutePerm{
+		Id:             1,
+		UserAuthorVkId: 3,
+		LocDep:         "Общежитие №9",
+		LocArr:         "СК",
+		MinPrice:       600,
+		EvenWeek:       false,
+		OddWeek:        true,
+		DayOfWeek:      timestamps.DayOfWeekSaturday,
+		TimeDep:        *timeDep2,
+		TimeArr:        *timeArr2,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectRoutePerm(gomock.Eq(routePerm.Id)).
+		Return(routePerm, nil)
+
+	response_ := userUsecase.UpdateRoutePerm(expectedRoutePerm)
+	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
+}
+
+func TestUserUsecase_UpdateRoutePerm_notFound(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	timeDep, err := timestamps.NewTime("15:00")
+	assert.Nil(t, err)
+	timeArr, err := timestamps.NewTime("15:05")
+	assert.Nil(t, err)
+	routePerm := &models.RoutePerm{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		EvenWeek:       true,
+		OddWeek:        false,
+		DayOfWeek:      timestamps.DayOfWeekWednesday,
+		TimeDep:        *timeDep,
+		TimeArr:        *timeArr,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectRoutePerm(gomock.Eq(routePerm.Id)).
+		Return(nil, consts.RepErrNotFound)
+
+	response_ := userUsecase.UpdateRoutePerm(routePerm)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }

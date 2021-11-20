@@ -15,4 +15,5 @@ type Usecase interface {
 	ListRouteTmp() *response.Response
 	CreateRoutePerm(routePerm *models.RoutePerm) *response.Response
 	GetRoutePerm(routePermId uint32) *response.Response
+	UpdateRoutePerm(routePerm *models.RoutePerm) *response.Response
 }

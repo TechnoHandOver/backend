@@ -646,3 +646,86 @@ func TestUserRepository_SelectRoutePerm_notFound(t *testing.T) {
 
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }
+
+func TestUserRepository_UpdateRoutePerm(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	userRepository := repository.NewUserRepositoryImpl(db)
+
+	timeDep, err := timestamps.NewTime("15:00")
+	assert.Nil(t, err)
+	timeArr, err := timestamps.NewTime("15:05")
+	assert.Nil(t, err)
+	expectedRoutePerm := &models.RoutePerm{
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		EvenWeek:       true,
+		OddWeek:        false,
+		DayOfWeek:      timestamps.DayOfWeekWednesday,
+		TimeDep:        *timeDep,
+		TimeArr:        *timeArr,
+	}
+
+	sqlmock_.
+		ExpectQuery("UPDATE view_route_perm").
+		WithArgs(expectedRoutePerm.Id, expectedRoutePerm.LocDep, expectedRoutePerm.LocArr, expectedRoutePerm.MinPrice,
+			expectedRoutePerm.EvenWeek, expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek,
+			time.Time(expectedRoutePerm.TimeDep), time.Time(expectedRoutePerm.TimeArr)).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "even_week",
+				"odd_week", "day_of_week", "time_dep", "time_arr"}).
+				AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorVkId, expectedRoutePerm.LocDep,
+					expectedRoutePerm.LocArr, expectedRoutePerm.MinPrice, expectedRoutePerm.EvenWeek,
+					expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek, time.Time(expectedRoutePerm.TimeDep),
+					time.Time(expectedRoutePerm.TimeArr)))
+
+	resultRoutePerm, resultErr := userRepository.UpdateRoutePerm(expectedRoutePerm)
+	assert.Nil(t, resultErr)
+	assert.Equal(t, expectedRoutePerm, resultRoutePerm)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
+func TestUserRepository_UpdateRoutePerm_notFound(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	userRepository := repository.NewUserRepositoryImpl(db)
+
+	timeDep, err := timestamps.NewTime("15:00")
+	assert.Nil(t, err)
+	timeArr, err := timestamps.NewTime("15:05")
+	assert.Nil(t, err)
+	routePerm := &models.RoutePerm{
+		UserAuthorVkId: 2,
+		LocDep:         "Корпус Энерго",
+		LocArr:         "Корпус УЛК",
+		MinPrice:       500,
+		EvenWeek:       true,
+		OddWeek:        false,
+		DayOfWeek:      timestamps.DayOfWeekWednesday,
+		TimeDep:        *timeDep,
+		TimeArr:        *timeArr,
+	}
+
+	sqlmock_.
+		ExpectQuery("UPDATE view_route_perm").
+		WithArgs(routePerm.Id, routePerm.LocDep, routePerm.LocArr, routePerm.MinPrice, routePerm.EvenWeek,
+			routePerm.OddWeek, routePerm.DayOfWeek, time.Time(routePerm.TimeDep), time.Time(routePerm.TimeArr)).
+		WillReturnError(sql.ErrNoRows)
+
+	resultRouteTmp, resultErr := userRepository.UpdateRoutePerm(routePerm)
+	assert.Equal(t, resultErr, consts.RepErrNotFound)
+	assert.Nil(t, resultRouteTmp)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}

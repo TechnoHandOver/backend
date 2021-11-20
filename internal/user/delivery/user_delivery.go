@@ -34,15 +34,17 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 	echo_.POST("/api/users/routes-perm", userDelivery.HandlerRoutePermCreate(),
 		middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermGet())
+	echo_.PUT("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermUpdate(),
+		middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
 	type RouteTmpCreateRequest struct {
-		LocDep      string   `json:"locDep" validate:"required,gte=2,lte=100"`
-		LocArr      string   `json:"locArr" validate:"required,gte=2,lte=100"`
-		MinPrice    uint32   `json:"minPrice,omitempty" validate:"omitempty"`
-		DateTimeDep DateTime `json:"dateTimeDep" validate:"required"`
-		DateTimeArr DateTime `json:"dateTimeArr" validate:"required"`
+		LocDep      *string   `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr      *string   `json:"locArr" validate:"required,gte=2,lte=100"`
+		MinPrice    *uint32   `json:"minPrice" validate:"required"`
+		DateTimeDep *DateTime `json:"dateTimeDep" validate:"required"`
+		DateTimeArr *DateTime `json:"dateTimeArr" validate:"required"`
 	}
 
 	return func(context echo.Context) error {
@@ -53,11 +55,11 @@ func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
 
 		routeTmp := &models.RouteTmp{
 			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         routeTmpCreateRequest.LocDep,
-			LocArr:         routeTmpCreateRequest.LocArr,
-			MinPrice:       routeTmpCreateRequest.MinPrice,
-			DateTimeDep:    routeTmpCreateRequest.DateTimeDep,
-			DateTimeArr:    routeTmpCreateRequest.DateTimeArr,
+			LocDep:         *routeTmpCreateRequest.LocDep,
+			LocArr:         *routeTmpCreateRequest.LocArr,
+			MinPrice:       *routeTmpCreateRequest.MinPrice,
+			DateTimeDep:    *routeTmpCreateRequest.DateTimeDep,
+			DateTimeArr:    *routeTmpCreateRequest.DateTimeArr,
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.CreateRouteTmp(routeTmp))
@@ -66,7 +68,7 @@ func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
 
 func (userDelivery *UserDelivery) HandlerRouteTmpGet() echo.HandlerFunc {
 	type RouteTmpGetRequest struct {
-		Id uint32 `param:"id" validate:"required"`
+		Id *uint32 `param:"id" validate:"required"`
 	}
 
 	return func(context echo.Context) error {
@@ -75,18 +77,20 @@ func (userDelivery *UserDelivery) HandlerRouteTmpGet() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
-		return responser.Respond(context, userDelivery.userUsecase.GetRouteTmp(routeTmpGetRequest.Id))
+		id := *routeTmpGetRequest.Id
+
+		return responser.Respond(context, userDelivery.userUsecase.GetRouteTmp(id))
 	}
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpUpdate() echo.HandlerFunc {
 	type RouteTmpUpdateRequest struct {
-		Id          uint32   `param:"id" validate:"required"`
-		LocDep      string   `json:"locDep,omitempty" validate:"omitempty,gte=2,lte=100"`
-		LocArr      string   `json:"locArr,omitempty" validate:"omitempty,gte=2,lte=100"`
-		MinPrice    uint32   `json:"minPrice,omitempty" validate:"omitempty"`
-		DateTimeDep DateTime `json:"dateTimeDep,omitempty" validate:"omitempty"`
-		DateTimeArr DateTime `json:"dateTimeArr,omitempty" validate:"omitempty"`
+		Id          *uint32   `param:"id" validate:"required"`
+		LocDep      *string   `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr      *string   `json:"locArr" validate:"required,gte=2,lte=100"`
+		MinPrice    *uint32   `json:"minPrice" validate:"required"`
+		DateTimeDep *DateTime `json:"dateTimeDep" validate:"required"`
+		DateTimeArr *DateTime `json:"dateTimeArr" validate:"required"`
 	}
 
 	return func(context echo.Context) error {
@@ -96,13 +100,13 @@ func (userDelivery *UserDelivery) HandlerRouteTmpUpdate() echo.HandlerFunc {
 		}
 
 		routeTmp := &models.RouteTmp{
-			Id:             routeTmpUpdateRequest.Id,
+			Id:             *routeTmpUpdateRequest.Id,
 			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         routeTmpUpdateRequest.LocDep,
-			LocArr:         routeTmpUpdateRequest.LocArr,
-			MinPrice:       routeTmpUpdateRequest.MinPrice,
-			DateTimeDep:    routeTmpUpdateRequest.DateTimeDep,
-			DateTimeArr:    routeTmpUpdateRequest.DateTimeArr,
+			LocDep:         *routeTmpUpdateRequest.LocDep,
+			LocArr:         *routeTmpUpdateRequest.LocArr,
+			MinPrice:       *routeTmpUpdateRequest.MinPrice,
+			DateTimeDep:    *routeTmpUpdateRequest.DateTimeDep,
+			DateTimeArr:    *routeTmpUpdateRequest.DateTimeArr,
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.UpdateRouteTmp(routeTmp))
@@ -111,7 +115,7 @@ func (userDelivery *UserDelivery) HandlerRouteTmpUpdate() echo.HandlerFunc {
 
 func (userDelivery *UserDelivery) HandlerRouteTmpDelete() echo.HandlerFunc {
 	type RouteTmpDeleteRequest struct {
-		Id uint32 `param:"id" validate:"required"`
+		Id *uint32 `param:"id" validate:"required"`
 	}
 
 	return func(context echo.Context) error {
@@ -120,9 +124,10 @@ func (userDelivery *UserDelivery) HandlerRouteTmpDelete() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
+		id := *routeTmpDeleteRequest.Id
 		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
 
-		return responser.Respond(context, userDelivery.userUsecase.DeleteRouteTmp(userVkId, routeTmpDeleteRequest.Id))
+		return responser.Respond(context, userDelivery.userUsecase.DeleteRouteTmp(userVkId, id))
 	}
 }
 
@@ -134,14 +139,14 @@ func (userDelivery *UserDelivery) HandlerRouteTmpList() echo.HandlerFunc {
 
 func (userDelivery *UserDelivery) HandlerRoutePermCreate() echo.HandlerFunc {
 	type RoutePermCreateRequest struct {
-		LocDep    string    `json:"locDep" validate:"required,gte=2,lte=100"`
-		LocArr    string    `json:"locArr" validate:"required,gte=2,lte=100"`
-		MinPrice  uint32    `json:"minPrice,omitempty" validate:"omitempty"`
-		EvenWeek  bool      `json:"evenWeek,omitempty" validate:"omitempty"`
-		OddWeek   bool      `json:"oddWeek,omitempty" validate:"omitempty"`
-		DayOfWeek DayOfWeek `json:"dayOfWeek" validate:"required,eq=Mon|eq=Tue|eq=Wed|eq=Thu|eq=Fri|eq=Sat|eq=Sun"`
-		TimeDep   Time      `json:"timeDep" validate:"required"`
-		TimeArr   Time      `json:"timeArr" validate:"required"`
+		LocDep    *string    `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr    *string    `json:"locArr" validate:"required,gte=2,lte=100"`
+		MinPrice  *uint32    `json:"minPrice" validate:"required"`
+		EvenWeek  *bool      `json:"evenWeek" validate:"required"`
+		OddWeek   *bool      `json:"oddWeek" validate:"required"`
+		DayOfWeek *DayOfWeek `json:"dayOfWeek" validate:"required,eq=Mon|eq=Tue|eq=Wed|eq=Thu|eq=Fri|eq=Sat|eq=Sun"`
+		TimeDep   *Time      `json:"timeDep" validate:"required"`
+		TimeArr   *Time      `json:"timeArr" validate:"required"`
 	}
 
 	return func(context echo.Context) error {
@@ -152,14 +157,14 @@ func (userDelivery *UserDelivery) HandlerRoutePermCreate() echo.HandlerFunc {
 
 		routePerm := &models.RoutePerm{
 			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         routePermCreateRequest.LocDep,
-			LocArr:         routePermCreateRequest.LocArr,
-			MinPrice:       routePermCreateRequest.MinPrice,
-			EvenWeek:       routePermCreateRequest.EvenWeek,
-			OddWeek:        routePermCreateRequest.OddWeek,
-			DayOfWeek:      routePermCreateRequest.DayOfWeek,
-			TimeDep:        routePermCreateRequest.TimeDep,
-			TimeArr:        routePermCreateRequest.TimeArr,
+			LocDep:         *routePermCreateRequest.LocDep,
+			LocArr:         *routePermCreateRequest.LocArr,
+			MinPrice:       parser.GetOrDefault(routePermCreateRequest.MinPrice, 0).(uint32),
+			EvenWeek:       parser.GetOrDefault(routePermCreateRequest.EvenWeek, true).(bool),
+			OddWeek:        parser.GetOrDefault(routePermCreateRequest.OddWeek, true).(bool),
+			DayOfWeek:      *routePermCreateRequest.DayOfWeek,
+			TimeDep:        *routePermCreateRequest.TimeDep,
+			TimeArr:        *routePermCreateRequest.TimeArr,
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.CreateRoutePerm(routePerm))
@@ -168,7 +173,7 @@ func (userDelivery *UserDelivery) HandlerRoutePermCreate() echo.HandlerFunc {
 
 func (userDelivery *UserDelivery) HandlerRoutePermGet() echo.HandlerFunc {
 	type RoutePermGetRequest struct {
-		Id uint32 `param:"id" validate:"required"`
+		Id *uint32 `param:"id" validate:"required"`
 	}
 
 	return func(context echo.Context) error {
@@ -177,6 +182,44 @@ func (userDelivery *UserDelivery) HandlerRoutePermGet() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
-		return responser.Respond(context, userDelivery.userUsecase.GetRoutePerm(routePermGetRequest.Id))
+		id := *routePermGetRequest.Id
+
+		return responser.Respond(context, userDelivery.userUsecase.GetRoutePerm(id))
+	}
+}
+
+func (userDelivery *UserDelivery) HandlerRoutePermUpdate() echo.HandlerFunc {
+	type RoutePermUpdateRequest struct {
+		Id        *uint32    `param:"id" validate:"required"`
+		LocDep    *string    `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr    *string    `json:"locArr" validate:"required,gte=2,lte=100"`
+		MinPrice  *uint32    `json:"minPrice" validate:"required"`
+		EvenWeek  *bool      `json:"evenWeek" validate:"required"`
+		OddWeek   *bool      `json:"oddWeek" validate:"required"`
+		DayOfWeek *DayOfWeek `json:"dayOfWeek" validate:"required,eq=Mon|eq=Tue|eq=Wed|eq=Thu|eq=Fri|eq=Sat|eq=Sun"`
+		TimeDep   *Time      `json:"timeDep" validate:"required"`
+		TimeArr   *Time      `json:"timeArr" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		routePermUpdateRequest := new(RoutePermUpdateRequest)
+		if err := parser.ParseRequest(context, routePermUpdateRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		routePerm := &models.RoutePerm{
+			Id:             *routePermUpdateRequest.Id,
+			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
+			LocDep:         *routePermUpdateRequest.LocDep,
+			LocArr:         *routePermUpdateRequest.LocArr,
+			MinPrice:       *routePermUpdateRequest.MinPrice,
+			EvenWeek:       *routePermUpdateRequest.EvenWeek,
+			OddWeek:        *routePermUpdateRequest.OddWeek,
+			DayOfWeek:      *routePermUpdateRequest.DayOfWeek,
+			TimeDep:        *routePermUpdateRequest.TimeDep,
+			TimeArr:        *routePermUpdateRequest.TimeArr,
+		}
+
+		return responser.Respond(context, userDelivery.userUsecase.UpdateRoutePerm(routePerm))
 	}
 }

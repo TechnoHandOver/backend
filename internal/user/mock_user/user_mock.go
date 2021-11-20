@@ -147,6 +147,20 @@ func (mr *MockUsecaseMockRecorder) Login(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUsecase)(nil).Login), arg0)
 }
 
+// UpdateRoutePerm mocks base method.
+func (m *MockUsecase) UpdateRoutePerm(arg0 *models.RoutePerm) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRoutePerm", arg0)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// UpdateRoutePerm indicates an expected call of UpdateRoutePerm.
+func (mr *MockUsecaseMockRecorder) UpdateRoutePerm(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRoutePerm", reflect.TypeOf((*MockUsecase)(nil).UpdateRoutePerm), arg0)
+}
+
 // UpdateRouteTmp mocks base method.
 func (m *MockUsecase) UpdateRouteTmp(arg0 *models.RouteTmp) *response.Response {
 	m.ctrl.T.Helper()
@@ -332,6 +346,21 @@ func (m *MockRepository) Update(arg0 *models.User) (*models.User, error) {
 func (mr *MockRepositoryMockRecorder) Update(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), arg0)
+}
+
+// UpdateRoutePerm mocks base method.
+func (m *MockRepository) UpdateRoutePerm(arg0 *models.RoutePerm) (*models.RoutePerm, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRoutePerm", arg0)
+	ret0, _ := ret[0].(*models.RoutePerm)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateRoutePerm indicates an expected call of UpdateRoutePerm.
+func (mr *MockRepositoryMockRecorder) UpdateRoutePerm(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRoutePerm", reflect.TypeOf((*MockRepository)(nil).UpdateRoutePerm), arg0)
 }
 
 // UpdateRouteTmp mocks base method.

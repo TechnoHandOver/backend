@@ -193,27 +193,6 @@ func TestAdRepository_Update_notFound(t *testing.T) {
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }
 
-func TestAdRepository_Update_nothing(t *testing.T) {
-	db, sqlmock_, err := sqlmock.New()
-	assert.Nil(t, err)
-	defer func(db *sql.DB) {
-		_ = db.Close()
-	}(db)
-
-	adRepository := repository.NewAdRepositoryImpl(db)
-
-	ad := &models.Ad{
-		Id:             1,
-		UserAuthorVkId: 2,
-	}
-
-	resultAd, resultErr := adRepository.Update(ad)
-	assert.Equal(t, resultErr, consts.RepErrNothingToUpdate)
-	assert.Nil(t, resultAd)
-
-	assert.Nil(t, sqlmock_.ExpectationsWereMet())
-}
-
 func TestAdRepository_SelectArray(t *testing.T) {
 	db, sqlmock_, err := sqlmock.New()
 	assert.Nil(t, err)

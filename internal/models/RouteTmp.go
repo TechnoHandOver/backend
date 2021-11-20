@@ -7,7 +7,7 @@ type RouteTmp struct {
 	UserAuthorVkId uint32   `json:"userAuthorVkId"`
 	LocDep         string   `json:"locDep"`
 	LocArr         string   `json:"locArr"`
-	MinPrice       uint32   `json:"minPrice,omitempty"`
+	MinPrice       uint32   `json:"minPrice"`
 	DateTimeDep    DateTime `json:"dateTimeDep"`
 	DateTimeArr    DateTime `json:"dateTimeArr"`
 }

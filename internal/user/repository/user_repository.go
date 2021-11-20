@@ -169,52 +169,13 @@ ORDER BY date_time_dep, date_time_arr, min_price DESC, id`
 }
 
 func (userRepository *UserRepository) UpdateRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error) {
-	const queryStart = "UPDATE view_route_tmp SET "
-	const queryLocDep = "loc_dep"
-	const queryLocArr = "loc_arr"
-	const queryMinPrice = "min_price"
-	const queryDateTimeDep = "date_time_dep"
-	const queryDateTimeArr = "date_time_arr"
-	const queryEquals = " = $"
-	const queryComma = ", "
-	const queryEnd = " WHERE id = $1 RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr"
+	const query = `
+UPDATE view_route_tmp SET loc_dep = $2, loc_arr = $3, min_price = $4, date_time_dep = $5, date_time_arr = $6
+WHERE id = $1
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
 
-	query := queryStart
-	queryArgs := make([]interface{}, 0)
-	queryArgs = append(queryArgs, routeTmp.Id)
-
-	if routeTmp.LocDep != "" {
-		query += queryLocDep + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, routeTmp.LocDep)
-	}
-
-	if routeTmp.LocArr != "" {
-		query += queryLocArr + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, routeTmp.LocArr)
-	}
-
-	if routeTmp.MinPrice != 0 {
-		query += queryMinPrice + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, routeTmp.MinPrice)
-	}
-
-	if dateTimeDep := time.Time(routeTmp.DateTimeDep); !dateTimeDep.IsZero() {
-		query += queryDateTimeDep + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, dateTimeDep)
-	}
-
-	if dateTimeArr := time.Time(routeTmp.DateTimeArr); !dateTimeArr.IsZero() {
-		query += queryDateTimeArr + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, dateTimeArr)
-	}
-
-	if len(queryArgs) == 1 {
-		return nil, consts.RepErrNothingToUpdate
-	}
-
-	query = query[:len(query)-2] + queryEnd
-
-	if err := userRepository.db.QueryRow(query, queryArgs...).Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId,
+	if err := userRepository.db.QueryRow(query, routeTmp.Id, routeTmp.LocDep, routeTmp.LocArr, routeTmp.MinPrice,
+		time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)).Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId,
 		&routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
 		&routeTmp.DateTimeArr); err != nil {
 		if err == sql.ErrNoRows {
@@ -274,6 +235,27 @@ WHERE id = $1`
 	if err := userRepository.db.QueryRow(query, routePermId).Scan(&routePerm.Id, &routePerm.UserAuthorVkId,
 		&routePerm.LocDep, &routePerm.LocArr, &routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek,
 		&routePerm.DayOfWeek, &routePerm.TimeDep, &routePerm.TimeArr); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, consts.RepErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return routePerm, nil
+}
+
+func (userRepository *UserRepository) UpdateRoutePerm(routePerm *models.RoutePerm) (*models.RoutePerm, error) {
+	const query = `
+UPDATE view_route_perm SET loc_dep = $2, loc_arr = $3, min_price = $4, even_week = $5, odd_week = $6, day_of_week = $7, time_dep = $8, time_arr = $9
+WHERE id = $1
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr`
+
+	if err := userRepository.db.QueryRow(query, routePerm.Id, routePerm.LocDep, routePerm.LocArr, routePerm.MinPrice,
+		routePerm.EvenWeek, routePerm.OddWeek, routePerm.DayOfWeek, time.Time(routePerm.TimeDep),
+		time.Time(routePerm.TimeArr)).Scan(&routePerm.Id, &routePerm.UserAuthorVkId, &routePerm.LocDep,
+		&routePerm.LocArr, &routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek, &routePerm.DayOfWeek,
+		&routePerm.TimeDep, &routePerm.TimeArr); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, consts.RepErrNotFound
 		}

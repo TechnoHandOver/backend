@@ -31,12 +31,12 @@ func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *mi
 
 func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
 	type AdCreateRequest struct {
-		LocDep      string   `json:"locDep" validate:"required,gte=2,lte=100"`
-		LocArr      string   `json:"locArr" validate:"required,gte=2,lte=100"`
-		DateTimeArr DateTime `json:"dateTimeArr,omitempty" validate:"omitempty"`
-		Item        string   `json:"item" validate:"required,gte=3,lte=50"`
-		MinPrice    uint32   `json:"minPrice,omitempty" validate:"omitempty"`
-		Comment     string   `json:"comment,omitempty" validate:"required,lte=100"`
+		LocDep      *string   `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr      *string   `json:"locArr" validate:"required,gte=2,lte=100"`
+		DateTimeArr *DateTime `json:"dateTimeArr" validate:"required"`
+		Item        *string   `json:"item" validate:"required,gte=3,lte=50"`
+		MinPrice    *uint32   `json:"minPrice" validate:"required"`
+		Comment     *string   `json:"comment" validate:"required,lte=100"`
 	}
 
 	return func(context echo.Context) error {
@@ -47,12 +47,12 @@ func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
 
 		ad_ := &models.Ad{
 			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         adCreateRequest.LocDep,
-			LocArr:         adCreateRequest.LocArr,
-			DateTimeArr:    adCreateRequest.DateTimeArr,
-			Item:           adCreateRequest.Item,
-			MinPrice:       adCreateRequest.MinPrice,
-			Comment:        adCreateRequest.Comment,
+			LocDep:         *adCreateRequest.LocDep,
+			LocArr:         *adCreateRequest.LocArr,
+			DateTimeArr:    *adCreateRequest.DateTimeArr,
+			Item:           *adCreateRequest.Item,
+			MinPrice:       *adCreateRequest.MinPrice,
+			Comment:        *adCreateRequest.Comment,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Create(ad_))
@@ -61,7 +61,7 @@ func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
 
 func (adDelivery *AdDelivery) HandlerAdGet() echo.HandlerFunc {
 	type AdGetRequest struct {
-		Id uint32 `param:"id" validate:"required"`
+		Id *uint32 `param:"id" validate:"required"`
 	}
 
 	return func(context echo.Context) error {
@@ -70,19 +70,21 @@ func (adDelivery *AdDelivery) HandlerAdGet() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
-		return responser.Respond(context, adDelivery.adUsecase.Get(adGetRequest.Id))
+		id := *adGetRequest.Id
+
+		return responser.Respond(context, adDelivery.adUsecase.Get(id))
 	}
 }
 
 func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 	type AdUpdateRequest struct {
-		Id          uint32   `param:"id" validate:"required"`
-		LocDep      string   `json:"locDep,omitempty" validate:"omitempty,gte=2,lte=100"`
-		LocArr      string   `json:"locArr,omitempty" validate:"omitempty,gte=2,lte=100"`
-		DateTimeArr DateTime `json:"dateTimeArr,omitempty" validate:"omitempty"`
-		Item        string   `json:"item,omitempty" validate:"omitempty,gte=3,lte=50"`
-		MinPrice    uint32   `json:"minPrice,omitempty" validate:"omitempty"`
-		Comment     string   `json:"comment,omitempty" validate:"omitempty,lte=100"`
+		Id          *uint32   `param:"id" validate:"required"`
+		LocDep      *string   `json:"locDep" validate:"required,gte=2,lte=100"`
+		LocArr      *string   `json:"locArr" validate:"required,gte=2,lte=100"`
+		DateTimeArr *DateTime `json:"dateTimeArr" validate:"required"`
+		Item        *string   `json:"item" validate:"required,gte=3,lte=50"`
+		MinPrice    *uint32   `json:"minPrice" validate:"required"`
+		Comment     *string   `json:"comment" validate:"required,lte=100"`
 	}
 
 	return func(context echo.Context) error {
@@ -92,13 +94,13 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 		}
 
 		ad_ := &models.Ad{
-			Id:          adUpdateRequest.Id,
-			LocDep:      adUpdateRequest.LocDep,
-			LocArr:      adUpdateRequest.LocArr,
-			DateTimeArr: adUpdateRequest.DateTimeArr,
-			Item:        adUpdateRequest.Item,
-			MinPrice:    adUpdateRequest.MinPrice,
-			Comment:     adUpdateRequest.Comment,
+			Id:          *adUpdateRequest.Id,
+			LocDep:      *adUpdateRequest.LocDep,
+			LocArr:      *adUpdateRequest.LocArr,
+			DateTimeArr: *adUpdateRequest.DateTimeArr,
+			Item:        *adUpdateRequest.Item,
+			MinPrice:    *adUpdateRequest.MinPrice,
+			Comment:     *adUpdateRequest.Comment,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Update(ad_))
@@ -107,10 +109,10 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 
 func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 	type AdsSearchRequest struct {
-		LocDep      string   `query:"loc_dep" validate:"omitempty,gte=2,lte=100"`
-		LocArr      string   `query:"loc_arr" validate:"omitempty,gte=2,lte=100"`
-		DateTimeArr DateTime `query:"date_time_arr" validate:"omitempty"`
-		MaxPrice    uint32   `query:"max_price" validate:"omitempty"`
+		LocDep      *string   `query:"loc_dep" validate:"omitempty,gte=2,lte=100"`
+		LocArr      *string   `query:"loc_arr" validate:"omitempty,gte=2,lte=100"`
+		DateTimeArr *DateTime `query:"date_time_arr" validate:"omitempty"`
+		MaxPrice    *uint32   `query:"max_price" validate:"omitempty"`
 	}
 
 	return func(context echo.Context) error {
@@ -120,10 +122,10 @@ func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 		}
 
 		adsSearch := &models.AdsSearch{
-			LocDep:      adsSearchRequest.LocDep,
-			LocArr:      adsSearchRequest.LocArr,
-			DateTimeArr: adsSearchRequest.DateTimeArr,
-			MaxPrice:    adsSearchRequest.MaxPrice,
+			LocDep:      parser.GetOrDefault(adsSearchRequest.LocDep, "").(string),
+			LocArr:      parser.GetOrDefault(adsSearchRequest.LocArr, "").(string),
+			DateTimeArr: parser.GetOrDefault(adsSearchRequest.DateTimeArr, DateTime{}).(DateTime),
+			MaxPrice:    parser.GetOrDefault(adsSearchRequest.MaxPrice, 0).(uint32),
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Search(adsSearch))

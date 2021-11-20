@@ -19,7 +19,7 @@ CREATE TABLE ad (
     loc_dep VARCHAR(100) NOT NULL CHECK (length(loc_dep) >= 2),
     loc_arr VARCHAR(100) NOT NULL CHECK (length(loc_arr) >= 2),
     date_time_arr TIMESTAMP NOT NULL, --TODO: not timestamp?
-    item VARCHAR(50) CHECK (length(item) >= 3),
+    item VARCHAR(50) NOT NULL CHECK (length(item) >= 3),
     min_price INT NOT NULL CHECK (min_price >= 0),
     comment VARCHAR(100) NOT NULL
 );
@@ -88,7 +88,7 @@ CREATE FUNCTION view_route_tmp_update()
 AS $$
 BEGIN
     IF old.user_author_vk_id != new.user_author_vk_id THEN
-        RAISE 'Forbidden to update author of temporary route';
+        RAISE 'It is forbidden to update author of temporary route';
     END IF;
     UPDATE route SET loc_dep = new.loc_dep, loc_arr = new.loc_arr, min_price = new.min_price
     WHERE id = new.id AND user_author_vk_id = new.user_author_vk_id;
@@ -136,6 +136,27 @@ CREATE TRIGGER view_route_perm_insert INSTEAD OF INSERT
     ON view_route_perm
     FOR EACH ROW
 EXECUTE FUNCTION view_route_perm_insert();
+
+CREATE FUNCTION view_route_perm_update()
+    RETURNS TRIGGER
+AS $$
+BEGIN
+    IF old.user_author_vk_id != new.user_author_vk_id THEN
+        RAISE 'It is forbidden to update author of permanent route';
+    END IF;
+    UPDATE route SET loc_dep = new.loc_dep, loc_arr = new.loc_arr, min_price = new.min_price
+    WHERE id = new.id AND user_author_vk_id = new.user_author_vk_id;
+    UPDATE route_perm SET even_week = new.even_week, odd_week = new.odd_week, day_of_week = new.day_of_week,
+                          time_dep = new.time_dep, time_arr = new.time_arr
+    WHERE id = new.id;
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER view_route_perm_update INSTEAD OF UPDATE
+    ON view_route_perm
+    FOR EACH ROW
+EXECUTE FUNCTION view_route_perm_update();
 
 --CREATE INDEX ON user_ USING hash (vk_id);
 

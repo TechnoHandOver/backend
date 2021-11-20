@@ -9,8 +9,8 @@ type Ad struct {
 	LocArr         string   `json:"locArr"`
 	DateTimeArr    DateTime `json:"dateTimeArr"`
 	Item           string   `json:"item"`
-	MinPrice       uint32   `json:"minPrice,omitempty"`
-	Comment        string   `json:"comment,omitempty"`
+	MinPrice       uint32   `json:"minPrice"`
+	Comment        string   `json:"comment"`
 }
 
 type Ads []*Ad

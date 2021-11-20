@@ -7,9 +7,9 @@ type RoutePerm struct {
 	UserAuthorVkId uint32    `json:"userAuthorVkId"`
 	LocDep         string    `json:"locDep"`
 	LocArr         string    `json:"locArr"`
-	MinPrice       uint32    `json:"minPrice,omitempty"`
-	EvenWeek       bool      `json:"evenWeek,omitempty"`
-	OddWeek        bool      `json:"oddWeek,omitempty"`
+	MinPrice       uint32    `json:"minPrice"`
+	EvenWeek       bool      `json:"evenWeek"`
+	OddWeek        bool      `json:"oddWeek"`
 	DayOfWeek      DayOfWeek `json:"dayOfWeek"`
 	TimeDep        Time      `json:"timeDep"`
 	TimeArr        Time      `json:"timeArr"`

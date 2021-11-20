@@ -54,59 +54,14 @@ WHERE id = $1`
 }
 
 func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
-	const queryStart = "UPDATE ad SET "
-	const queryLocDep = "loc_dep"
-	const queryLocArr = "loc_arr"
-	const queryDateTimeArr = "date_time_arr"
-	const queryItem = "item"
-	const queryMinPrice = "min_price"
-	const queryComment = "comment"
-	const queryEquals = " = $"
-	const queryComma = ", "
-	const queryEnd = "WHERE id = $1 RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment"
+	const query = `
+UPDATE ad SET loc_dep = $2, loc_arr = $3, date_time_arr = $4, item = $5, min_price = $6, comment = $7
+WHERE id = $1
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
 
-	query := queryStart
-	queryArgs := make([]interface{}, 0)
-	queryArgs = append(queryArgs, ad_.Id)
-
-	if ad_.LocDep != "" {
-		query += queryLocDep + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, ad_.LocDep)
-	}
-
-	if ad_.LocArr != "" {
-		query += queryLocArr + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, ad_.LocArr)
-	}
-
-	if dateTimeArr := time.Time(ad_.DateTimeArr); !dateTimeArr.IsZero() {
-		query += queryDateTimeArr + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, dateTimeArr)
-	}
-
-	if ad_.Item != "" {
-		query += queryItem + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, ad_.Item)
-	}
-
-	if ad_.MinPrice != 0 {
-		query += queryMinPrice + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, ad_.MinPrice)
-	}
-
-	if ad_.Comment != "" {
-		query += queryComment + queryEquals + strconv.Itoa(len(queryArgs)+1) + queryComma
-		queryArgs = append(queryArgs, ad_.Comment)
-	}
-
-	if len(queryArgs) == 1 {
-		return nil, consts.RepErrNothingToUpdate
-	}
-
-	query = query[:len(query)-2] + queryEnd
-
-	if err := adsRepository.db.QueryRow(query, queryArgs...).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep,
-		&ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
+	if err := adsRepository.db.QueryRow(query, ad_.Id, ad_.LocDep, ad_.LocArr, time.Time(ad_.DateTimeArr), ad_.Item,
+		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr,
+		&ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, consts.RepErrNotFound
 		}

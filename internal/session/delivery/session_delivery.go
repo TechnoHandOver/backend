@@ -31,9 +31,9 @@ func (sessionDelivery *SessionDelivery) Configure(echo_ *echo.Echo, _ *middlewar
 
 func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {
 	type LoginRequest struct {
-		VkId   uint32 `json:"vkId" validate:"required"`
-		Name   string `json:"name" validate:"required,gte=2,lte=100"`
-		Avatar string `json:"avatar" validate:"required,url,lte=2000"`
+		VkId   *uint32 `json:"vkId" validate:"required"`
+		Name   *string `json:"name" validate:"required,gte=2,lte=100"`
+		Avatar *string `json:"avatar" validate:"required,url,lte=2000"`
 	}
 
 	return func(context echo.Context) error {
@@ -43,9 +43,9 @@ func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {
 		}
 
 		user_ := &models.User{
-			VkId:   userRequest.VkId,
-			Name:   userRequest.Name,
-			Avatar: userRequest.Avatar,
+			VkId:   *userRequest.VkId,
+			Name:   *userRequest.Name,
+			Avatar: *userRequest.Avatar,
 		}
 
 		userResponse := sessionDelivery.userUsecase.Login(user_)

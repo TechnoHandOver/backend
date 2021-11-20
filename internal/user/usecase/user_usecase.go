@@ -92,11 +92,8 @@ func (userUsecase *UserUsecase) UpdateRouteTmp(routeTmp *models.RouteTmp) *respo
 
 	routeTmp, err = userUsecase.userRepository.UpdateRouteTmp(routeTmp)
 	if err != nil {
-		switch err {
-		case consts.RepErrNotFound:
+		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
-		case consts.RepErrNothingToUpdate:
-			return response.NewEmptyResponse(consts.BadRequest)
 		}
 
 		return response.NewErrorResponse(consts.InternalError, err)
@@ -121,11 +118,8 @@ func (userUsecase *UserUsecase) DeleteRouteTmp(userVkId uint32, routeTmpId uint3
 
 	routeTmp, err := userUsecase.userRepository.DeleteRouteTmp(routeTmpId)
 	if err != nil {
-		switch err {
-		case consts.RepErrNotFound:
+		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
-		case consts.RepErrNothingToUpdate:
-			return response.NewEmptyResponse(consts.BadRequest)
 		}
 
 		return response.NewErrorResponse(consts.InternalError, err)
@@ -154,6 +148,32 @@ func (userUsecase *UserUsecase) CreateRoutePerm(routePerm *models.RoutePerm) *re
 
 func (userUsecase *UserUsecase) GetRoutePerm(routePermId uint32) *response.Response {
 	routePerm, err := userUsecase.userRepository.SelectRoutePerm(routePermId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, routePerm)
+}
+
+func (userUsecase *UserUsecase) UpdateRoutePerm(routePerm *models.RoutePerm) *response.Response {
+	existingRoutePerm, err := userUsecase.userRepository.SelectRoutePerm(routePerm.Id)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if routePerm.UserAuthorVkId != existingRoutePerm.UserAuthorVkId {
+		return response.NewErrorResponse(consts.Forbidden, err)
+	}
+
+	routePerm, err = userUsecase.userRepository.UpdateRoutePerm(routePerm)
 	if err != nil {
 		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
