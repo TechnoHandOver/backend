@@ -25,36 +25,27 @@ import (
 const driverName = "postgres"
 
 func main() {
-	flag.Parse()
-
-	var configFileName string
+	var configFileName, logFileName string
 	flag.StringVar(&configFileName, "configFileName", "config.json", "path to server config file")
+	flag.StringVar(&logFileName, "logFileName", "logs.log", "path to server log file")
+	flag.Parse()
 
 	config_, err := config.LoadConfigFile(configFileName)
 	if err != nil {
-		log.Print(err)
 		log.Fatal(err)
 	}
 
-	var logFileName string
-	flag.StringVar(&logFileName, "logFileName", "", "path to server log file")
-
 	var logFile *os.File
-	if logFileName != "" {
-		logFile, err = os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer func() {
-			_ = logFile.Close()
-		}()
-
-		log.SetOutput(logFile)
-		defer func() {
-			log.Println("--- SERVER STOPPED HERE ---")
-			log.Println()
-		}()
+	if logFile, err = os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+		log.Fatal(err)
 	}
+	defer func() {
+		log.Println("--- SERVER STOPPED HERE ---")
+		log.Println()
+		_ = logFile.Close()
+	}()
+
+	log.SetOutput(logFile)
 
 	db, err := sql.Open(driverName, config_.GetDatabaseConfigString())
 	if err != nil {
