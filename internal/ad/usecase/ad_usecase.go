@@ -53,6 +53,19 @@ func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 	return response.NewResponse(consts.OK, ad_)
 }
 
+func (adUsecase *AdUsecase) Delete(id uint32) *response.Response {
+	ad_, err := adUsecase.adRepository.Delete(id)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, ad_)
+}
+
 func (adUsecase *AdUsecase) Search(adsSearch *models.AdsSearch) *response.Response {
 	ads, err := adUsecase.adRepository.SelectArray(adsSearch)
 	if err != nil {

@@ -210,6 +210,59 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	assert.Equal(t, jsonExpectedResponse, responseBody)
 }
 
+func TestAdDelivery_HandlerAdDelete(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdUsecase := mock_ad.NewMockUsecase(controller)
+	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
+	echo_ := echo.New()
+	echo_.Validator = RequestValidator.NewRequestValidator()
+	adDelivery.Configure(echo_, &middlewares.Manager{})
+
+	dateTimeArr, err := timestamps.NewDateTime("22.11.2021 16:55")
+	assert.Nil(t, err)
+	expectedAd := &models.Ad{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
+	}
+
+	mockAdUsecase.
+		EXPECT().
+		Delete(gomock.Eq(expectedAd.Id)).
+		Return(response.NewResponse(consts.OK, expectedAd))
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedAd,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodDelete, "/", nil)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.SetPath("/api/ads/:id")
+	context.SetParamNames("id")
+	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
+
+	handler := adDelivery.HandlerAdDelete()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}
+
 func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()

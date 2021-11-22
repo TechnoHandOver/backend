@@ -10,4 +10,5 @@ type Usecase interface {
 	Get(id uint32) *response.Response
 	Update(ad_ *models.Ad) *response.Response
 	Search(adsSearch *models.AdsSearch) *response.Response
+	Delete(id uint32) *response.Response
 }

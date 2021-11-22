@@ -7,4 +7,5 @@ type Repository interface {
 	Select(id uint32) (*models.Ad, error)
 	Update(ad_ *models.Ad) (*models.Ad, error)
 	SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error)
+	Delete(id uint32) (*models.Ad, error)
 }

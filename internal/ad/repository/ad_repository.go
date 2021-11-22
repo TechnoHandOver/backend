@@ -72,6 +72,25 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_pric
 	return ad_, nil
 }
 
+func (adsRepository *AdRepository) Delete(id uint32) (*models.Ad, error) {
+	const query = `
+DELETE FROM ad
+WHERE id = $1
+RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
+
+	ad_ := new(models.Ad)
+	if err := adsRepository.db.QueryRow(query, id).Scan(&ad_.Id, &ad_.UserAuthorVkId, &ad_.LocDep, &ad_.LocArr,
+		&ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, consts.RepErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return ad_, nil
+}
+
 func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error) {
 	const queryStart = "SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad"
 	const queryWhere = " WHERE "

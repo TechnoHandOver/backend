@@ -26,6 +26,7 @@ func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *mi
 	echo_.POST("/api/ads", adDelivery.HandlerAdCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ads/:id", adDelivery.HandlerAdGet())
 	echo_.PUT("/api/ads/:id", adDelivery.HandlerAdUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.DELETE("/api/ads/:id", adDelivery.HandlerAdDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ads/search", adDelivery.HandlerAdsSearch())
 }
 
@@ -107,10 +108,27 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 	}
 }
 
+func (adDelivery *AdDelivery) HandlerAdDelete() echo.HandlerFunc {
+	type AdDeleteRequest struct {
+		Id *uint32 `param:"id" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		adDeleteRequest := new(AdDeleteRequest)
+		if err := parser.ParseRequest(context, adDeleteRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		id := *adDeleteRequest.Id
+
+		return responser.Respond(context, adDelivery.adUsecase.Delete(id))
+	}
+}
+
 func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 	type AdsSearchRequest struct {
-		LocDep      *string   `query:"loc_dep" validate:"omitempty,gte=2,lte=100"`
-		LocArr      *string   `query:"loc_arr" validate:"omitempty,gte=2,lte=100"`
+		LocDep      *string   `query:"loc_dep" validate:"omitempty,lte=100"`
+		LocArr      *string   `query:"loc_arr" validate:"omitempty,lte=100"`
 		DateTimeArr *DateTime `query:"date_time_arr" validate:"omitempty"`
 		MaxPrice    *uint32   `query:"max_price" validate:"omitempty"`
 	}

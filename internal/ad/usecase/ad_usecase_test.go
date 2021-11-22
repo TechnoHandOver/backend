@@ -170,6 +170,53 @@ func TestAdUsecase_Update_notFound(t *testing.T) {
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
+func TestAdUsecase_Delete(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdRepository := mock_ad.NewMockRepository(controller)
+	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
+
+	dateTimeArr, err := timestamps.NewDateTime("22.11.2021 16:55")
+	assert.Nil(t, err)
+	expectedAd := &models.Ad{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
+	}
+
+	mockAdRepository.
+		EXPECT().
+		Delete(gomock.Eq(expectedAd.Id)).
+		Return(expectedAd, nil)
+
+	response_ := adUsecase.Delete(expectedAd.Id)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedAd), response_)
+}
+
+func TestAdUsecase_Delete_notFound(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdRepository := mock_ad.NewMockRepository(controller)
+	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
+
+	const id uint32 = 1
+
+	mockAdRepository.
+		EXPECT().
+		Delete(gomock.Eq(id)).
+		Return(nil, consts.RepErrNotFound)
+
+	response_ := adUsecase.Delete(id)
+	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
+}
+
 func TestAdUsecase_Search(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
