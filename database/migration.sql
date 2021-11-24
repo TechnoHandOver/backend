@@ -1,1 +1,1 @@
-\i database/main.sql
+\i main.sql

@@ -180,3 +180,4 @@ EXECUTE FUNCTION view_route_perm_delete();
 
 GRANT CONNECT ON DATABASE handover TO handover;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO handover;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO handover;
