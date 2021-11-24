@@ -16,6 +16,8 @@ CREATE TABLE ad (
     id SERIAL PRIMARY KEY,
     user_author_id INT NOT NULL REFERENCES user_ (id) ON DELETE CASCADE,
     user_author_vk_id INT NOT NULL REFERENCES user_ (vk_id) ON DELETE CASCADE,
+    user_executor_id INT REFERENCES user_ (id) ON DELETE CASCADE,
+    user_executor_vk_id INT REFERENCES user_ (vk_id) ON DELETE CASCADE,
     loc_dep VARCHAR(100) NOT NULL CHECK (length(loc_dep) >= 2),
     loc_arr VARCHAR(100) NOT NULL CHECK (length(loc_arr) >= 2),
     date_time_arr TIMESTAMP NOT NULL, --TODO: not timestamp?
@@ -175,3 +177,6 @@ EXECUTE FUNCTION view_route_perm_delete();
 --CREATE INDEX ON user_ USING hash (vk_id);
 
 --CREATE INDEX ON ad (user_author_id);
+
+GRANT CONNECT ON DATABASE handover TO handover;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO handover;

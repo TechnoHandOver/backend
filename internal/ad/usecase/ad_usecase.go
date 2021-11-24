@@ -41,7 +41,20 @@ func (adUsecase *AdUsecase) Get(id uint32) *response.Response {
 }
 
 func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
-	ad_, err := adUsecase.adRepository.Update(ad_)
+	existingAd, err := adUsecase.adRepository.Select(ad_.Id)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if ad_.UserAuthorVkId != existingAd.UserAuthorVkId {
+		return response.NewEmptyResponse(consts.Forbidden)
+	}
+
+	ad_, err = adUsecase.adRepository.Update(ad_)
 	if err != nil {
 		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
@@ -53,7 +66,20 @@ func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 	return response.NewResponse(consts.OK, ad_)
 }
 
-func (adUsecase *AdUsecase) Delete(id uint32) *response.Response {
+func (adUsecase *AdUsecase) Delete(userVkId uint32, id uint32) *response.Response {
+	existingAd, err := adUsecase.adRepository.Select(id)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if userVkId != existingAd.UserAuthorVkId {
+		return response.NewEmptyResponse(consts.Forbidden)
+	}
+
 	ad_, err := adUsecase.adRepository.Delete(id)
 	if err != nil {
 		if err == consts.RepErrNotFound {

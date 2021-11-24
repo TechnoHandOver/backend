@@ -759,12 +759,12 @@ func TestUserRepository_DeleteRoutePerm(t *testing.T) {
 		ExpectQuery("DELETE FROM view_route_perm").
 		WithArgs(expectedRoutePerm.Id).
 		WillReturnRows(
-		sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "even_week",
-			"odd_week", "day_of_week", "time_dep", "time_arr"}).
-			AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorVkId, expectedRoutePerm.LocDep,
-				expectedRoutePerm.LocArr, expectedRoutePerm.MinPrice, expectedRoutePerm.EvenWeek,
-				expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek, time.Time(expectedRoutePerm.TimeDep),
-				time.Time(expectedRoutePerm.TimeArr)))
+			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "even_week",
+				"odd_week", "day_of_week", "time_dep", "time_arr"}).
+				AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorVkId, expectedRoutePerm.LocDep,
+					expectedRoutePerm.LocArr, expectedRoutePerm.MinPrice, expectedRoutePerm.EvenWeek,
+					expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek, time.Time(expectedRoutePerm.TimeDep),
+					time.Time(expectedRoutePerm.TimeArr)))
 
 	resultRoutePerm, resultErr := userRepository.DeleteRoutePerm(expectedRoutePerm.Id)
 	assert.Nil(t, resultErr)

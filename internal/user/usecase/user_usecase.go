@@ -87,7 +87,7 @@ func (userUsecase *UserUsecase) UpdateRouteTmp(routeTmp *models.RouteTmp) *respo
 	}
 
 	if routeTmp.UserAuthorVkId != existingRouteTmp.UserAuthorVkId {
-		return response.NewErrorResponse(consts.Forbidden, err)
+		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
 	routeTmp, err = userUsecase.userRepository.UpdateRouteTmp(routeTmp)
@@ -113,7 +113,7 @@ func (userUsecase *UserUsecase) DeleteRouteTmp(userVkId uint32, routeTmpId uint3
 	}
 
 	if userVkId != existingRouteTmp.UserAuthorVkId {
-		return response.NewErrorResponse(consts.Forbidden, err)
+		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
 	routeTmp, err := userUsecase.userRepository.DeleteRouteTmp(routeTmpId)
@@ -170,7 +170,7 @@ func (userUsecase *UserUsecase) UpdateRoutePerm(routePerm *models.RoutePerm) *re
 	}
 
 	if routePerm.UserAuthorVkId != existingRoutePerm.UserAuthorVkId {
-		return response.NewErrorResponse(consts.Forbidden, err)
+		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
 	routePerm, err = userUsecase.userRepository.UpdateRoutePerm(routePerm)
@@ -196,7 +196,7 @@ func (userUsecase *UserUsecase) DeleteRoutePerm(userVkId uint32, routePermId uin
 	}
 
 	if userVkId != existingRoutePerm.UserAuthorVkId {
-		return response.NewErrorResponse(consts.Forbidden, err)
+		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
 	routePerm, err := userUsecase.userRepository.DeleteRoutePerm(routePermId)

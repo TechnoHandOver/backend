@@ -96,13 +96,14 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 		}
 
 		ad_ := &models.Ad{
-			Id:          *adUpdateRequest.Id,
-			LocDep:      *adUpdateRequest.LocDep,
-			LocArr:      *adUpdateRequest.LocArr,
-			DateTimeArr: *adUpdateRequest.DateTimeArr,
-			Item:        *adUpdateRequest.Item,
-			MinPrice:    *adUpdateRequest.MinPrice,
-			Comment:     *adUpdateRequest.Comment,
+			Id:             *adUpdateRequest.Id,
+			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
+			LocDep:         *adUpdateRequest.LocDep,
+			LocArr:         *adUpdateRequest.LocArr,
+			DateTimeArr:    *adUpdateRequest.DateTimeArr,
+			Item:           *adUpdateRequest.Item,
+			MinPrice:       *adUpdateRequest.MinPrice,
+			Comment:        *adUpdateRequest.Comment,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Update(ad_))
@@ -121,8 +122,9 @@ func (adDelivery *AdDelivery) HandlerAdDelete() echo.HandlerFunc {
 		}
 
 		id := *adDeleteRequest.Id
+		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
 
-		return responser.Respond(context, adDelivery.adUsecase.Delete(id))
+		return responser.Respond(context, adDelivery.adUsecase.Delete(userVkId, id))
 	}
 }
 

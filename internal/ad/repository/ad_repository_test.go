@@ -268,27 +268,27 @@ func TestAdRepository_SelectArray(t *testing.T) {
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
-	adsSearch := HandoverTesting.NewAdsSearch(10,"Общежитие", "СК", *dateTimeArr1, 1000)
+	adsSearch := HandoverTesting.NewAdsSearch(10, "Общежитие", "СК", *dateTimeArr1, 1000)
 	expectedAds := &models.Ads{
 		&models.Ad{
-			Id:          1,
+			Id:             1,
 			UserAuthorVkId: 10,
-			LocDep:      "Общежитие №10",
-			LocArr:      "УЛК",
-			DateTimeArr: *dateTimeArr1,
-			Item:        "Тубус",
-			MinPrice:    500,
-			Comment:     "Поеду на коньках",
+			LocDep:         "Общежитие №10",
+			LocArr:         "УЛК",
+			DateTimeArr:    *dateTimeArr1,
+			Item:           "Тубус",
+			MinPrice:       500,
+			Comment:        "Поеду на коньках",
 		},
 		&models.Ad{
-			Id:          2,
+			Id:             2,
 			UserAuthorVkId: 10,
-			LocDep:      "Общежитие №9",
-			LocArr:      "СК",
-			DateTimeArr: *dateTimeArr2,
-			Item:        "Спортивная форма",
-			MinPrice:    600,
-			Comment:     "Поеду на роликах :)",
+			LocDep:         "Общежитие №9",
+			LocArr:         "СК",
+			DateTimeArr:    *dateTimeArr2,
+			Item:           "Спортивная форма",
+			MinPrice:       600,
+			Comment:        "Поеду на роликах :)",
 		},
 	}
 

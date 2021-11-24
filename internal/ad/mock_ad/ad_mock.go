@@ -50,17 +50,17 @@ func (mr *MockUsecaseMockRecorder) Create(arg0 interface{}) *gomock.Call {
 }
 
 // Delete mocks base method.
-func (m *MockUsecase) Delete(arg0 uint32) *response.Response {
+func (m *MockUsecase) Delete(arg0, arg1 uint32) *response.Response {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0)
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
 	ret0, _ := ret[0].(*response.Response)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockUsecaseMockRecorder) Delete(arg0 interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUsecase)(nil).Delete), arg0, arg1)
 }
 
 // Get mocks base method.

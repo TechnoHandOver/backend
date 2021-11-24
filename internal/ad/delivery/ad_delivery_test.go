@@ -156,8 +156,9 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:50")
 	assert.Nil(t, err)
-	ad := &models.Ad{
+	expectedAd := &models.Ad{
 		Id:          1,
+		UserAuthorVkId: 2,
 		LocDep:      "Общежитие №10",
 		LocArr:      "УЛК",
 		DateTimeArr: *dateTimeArr,
@@ -165,23 +166,13 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 		MinPrice:    500,
 		Comment:     "Поеду на велосипеде",
 	}
-	expectedAd := &models.Ad{
-		Id:             ad.Id,
-		UserAuthorVkId: 2,
-		LocDep:         ad.LocDep,
-		LocArr:         ad.LocArr,
-		DateTimeArr:    ad.DateTimeArr,
-		Item:           ad.Item,
-		MinPrice:       ad.MinPrice,
-		Comment:        ad.Comment,
-	}
 
 	mockAdUsecase.
 		EXPECT().
-		Update(gomock.Eq(ad)).
+		Update(gomock.Eq(expectedAd)).
 		Return(response.NewResponse(consts.OK, expectedAd))
 
-	jsonRequest, err := json.Marshal(ad)
+	jsonRequest, err := json.Marshal(expectedAd)
 	assert.Nil(t, err)
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -197,7 +188,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	context := echo_.NewContext(request, recorder)
 	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
-	context.SetParamValues(strconv.FormatUint(uint64(ad.Id), 10))
+	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
 	context.Set(consts.EchoContextKeyUserVkId, expectedAd.UserAuthorVkId)
 
 	handler := adDelivery.HandlerAdUpdate()
@@ -236,7 +227,7 @@ func TestAdDelivery_HandlerAdDelete(t *testing.T) {
 
 	mockAdUsecase.
 		EXPECT().
-		Delete(gomock.Eq(expectedAd.Id)).
+		Delete(gomock.Eq(expectedAd.UserAuthorVkId), gomock.Eq(expectedAd.Id)).
 		Return(response.NewResponse(consts.OK, expectedAd))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -252,6 +243,7 @@ func TestAdDelivery_HandlerAdDelete(t *testing.T) {
 	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
+	context.Set(consts.EchoContextKeyUserVkId, expectedAd.UserAuthorVkId)
 
 	handler := adDelivery.HandlerAdDelete()
 

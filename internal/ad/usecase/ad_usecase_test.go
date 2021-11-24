@@ -110,8 +110,6 @@ func TestAdUsecase_Update(t *testing.T) {
 
 	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
-	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
-	assert.Nil(t, err)
 	ad := &models.Ad{
 		Id:             1,
 		UserAuthorVkId: 2,
@@ -122,6 +120,8 @@ func TestAdUsecase_Update(t *testing.T) {
 		MinPrice:       500,
 		Comment:        "Поеду на велосипеде",
 	}
+	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
+	assert.Nil(t, err)
 	expectedAd := &models.Ad{
 		Id:             ad.Id,
 		UserAuthorVkId: ad.UserAuthorVkId,
@@ -133,13 +133,60 @@ func TestAdUsecase_Update(t *testing.T) {
 		Comment:        "Поеду на роликах :)",
 	}
 
+	call := mockAdRepository.
+		EXPECT().
+		Select(gomock.Eq(ad.Id)).
+		Return(expectedAd, nil)
+
 	mockAdRepository.
 		EXPECT().
 		Update(gomock.Eq(ad)).
-		Return(expectedAd, nil)
+		Return(expectedAd, nil).
+		After(call)
 
 	response_ := adUsecase.Update(ad)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedAd), response_)
+}
+
+func TestAdUsecase_Update_forbidden(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdRepository := mock_ad.NewMockRepository(controller)
+	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
+
+	dateTimeArr1, err := timestamps.NewDateTime("24.11.2021 13:50")
+	assert.Nil(t, err)
+	ad := &models.Ad{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr1,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
+	}
+	dateTimeArr2, err := timestamps.NewDateTime("24.11.2021 13:55")
+	assert.Nil(t, err)
+	expectedAd := &models.Ad{
+		Id:             ad.Id,
+		UserAuthorVkId: 3,
+		LocDep:         "Общежитие №9",
+		LocArr:         "СК",
+		DateTimeArr:    *dateTimeArr2,
+		Item:           "Спортивная форма",
+		MinPrice:       600,
+		Comment:        "Поеду на роликах :)",
+	}
+
+	mockAdRepository.
+		EXPECT().
+		Select(gomock.Eq(ad.Id)).
+		Return(expectedAd, nil)
+
+	response_ := adUsecase.Update(ad)
+	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }
 
 func TestAdUsecase_Update_notFound(t *testing.T) {
@@ -164,7 +211,7 @@ func TestAdUsecase_Update_notFound(t *testing.T) {
 
 	mockAdRepository.
 		EXPECT().
-		Update(gomock.Eq(ad)).
+		Select(gomock.Eq(ad.Id)).
 		Return(nil, consts.RepErrNotFound)
 
 	response_ := adUsecase.Update(ad)
@@ -191,13 +238,48 @@ func TestAdUsecase_Delete(t *testing.T) {
 		Comment:        "Поеду на велосипеде",
 	}
 
+	call := mockAdRepository.
+		EXPECT().
+		Select(gomock.Eq(expectedAd.Id)).
+		Return(expectedAd, nil)
+
 	mockAdRepository.
 		EXPECT().
 		Delete(gomock.Eq(expectedAd.Id)).
+		Return(expectedAd, nil).
+		After(call)
+
+	response_ := adUsecase.Delete(expectedAd.UserAuthorVkId, expectedAd.Id)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedAd), response_)
+}
+
+func TestAdUsecase_Delete_forbidden(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdRepository := mock_ad.NewMockRepository(controller)
+	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
+
+	dateTimeArr, err := timestamps.NewDateTime("22.11.2021 16:55")
+	assert.Nil(t, err)
+	expectedAd := &models.Ad{
+		Id:             1,
+		UserAuthorVkId: 2,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
+	}
+
+	mockAdRepository.
+		EXPECT().
+		Select(gomock.Eq(expectedAd.Id)).
 		Return(expectedAd, nil)
 
-	response_ := adUsecase.Delete(expectedAd.Id)
-	assert.Equal(t, response.NewResponse(consts.OK, expectedAd), response_)
+	response_ := adUsecase.Delete(expectedAd.UserAuthorVkId+1, expectedAd.Id)
+	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }
 
 func TestAdUsecase_Delete_notFound(t *testing.T) {
@@ -208,13 +290,14 @@ func TestAdUsecase_Delete_notFound(t *testing.T) {
 	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
 
 	const id uint32 = 1
+	const userAuthorVkId uint32 = 2
 
 	mockAdRepository.
 		EXPECT().
-		Delete(gomock.Eq(id)).
+		Select(gomock.Eq(id)).
 		Return(nil, consts.RepErrNotFound)
 
-	response_ := adUsecase.Delete(id)
+	response_ := adUsecase.Delete(userAuthorVkId, id)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
@@ -229,7 +312,7 @@ func TestAdUsecase_Search(t *testing.T) {
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
-	adsSearch := HandoverTesting.NewAdsSearch(10,"Общежитие", "СК", *dateTimeArr1, 1000)
+	adsSearch := HandoverTesting.NewAdsSearch(10, "Общежитие", "СК", *dateTimeArr1, 1000)
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:             1,
