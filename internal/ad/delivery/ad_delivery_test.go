@@ -10,7 +10,8 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
-	RequestValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
+	HandoverTesting "github.com/TechnoHandOver/backend/internal/tools/testing"
+	HandoverValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -29,7 +30,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:31")
@@ -97,7 +98,7 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:44")
@@ -150,7 +151,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:50")
@@ -217,7 +218,7 @@ func TestAdDelivery_HandlerAdDelete(t *testing.T) {
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr, err := timestamps.NewDateTime("22.11.2021 16:55")
@@ -263,26 +264,91 @@ func TestAdDelivery_HandlerAdDelete(t *testing.T) {
 	assert.Equal(t, jsonExpectedResponse, responseBody)
 }
 
-func TestAdDelivery_HandlerAdSearch(t *testing.T) {
+func TestAdDelivery_HandlerAdsList(t *testing.T) {
 	controller := gomock.NewController(t)
 	defer controller.Finish()
 
 	mockAdUsecase := mock_ad.NewMockUsecase(controller)
 	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
-	adsSearch := &models.AdsSearch{
-		LocDep:      "Общежитие",
-		LocArr:      "СК",
-		DateTimeArr: *dateTimeArr1,
-		MaxPrice:    1000,
+	adsSearch := HandoverTesting.NewAdsSearchByUserAuthorVkId(10)
+	expectedAds := &models.Ads{
+		&models.Ad{
+			Id:             1,
+			UserAuthorVkId: 10,
+			LocDep:         "Общежитие №10",
+			LocArr:         "УЛК",
+			DateTimeArr:    *dateTimeArr1,
+			Item:           "Тубус",
+			MinPrice:       500,
+			Comment:        "Поеду на коньках",
+		},
+		&models.Ad{
+			Id:             2,
+			UserAuthorVkId: 10,
+			LocDep:         "Общежитие №9",
+			LocArr:         "СК",
+			DateTimeArr:    *dateTimeArr2,
+			Item:           "Спортивная форма",
+			MinPrice:       600,
+			Comment:        "Поеду на роликах :)",
+		},
 	}
+
+	mockAdUsecase.
+		EXPECT().
+		Search(gomock.Eq(adsSearch)).
+		Return(response.NewResponse(consts.OK, expectedAds))
+
+	jsonRequest, err := json.Marshal(adsSearch)
+	assert.Nil(t, err)
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedAds,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodGet, "/api/ads/list", strings.NewReader(string(jsonRequest)))
+	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.Set(consts.EchoContextKeyUserVkId, uint32(10))
+
+	handler := adDelivery.HandlerAdsList()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}
+
+func TestAdDelivery_HandlerAdsSearch(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdUsecase := mock_ad.NewMockUsecase(controller)
+	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
+	echo_ := echo.New()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
+	adDelivery.Configure(echo_, &middlewares.Manager{})
+
+	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
+	assert.Nil(t, err)
+	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
+	assert.Nil(t, err)
+	adsSearch := HandoverTesting.NewAdsSearchBySecondaryFields("Общежитие", "СК", *dateTimeArr1, 1000)
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:             1,
@@ -320,7 +386,7 @@ func TestAdDelivery_HandlerAdSearch(t *testing.T) {
 	assert.Nil(t, err)
 	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
 
-	request := httptest.NewRequest(http.MethodPost, "/api/ads/search", strings.NewReader(string(jsonRequest)))
+	request := httptest.NewRequest(http.MethodGet, "/api/ads/search", strings.NewReader(string(jsonRequest)))
 	request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	recorder := httptest.NewRecorder()

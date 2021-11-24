@@ -7,6 +7,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
+	HandoverTesting "github.com/TechnoHandOver/backend/internal/tools/testing"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -267,15 +268,11 @@ func TestAdRepository_SelectArray(t *testing.T) {
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
-	adsSearch := &models.AdsSearch{
-		LocDep:      "Общежитие",
-		LocArr:      "СК",
-		DateTimeArr: *dateTimeArr1,
-		MaxPrice:    1000,
-	}
+	adsSearch := HandoverTesting.NewAdsSearch(10,"Общежитие", "СК", *dateTimeArr1, 1000)
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:          1,
+			UserAuthorVkId: 10,
 			LocDep:      "Общежитие №10",
 			LocArr:      "УЛК",
 			DateTimeArr: *dateTimeArr1,
@@ -284,7 +281,8 @@ func TestAdRepository_SelectArray(t *testing.T) {
 			Comment:     "Поеду на коньках",
 		},
 		&models.Ad{
-			Id:          1,
+			Id:          2,
+			UserAuthorVkId: 10,
 			LocDep:      "Общежитие №9",
 			LocArr:      "СК",
 			DateTimeArr: *dateTimeArr2,
@@ -302,7 +300,8 @@ func TestAdRepository_SelectArray(t *testing.T) {
 	}
 	sqlmock_.
 		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
-		WithArgs(adsSearch.LocDep, adsSearch.LocArr, time.Time(adsSearch.DateTimeArr), adsSearch.MaxPrice).
+		WithArgs(adsSearch.UserAuthorVkId, adsSearch.LocDep, adsSearch.LocArr, time.Time(*adsSearch.DateTimeArr),
+			adsSearch.MaxPrice).
 		WillReturnRows(rows)
 
 	resultAds, resultErr := adRepository.SelectArray(adsSearch)

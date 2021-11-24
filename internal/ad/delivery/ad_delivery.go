@@ -27,6 +27,7 @@ func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *mi
 	echo_.GET("/api/ads/:id", adDelivery.HandlerAdGet())
 	echo_.PUT("/api/ads/:id", adDelivery.HandlerAdUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/ads/:id", adDelivery.HandlerAdDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.GET("/api/ads/list", adDelivery.HandlerAdsList(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ads/search", adDelivery.HandlerAdsSearch())
 }
 
@@ -125,11 +126,22 @@ func (adDelivery *AdDelivery) HandlerAdDelete() echo.HandlerFunc {
 	}
 }
 
+func (adDelivery *AdDelivery) HandlerAdsList() echo.HandlerFunc {
+	return func(context echo.Context) error {
+		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
+		adsSearch := &models.AdsSearch{
+			UserAuthorVkId: &userVkId,
+		}
+
+		return responser.Respond(context, adDelivery.adUsecase.Search(adsSearch))
+	}
+}
+
 func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 	type AdsSearchRequest struct {
 		LocDep      *string   `query:"loc_dep" validate:"omitempty,lte=100"`
 		LocArr      *string   `query:"loc_arr" validate:"omitempty,lte=100"`
-		DateTimeArr *DateTime `query:"date_time_arr" validate:"omitempty"`
+		DateTimeArr *DateTime `query:"date_time_arr" validate:"omitempty"` //TODO: а точно нужен поиск по дате? как он будет работать?...
 		MaxPrice    *uint32   `query:"max_price" validate:"omitempty"`
 	}
 
@@ -140,10 +152,10 @@ func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 		}
 
 		adsSearch := &models.AdsSearch{
-			LocDep:      parser.GetOrDefault(adsSearchRequest.LocDep, "").(string),
-			LocArr:      parser.GetOrDefault(adsSearchRequest.LocArr, "").(string),
-			DateTimeArr: parser.GetOrDefault(adsSearchRequest.DateTimeArr, DateTime{}).(DateTime),
-			MaxPrice:    parser.GetOrDefault(adsSearchRequest.MaxPrice, 0).(uint32),
+			LocDep:      adsSearchRequest.LocDep,
+			LocArr:      adsSearchRequest.LocArr,
+			DateTimeArr: adsSearchRequest.DateTimeArr,
+			MaxPrice:    adsSearchRequest.MaxPrice,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Search(adsSearch))

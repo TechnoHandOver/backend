@@ -14,10 +14,3 @@ type Ad struct {
 }
 
 type Ads []*Ad
-
-type AdsSearch struct {
-	LocDep      string   `query:"loc_dep"`
-	LocArr      string   `query:"loc_arr"`
-	DateTimeArr DateTime `query:"date_time_arr"`
-	MaxPrice    uint32   `query:"max_price"`
-}

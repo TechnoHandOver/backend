@@ -8,7 +8,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
-	RequestValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
+	HandoverValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	"github.com/TechnoHandOver/backend/internal/user/delivery"
 	"github.com/TechnoHandOver/backend/internal/user/mock_user"
 	"github.com/golang/mock/gomock"
@@ -29,7 +29,7 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	const vkId uint32 = 2
@@ -97,7 +97,7 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 11:30")
@@ -151,7 +151,7 @@ func TestUserDelivery_HandlerRouteTmpUpdate(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 13:30")
@@ -210,7 +210,7 @@ func TestUserDelivery_HandlerRouteTmpDelete(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 13:30")
@@ -265,7 +265,7 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	dateTimeDep1, err := timestamps.NewDateTime("17.11.2021 10:25")
@@ -332,7 +332,7 @@ func TestUserDelivery_HandlerRoutePermCreate(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	const vkId uint32 = 2
@@ -406,7 +406,7 @@ func TestUserDelivery_HandlerRoutePermGet(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	timeDep, err := timestamps.NewTime("15:00")
@@ -463,7 +463,7 @@ func TestUserDelivery_HandlerRoutePermUpdate(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	timeDep, err := timestamps.NewTime("16:15")
@@ -525,7 +525,7 @@ func TestUserDelivery_HandlerRoutePermDelete(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	timeDep, err := timestamps.NewTime("16:15")
@@ -583,7 +583,7 @@ func TestUserDelivery_HandlerRoutePermList(t *testing.T) {
 	mockUserUsecase := mock_user.NewMockUsecase(controller)
 	userDelivery := delivery.NewUserDelivery(mockUserUsecase)
 	echo_ := echo.New()
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
 	timeDep1, err := timestamps.NewTime("17:30")

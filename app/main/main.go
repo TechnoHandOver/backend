@@ -11,7 +11,7 @@ import (
 	SessionDelivery "github.com/TechnoHandOver/backend/internal/session/delivery"
 	SessionRepository "github.com/TechnoHandOver/backend/internal/session/repository"
 	SessionUsecase "github.com/TechnoHandOver/backend/internal/session/usecase"
-	RequestValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
+	HandoverValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	UserDelivery "github.com/TechnoHandOver/backend/internal/user/delivery"
 	UserRepository "github.com/TechnoHandOver/backend/internal/user/repository"
 	UserUsecase "github.com/TechnoHandOver/backend/internal/user/usecase"
@@ -40,8 +40,6 @@ func main() {
 		log.Fatal(err)
 	}
 	defer func() {
-		log.Println("--- SERVER STOPPED HERE ---")
-		log.Println()
 		_ = logFile.Close()
 	}()
 
@@ -85,7 +83,7 @@ func main() {
 		echo_.Logger.SetOutput(logFile)
 	}
 	echo_.Use(middlewaresManager.RecoverMiddleware.Recover())
-	echo_.Validator = RequestValidator.NewRequestValidator()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
 
 	adsDelivery.Configure(echo_, middlewaresManager)
 	sessionDelivery.Configure(echo_, middlewaresManager)

@@ -25,11 +25,15 @@ func (dateTime *DateTime) String() string {
 	return fmt.Sprintf("%q", time_.Format(dateTimeLayout))
 }
 
-func (dateTime *DateTime) UnmarshalJSON(b []byte) (err error) {
-	var string_ = strings.Trim(string(b), `"`)
+func (dateTime *DateTime) UnmarshalParam(src string) (err error) {
+	var string_ = strings.Trim(src, `"`)
 	time_, err := time.Parse(dateTimeLayout, string_)
 	*dateTime = DateTime(time_)
 	return
+}
+
+func (dateTime *DateTime) UnmarshalJSON(b []byte) (err error) {
+	return dateTime.UnmarshalParam(string(b))
 }
 
 func (dateTime *DateTime) MarshalJSON() ([]byte, error) {

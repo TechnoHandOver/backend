@@ -94,6 +94,7 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_pric
 func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error) {
 	const queryStart = "SELECT id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad"
 	const queryWhere = " WHERE "
+	const queryUserAuthorVkId = "user_author_vk_id = $"
 	const queryLocDep1 = "to_tsvector('russian', loc_dep) @@ plainto_tsquery('russian', $"
 	const queryLocDep2 = ")"
 	const queryLocArr1 = "to_tsvector('russian', loc_arr) @@ plainto_tsquery('russian', $"
@@ -106,22 +107,27 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 	query := queryStart + queryWhere
 	queryArgs := make([]interface{}, 0)
 
-	if adsSearch.LocDep != "" {
+	if adsSearch.UserAuthorVkId != nil {
+		query += queryUserAuthorVkId + strconv.Itoa(len(queryArgs)+1) + queryAnd
+		queryArgs = append(queryArgs, adsSearch.UserAuthorVkId)
+	}
+
+	if adsSearch.LocDep != nil {
 		query += queryLocDep1 + strconv.Itoa(len(queryArgs)+1) + queryLocDep2 + queryAnd
 		queryArgs = append(queryArgs, adsSearch.LocDep)
 	}
 
-	if adsSearch.LocArr != "" {
+	if adsSearch.LocArr != nil {
 		query += queryLocArr1 + strconv.Itoa(len(queryArgs)+1) + queryLocArr2 + queryAnd
 		queryArgs = append(queryArgs, adsSearch.LocArr)
 	}
 
-	if dateTimeArr := time.Time(adsSearch.DateTimeArr); !dateTimeArr.IsZero() {
+	if adsSearch.DateTimeArr != nil {
 		query += queryDateTimeArr + strconv.Itoa(len(queryArgs)+1) + queryAnd
-		queryArgs = append(queryArgs, dateTimeArr)
+		queryArgs = append(queryArgs, time.Time(*adsSearch.DateTimeArr))
 	}
 
-	if adsSearch.MaxPrice != 0 {
+	if adsSearch.MaxPrice != nil {
 		query += queryMinPrice + strconv.Itoa(len(queryArgs)+1) + queryAnd
 		queryArgs = append(queryArgs, adsSearch.MaxPrice)
 	}
