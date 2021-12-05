@@ -11,6 +11,7 @@ const (
 	Unauthorized
 	Forbidden
 	NotFound
+	Conflict
 	InternalError
 )
 
@@ -21,5 +22,6 @@ var StatusCodes = map[Code]int{
 	Unauthorized:  http.StatusUnauthorized,
 	Forbidden:     http.StatusForbidden,
 	NotFound:      http.StatusNotFound,
+	Conflict:      http.StatusConflict,
 	InternalError: http.StatusInternalServerError,
 }

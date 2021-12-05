@@ -23,21 +23,15 @@ func NewUserDelivery(userUsecase user.Usecase) *UserDelivery {
 }
 
 func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager *middlewares.Manager) {
-	echo_.POST("/api/users/routes-tmp", userDelivery.HandlerRouteTmpCreate(),
-		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.POST("/api/users/routes-tmp", userDelivery.HandlerRouteTmpCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpGet())
-	echo_.PUT("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpUpdate(),
-		middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.DELETE("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpDelete(),
-		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.PUT("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.DELETE("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-tmp/list", userDelivery.HandlerRouteTmpList())
-	echo_.POST("/api/users/routes-perm", userDelivery.HandlerRoutePermCreate(),
-		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.POST("/api/users/routes-perm", userDelivery.HandlerRoutePermCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermGet())
-	echo_.PUT("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermUpdate(),
-		middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.DELETE("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermDelete(),
-		middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.PUT("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.DELETE("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-perm/list", userDelivery.HandlerRoutePermList())
 }
 
@@ -57,12 +51,12 @@ func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
 		}
 
 		routeTmp := &models.RouteTmp{
-			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         *routeTmpCreateRequest.LocDep,
-			LocArr:         *routeTmpCreateRequest.LocArr,
-			MinPrice:       *routeTmpCreateRequest.MinPrice,
-			DateTimeDep:    *routeTmpCreateRequest.DateTimeDep,
-			DateTimeArr:    *routeTmpCreateRequest.DateTimeArr,
+			UserAuthorId: context.Get(consts.EchoContextKeyUserId).(uint32),
+			LocDep:       *routeTmpCreateRequest.LocDep,
+			LocArr:       *routeTmpCreateRequest.LocArr,
+			MinPrice:     *routeTmpCreateRequest.MinPrice,
+			DateTimeDep:  *routeTmpCreateRequest.DateTimeDep,
+			DateTimeArr:  *routeTmpCreateRequest.DateTimeArr,
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.CreateRouteTmp(routeTmp))
@@ -103,13 +97,13 @@ func (userDelivery *UserDelivery) HandlerRouteTmpUpdate() echo.HandlerFunc {
 		}
 
 		routeTmp := &models.RouteTmp{
-			Id:             *routeTmpUpdateRequest.Id,
-			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         *routeTmpUpdateRequest.LocDep,
-			LocArr:         *routeTmpUpdateRequest.LocArr,
-			MinPrice:       *routeTmpUpdateRequest.MinPrice,
-			DateTimeDep:    *routeTmpUpdateRequest.DateTimeDep,
-			DateTimeArr:    *routeTmpUpdateRequest.DateTimeArr,
+			Id:           *routeTmpUpdateRequest.Id,
+			UserAuthorId: context.Get(consts.EchoContextKeyUserId).(uint32),
+			LocDep:       *routeTmpUpdateRequest.LocDep,
+			LocArr:       *routeTmpUpdateRequest.LocArr,
+			MinPrice:     *routeTmpUpdateRequest.MinPrice,
+			DateTimeDep:  *routeTmpUpdateRequest.DateTimeDep,
+			DateTimeArr:  *routeTmpUpdateRequest.DateTimeArr,
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.UpdateRouteTmp(routeTmp))
@@ -128,9 +122,9 @@ func (userDelivery *UserDelivery) HandlerRouteTmpDelete() echo.HandlerFunc {
 		}
 
 		id := *routeTmpDeleteRequest.Id
-		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
 
-		return responser.Respond(context, userDelivery.userUsecase.DeleteRouteTmp(userVkId, id))
+		return responser.Respond(context, userDelivery.userUsecase.DeleteRouteTmp(userId, id))
 	}
 }
 
@@ -159,15 +153,15 @@ func (userDelivery *UserDelivery) HandlerRoutePermCreate() echo.HandlerFunc {
 		}
 
 		routePerm := &models.RoutePerm{
-			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         *routePermCreateRequest.LocDep,
-			LocArr:         *routePermCreateRequest.LocArr,
-			MinPrice:       parser.GetOrDefault(routePermCreateRequest.MinPrice, 0).(uint32),
-			EvenWeek:       parser.GetOrDefault(routePermCreateRequest.EvenWeek, true).(bool),
-			OddWeek:        parser.GetOrDefault(routePermCreateRequest.OddWeek, true).(bool),
-			DayOfWeek:      *routePermCreateRequest.DayOfWeek,
-			TimeDep:        *routePermCreateRequest.TimeDep,
-			TimeArr:        *routePermCreateRequest.TimeArr,
+			UserAuthorId: context.Get(consts.EchoContextKeyUserId).(uint32),
+			LocDep:       *routePermCreateRequest.LocDep,
+			LocArr:       *routePermCreateRequest.LocArr,
+			MinPrice:     parser.GetOrDefault(routePermCreateRequest.MinPrice, 0).(uint32),
+			EvenWeek:     parser.GetOrDefault(routePermCreateRequest.EvenWeek, true).(bool),
+			OddWeek:      parser.GetOrDefault(routePermCreateRequest.OddWeek, true).(bool),
+			DayOfWeek:    *routePermCreateRequest.DayOfWeek,
+			TimeDep:      *routePermCreateRequest.TimeDep,
+			TimeArr:      *routePermCreateRequest.TimeArr,
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.CreateRoutePerm(routePerm))
@@ -211,16 +205,16 @@ func (userDelivery *UserDelivery) HandlerRoutePermUpdate() echo.HandlerFunc {
 		}
 
 		routePerm := &models.RoutePerm{
-			Id:             *routePermUpdateRequest.Id,
-			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         *routePermUpdateRequest.LocDep,
-			LocArr:         *routePermUpdateRequest.LocArr,
-			MinPrice:       *routePermUpdateRequest.MinPrice,
-			EvenWeek:       *routePermUpdateRequest.EvenWeek,
-			OddWeek:        *routePermUpdateRequest.OddWeek,
-			DayOfWeek:      *routePermUpdateRequest.DayOfWeek,
-			TimeDep:        *routePermUpdateRequest.TimeDep,
-			TimeArr:        *routePermUpdateRequest.TimeArr,
+			Id:           *routePermUpdateRequest.Id,
+			UserAuthorId: context.Get(consts.EchoContextKeyUserId).(uint32),
+			LocDep:       *routePermUpdateRequest.LocDep,
+			LocArr:       *routePermUpdateRequest.LocArr,
+			MinPrice:     *routePermUpdateRequest.MinPrice,
+			EvenWeek:     *routePermUpdateRequest.EvenWeek,
+			OddWeek:      *routePermUpdateRequest.OddWeek,
+			DayOfWeek:    *routePermUpdateRequest.DayOfWeek,
+			TimeDep:      *routePermUpdateRequest.TimeDep,
+			TimeArr:      *routePermUpdateRequest.TimeArr,
 		}
 
 		return responser.Respond(context, userDelivery.userUsecase.UpdateRoutePerm(routePerm))
@@ -239,9 +233,9 @@ func (userDelivery *UserDelivery) HandlerRoutePermDelete() echo.HandlerFunc {
 		}
 
 		id := *routePermDeleteRequest.Id
-		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
 
-		return responser.Respond(context, userDelivery.userUsecase.DeleteRoutePerm(userVkId, id))
+		return responser.Respond(context, userDelivery.userUsecase.DeleteRoutePerm(userId, id))
 	}
 }
 

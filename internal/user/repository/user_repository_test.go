@@ -233,31 +233,31 @@ func TestUserRepository_InsertRouteTmp(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("10.11.2021 18:15")
 	assert.Nil(t, err)
 	routeTmp := &models.RouteTmp{
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: routeTmp.UserAuthorVkId,
-		LocDep:         routeTmp.LocDep,
-		LocArr:         routeTmp.LocArr,
-		MinPrice:       routeTmp.MinPrice,
-		DateTimeDep:    routeTmp.DateTimeDep,
-		DateTimeArr:    routeTmp.DateTimeArr,
+		Id:           1,
+		UserAuthorId: routeTmp.UserAuthorId,
+		LocDep:       routeTmp.LocDep,
+		LocArr:       routeTmp.LocArr,
+		MinPrice:     routeTmp.MinPrice,
+		DateTimeDep:  routeTmp.DateTimeDep,
+		DateTimeArr:  routeTmp.DateTimeArr,
 	}
 
 	sqlmock_.
 		ExpectQuery("INSERT INTO view_route_tmp").
-		WithArgs(routeTmp.UserAuthorVkId, routeTmp.LocDep, routeTmp.LocArr, routeTmp.MinPrice,
+		WithArgs(routeTmp.UserAuthorId, routeTmp.LocDep, routeTmp.LocArr, routeTmp.MinPrice,
 			time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
+			sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
 				"date_time_arr"}).
-				AddRow(expectedRouteTmp.Id, routeTmp.UserAuthorVkId, routeTmp.LocDep, routeTmp.LocArr,
+				AddRow(expectedRouteTmp.Id, routeTmp.UserAuthorId, routeTmp.LocDep, routeTmp.LocArr,
 					routeTmp.MinPrice, time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)))
 
 	resultRouteTmp, resultErr := userRepository.InsertRouteTmp(routeTmp)
@@ -281,22 +281,22 @@ func TestUserRepository_SelectRouteTmp(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 11:55")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp").
+		ExpectQuery("SELECT id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp").
 		WithArgs(expectedRouteTmp.Id).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
+			sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
 				"date_time_arr"}).
-				AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorVkId, expectedRouteTmp.LocDep,
+				AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorId, expectedRouteTmp.LocDep,
 					expectedRouteTmp.LocArr, expectedRouteTmp.MinPrice, time.Time(expectedRouteTmp.DateTimeDep),
 					time.Time(expectedRouteTmp.DateTimeArr)))
 
@@ -319,7 +319,7 @@ func TestUserRepository_SelectRouteTmp_notFound(t *testing.T) {
 	const routeTmpId uint32 = 1
 
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp").
+		ExpectQuery("SELECT id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp").
 		WithArgs(routeTmpId).
 		WillReturnError(sql.ErrNoRows)
 
@@ -344,13 +344,13 @@ func TestUserRepository_UpdateRouteTmp(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 14:05")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	sqlmock_.
@@ -358,9 +358,9 @@ func TestUserRepository_UpdateRouteTmp(t *testing.T) {
 		WithArgs(expectedRouteTmp.Id, expectedRouteTmp.LocDep, expectedRouteTmp.LocArr, expectedRouteTmp.MinPrice,
 			time.Time(expectedRouteTmp.DateTimeDep), time.Time(expectedRouteTmp.DateTimeArr)).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
+			sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
 				"date_time_arr"}).
-				AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorVkId, expectedRouteTmp.LocDep,
+				AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorId, expectedRouteTmp.LocDep,
 					expectedRouteTmp.LocArr, expectedRouteTmp.MinPrice, time.Time(expectedRouteTmp.DateTimeDep),
 					time.Time(expectedRouteTmp.DateTimeArr)))
 
@@ -385,13 +385,13 @@ func TestUserRepository_UpdateRouteTmp_notFound(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 14:05")
 	assert.Nil(t, err)
 	routeTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	sqlmock_.
@@ -421,22 +421,22 @@ func TestUserRepository_DeleteRouteTmp(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 11:55")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	sqlmock_.
 		ExpectQuery("DELETE FROM view_route_tmp").
 		WithArgs(expectedRouteTmp.Id).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
+			sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
 				"date_time_arr"}).
-				AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorVkId, expectedRouteTmp.LocDep,
+				AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorId, expectedRouteTmp.LocDep,
 					expectedRouteTmp.LocArr, expectedRouteTmp.MinPrice, time.Time(expectedRouteTmp.DateTimeDep),
 					time.Time(expectedRouteTmp.DateTimeArr)))
 
@@ -489,34 +489,34 @@ func TestUserRepository_SelectRouteTmpArray(t *testing.T) {
 	assert.Nil(t, err)
 	expectedRoutesTmp := &models.RoutesTmp{
 		&models.RouteTmp{
-			Id:             1,
-			UserAuthorVkId: 3,
-			LocDep:         "Общежитие №10",
-			LocArr:         "УЛК",
-			MinPrice:       500,
-			DateTimeDep:    *dateTimeDep1,
-			DateTimeArr:    *dateTimeArr1,
+			Id:           1,
+			UserAuthorId: 101,
+			LocDep:       "Общежитие №10",
+			LocArr:       "УЛК",
+			MinPrice:     500,
+			DateTimeDep:  *dateTimeDep1,
+			DateTimeArr:  *dateTimeArr1,
 		},
 		&models.RouteTmp{
-			Id:             2,
-			UserAuthorVkId: 4,
-			LocDep:         "Общежитие №9",
-			LocArr:         "СК",
-			MinPrice:       600,
-			DateTimeDep:    *dateTimeDep2,
-			DateTimeArr:    *dateTimeArr2,
+			Id:           2,
+			UserAuthorId: 102,
+			LocDep:       "Общежитие №9",
+			LocArr:       "СК",
+			MinPrice:     600,
+			DateTimeDep:  *dateTimeDep2,
+			DateTimeArr:  *dateTimeArr2,
 		},
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
+	rows := sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "date_time_dep",
 		"date_time_arr"})
 	for _, expectedRouteTmp := range *expectedRoutesTmp {
-		rows.AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorVkId, expectedRouteTmp.LocDep,
+		rows.AddRow(expectedRouteTmp.Id, expectedRouteTmp.UserAuthorId, expectedRouteTmp.LocDep,
 			expectedRouteTmp.LocArr, expectedRouteTmp.MinPrice, time.Time(expectedRouteTmp.DateTimeDep),
 			time.Time(expectedRouteTmp.DateTimeArr))
 	}
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp").
+		ExpectQuery("SELECT id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp").
 		WillReturnRows(rows)
 
 	resultRoutesTmp, resultErr := userRepository.SelectRouteTmpArray()
@@ -540,37 +540,37 @@ func TestUserRepository_InsertRoutePerm(t *testing.T) {
 	timeArr, err := timestamps.NewTime("12:35")
 	assert.Nil(t, err)
 	routePerm := &models.RoutePerm{
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: routePerm.UserAuthorVkId,
-		LocDep:         routePerm.LocDep,
-		LocArr:         routePerm.LocArr,
-		MinPrice:       routePerm.MinPrice,
-		EvenWeek:       routePerm.EvenWeek,
-		OddWeek:        routePerm.OddWeek,
-		DayOfWeek:      routePerm.DayOfWeek,
-		TimeDep:        routePerm.TimeDep,
-		TimeArr:        routePerm.TimeArr,
+		Id:           1,
+		UserAuthorId: routePerm.UserAuthorId,
+		LocDep:       routePerm.LocDep,
+		LocArr:       routePerm.LocArr,
+		MinPrice:     routePerm.MinPrice,
+		EvenWeek:     routePerm.EvenWeek,
+		OddWeek:      routePerm.OddWeek,
+		DayOfWeek:    routePerm.DayOfWeek,
+		TimeDep:      routePerm.TimeDep,
+		TimeArr:      routePerm.TimeArr,
 	}
 
 	sqlmock_.
 		ExpectQuery("INSERT INTO view_route_perm").
-		WithArgs(routePerm.UserAuthorVkId, routePerm.LocDep, routePerm.LocArr, routePerm.MinPrice, routePerm.EvenWeek,
+		WithArgs(routePerm.UserAuthorId, routePerm.LocDep, routePerm.LocArr, routePerm.MinPrice, routePerm.EvenWeek,
 			routePerm.OddWeek, routePerm.DayOfWeek, time.Time(routePerm.TimeDep), time.Time(routePerm.TimeArr)).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "even_week",
+			sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "even_week",
 				"odd_week", "day_of_week", "time_dep", "time_arr"}).
-				AddRow(expectedRoutePerm.Id, routePerm.UserAuthorVkId, routePerm.LocDep, routePerm.LocArr,
+				AddRow(expectedRoutePerm.Id, routePerm.UserAuthorId, routePerm.LocDep, routePerm.LocArr,
 					routePerm.MinPrice, routePerm.EvenWeek, routePerm.OddWeek, routePerm.DayOfWeek,
 					time.Time(routePerm.TimeDep), time.Time(routePerm.TimeArr)))
 
@@ -595,24 +595,24 @@ func TestUserRepository_SelectRoutePerm(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm").
+		ExpectQuery("SELECT id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm").
 		WithArgs(expectedRoutePerm.Id).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "even_week",
+			sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "even_week",
 				"odd_week", "day_of_week", "time_dep", "time_arr"}).
-				AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorVkId, expectedRoutePerm.LocDep,
+				AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorId, expectedRoutePerm.LocDep,
 					expectedRoutePerm.LocArr, expectedRoutePerm.MinPrice, expectedRoutePerm.EvenWeek,
 					expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek, time.Time(expectedRoutePerm.TimeDep),
 					time.Time(expectedRoutePerm.TimeArr)))
@@ -636,7 +636,7 @@ func TestUserRepository_SelectRoutePerm_notFound(t *testing.T) {
 	const routePermId uint32 = 1
 
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm").
+		ExpectQuery("SELECT id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm").
 		WithArgs(routePermId).
 		WillReturnError(sql.ErrNoRows)
 
@@ -661,15 +661,15 @@ func TestUserRepository_UpdateRoutePerm(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	sqlmock_.
@@ -678,9 +678,9 @@ func TestUserRepository_UpdateRoutePerm(t *testing.T) {
 			expectedRoutePerm.EvenWeek, expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek,
 			time.Time(expectedRoutePerm.TimeDep), time.Time(expectedRoutePerm.TimeArr)).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "even_week",
+			sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "even_week",
 				"odd_week", "day_of_week", "time_dep", "time_arr"}).
-				AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorVkId, expectedRoutePerm.LocDep,
+				AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorId, expectedRoutePerm.LocDep,
 					expectedRoutePerm.LocArr, expectedRoutePerm.MinPrice, expectedRoutePerm.EvenWeek,
 					expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek, time.Time(expectedRoutePerm.TimeDep),
 					time.Time(expectedRoutePerm.TimeArr)))
@@ -706,15 +706,15 @@ func TestUserRepository_UpdateRoutePerm_notFound(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	routePerm := &models.RoutePerm{
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	sqlmock_.
@@ -744,24 +744,24 @@ func TestUserRepository_DeleteRoutePerm(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	sqlmock_.
 		ExpectQuery("DELETE FROM view_route_perm").
 		WithArgs(expectedRoutePerm.Id).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "even_week",
+			sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "even_week",
 				"odd_week", "day_of_week", "time_dep", "time_arr"}).
-				AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorVkId, expectedRoutePerm.LocDep,
+				AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorId, expectedRoutePerm.LocDep,
 					expectedRoutePerm.LocArr, expectedRoutePerm.MinPrice, expectedRoutePerm.EvenWeek,
 					expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek, time.Time(expectedRoutePerm.TimeDep),
 					time.Time(expectedRoutePerm.TimeArr)))
@@ -815,41 +815,41 @@ func TestUserRepository_SelectRoutePermArray(t *testing.T) {
 	assert.Nil(t, err)
 	expectedRoutesPerm := &models.RoutesPerm{
 		&models.RoutePerm{
-			Id:             1,
-			UserAuthorVkId: 2,
-			LocDep:         "Общежитие №10",
-			LocArr:         "УЛК",
-			MinPrice:       500,
-			EvenWeek:       true,
-			OddWeek:        false,
-			DayOfWeek:      timestamps.DayOfWeekWednesday,
-			TimeDep:        *timeDep1,
-			TimeArr:        *timeArr1,
+			Id:           1,
+			UserAuthorId: 101,
+			LocDep:       "Общежитие №10",
+			LocArr:       "УЛК",
+			MinPrice:     500,
+			EvenWeek:     true,
+			OddWeek:      false,
+			DayOfWeek:    timestamps.DayOfWeekWednesday,
+			TimeDep:      *timeDep1,
+			TimeArr:      *timeArr1,
 		},
 		&models.RoutePerm{
-			Id:             1,
-			UserAuthorVkId: 3,
-			LocDep:         "Общежитие №9",
-			LocArr:         "СК",
-			MinPrice:       600,
-			EvenWeek:       false,
-			OddWeek:        true,
-			DayOfWeek:      timestamps.DayOfWeekSaturday,
-			TimeDep:        *timeDep2,
-			TimeArr:        *timeArr2,
+			Id:           1,
+			UserAuthorId: 102,
+			LocDep:       "Общежитие №9",
+			LocArr:       "СК",
+			MinPrice:     600,
+			EvenWeek:     false,
+			OddWeek:      true,
+			DayOfWeek:    timestamps.DayOfWeekSaturday,
+			TimeDep:      *timeDep2,
+			TimeArr:      *timeArr2,
 		},
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "user_author_vk_id", "loc_dep", "loc_arr", "min_price", "even_week",
+	rows := sqlmock.NewRows([]string{"id", "user_author_id", "loc_dep", "loc_arr", "min_price", "even_week",
 		"odd_week", "day_of_week", "time_dep", "time_arr"})
 	for _, expectedRoutePerm := range *expectedRoutesPerm {
-		rows.AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorVkId, expectedRoutePerm.LocDep,
+		rows.AddRow(expectedRoutePerm.Id, expectedRoutePerm.UserAuthorId, expectedRoutePerm.LocDep,
 			expectedRoutePerm.LocArr, expectedRoutePerm.MinPrice, expectedRoutePerm.EvenWeek,
 			expectedRoutePerm.OddWeek, expectedRoutePerm.DayOfWeek, time.Time(expectedRoutePerm.TimeDep),
 			time.Time(expectedRoutePerm.TimeArr))
 	}
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm").
+		ExpectQuery("SELECT id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm").
 		WillReturnRows(rows)
 
 	resultRoutesPerm, resultErr := userRepository.SelectRoutePermArray()

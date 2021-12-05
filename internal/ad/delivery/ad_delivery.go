@@ -29,6 +29,7 @@ func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *mi
 	echo_.DELETE("/api/ads/:id", adDelivery.HandlerAdDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ads/list", adDelivery.HandlerAdsList(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ads/search", adDelivery.HandlerAdsSearch())
+	echo_.POST("/api/ads/:id/execution", adDelivery.HandlerAdExecutionCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
 func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
@@ -48,13 +49,13 @@ func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
 		}
 
 		ad_ := &models.Ad{
-			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         *adCreateRequest.LocDep,
-			LocArr:         *adCreateRequest.LocArr,
-			DateTimeArr:    *adCreateRequest.DateTimeArr,
-			Item:           *adCreateRequest.Item,
-			MinPrice:       *adCreateRequest.MinPrice,
-			Comment:        *adCreateRequest.Comment,
+			UserAuthorId: context.Get(consts.EchoContextKeyUserId).(uint32),
+			LocDep:       *adCreateRequest.LocDep,
+			LocArr:       *adCreateRequest.LocArr,
+			DateTimeArr:  *adCreateRequest.DateTimeArr,
+			Item:         *adCreateRequest.Item,
+			MinPrice:     *adCreateRequest.MinPrice,
+			Comment:      *adCreateRequest.Comment,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Create(ad_))
@@ -96,14 +97,14 @@ func (adDelivery *AdDelivery) HandlerAdUpdate() echo.HandlerFunc {
 		}
 
 		ad_ := &models.Ad{
-			Id:             *adUpdateRequest.Id,
-			UserAuthorVkId: context.Get(consts.EchoContextKeyUserVkId).(uint32),
-			LocDep:         *adUpdateRequest.LocDep,
-			LocArr:         *adUpdateRequest.LocArr,
-			DateTimeArr:    *adUpdateRequest.DateTimeArr,
-			Item:           *adUpdateRequest.Item,
-			MinPrice:       *adUpdateRequest.MinPrice,
-			Comment:        *adUpdateRequest.Comment,
+			Id:           *adUpdateRequest.Id,
+			UserAuthorId: context.Get(consts.EchoContextKeyUserId).(uint32),
+			LocDep:       *adUpdateRequest.LocDep,
+			LocArr:       *adUpdateRequest.LocArr,
+			DateTimeArr:  *adUpdateRequest.DateTimeArr,
+			Item:         *adUpdateRequest.Item,
+			MinPrice:     *adUpdateRequest.MinPrice,
+			Comment:      *adUpdateRequest.Comment,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Update(ad_))
@@ -122,17 +123,17 @@ func (adDelivery *AdDelivery) HandlerAdDelete() echo.HandlerFunc {
 		}
 
 		id := *adDeleteRequest.Id
-		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
 
-		return responser.Respond(context, adDelivery.adUsecase.Delete(userVkId, id))
+		return responser.Respond(context, adDelivery.adUsecase.Delete(userId, id))
 	}
 }
 
 func (adDelivery *AdDelivery) HandlerAdsList() echo.HandlerFunc {
 	return func(context echo.Context) error {
-		userVkId := context.Get(consts.EchoContextKeyUserVkId).(uint32)
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
 		adsSearch := &models.AdsSearch{
-			UserAuthorVkId: &userVkId,
+			UserAuthorId: &userId,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Search(adsSearch))
@@ -143,7 +144,7 @@ func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 	type AdsSearchRequest struct {
 		LocDep      *string   `query:"loc_dep" validate:"omitempty,lte=100"`
 		LocArr      *string   `query:"loc_arr" validate:"omitempty,lte=100"`
-		DateTimeArr *DateTime `query:"date_time_arr" validate:"omitempty"` //TODO: а точно нужен поиск по дате? как он будет работать?...
+		DateTimeArr *DateTime `query:"date_time_arr" validate:"omitempty"` //TODO: а точно нужен поиск по дате? как он будет работать?
 		MaxPrice    *uint32   `query:"max_price" validate:"omitempty"`
 	}
 
@@ -161,5 +162,23 @@ func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Search(adsSearch))
+	}
+}
+
+func (adDelivery *AdDelivery) HandlerAdExecutionCreate() echo.HandlerFunc {
+	type AdExecutionRequest struct {
+		Id *uint32 `param:"id" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		adExecutionRequest := new(AdExecutionRequest)
+		if err := parser.ParseRequest(context, adExecutionRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		adId := *adExecutionRequest.Id
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
+
+		return responser.Respond(context, adDelivery.adUsecase.SetAdUserExecutor(userId, adId))
 	}
 }

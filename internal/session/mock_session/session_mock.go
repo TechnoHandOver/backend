@@ -35,6 +35,20 @@ func (m *MockUsecase) EXPECT() *MockUsecaseMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method.
+func (m *MockUsecase) Create(arg0 uint32) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", arg0)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockUsecaseMockRecorder) Create(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUsecase)(nil).Create), arg0)
+}
+
 // Get mocks base method.
 func (m *MockUsecase) Get(arg0 string) *response.Response {
 	m.ctrl.T.Helper()
@@ -47,20 +61,6 @@ func (m *MockUsecase) Get(arg0 string) *response.Response {
 func (mr *MockUsecaseMockRecorder) Get(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUsecase)(nil).Get), arg0)
-}
-
-// Login mocks base method.
-func (m *MockUsecase) Login(arg0 *models.User) *response.Response {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Login", arg0)
-	ret0, _ := ret[0].(*response.Response)
-	return ret0
-}
-
-// Login indicates an expected call of Login.
-func (mr *MockUsecaseMockRecorder) Login(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUsecase)(nil).Login), arg0)
 }
 
 // MockRepository is a mock of Repository interface.

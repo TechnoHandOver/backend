@@ -9,6 +9,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	HandoverTesting "github.com/TechnoHandOver/backend/internal/tools/testing"
 	"github.com/golang/mock/gomock"
+	"github.com/openlyinc/pointy"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -23,17 +24,18 @@ func TestAdUsecase_Create(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
 	}
 	expectedAd := &models.Ad{
 		Id:             1,
-		UserAuthorVkId: ad.UserAuthorVkId,
+		UserAuthorId:   ad.UserAuthorId,
+		UserAuthorVkId: 201,
 		LocDep:         ad.LocDep,
 		LocArr:         ad.LocArr,
 		DateTimeArr:    ad.DateTimeArr,
@@ -47,6 +49,7 @@ func TestAdUsecase_Create(t *testing.T) {
 		Insert(gomock.Eq(ad)).
 		DoAndReturn(func(ad *models.Ad) (*models.Ad, error) {
 			ad.Id = expectedAd.Id
+			ad.UserAuthorVkId = expectedAd.UserAuthorVkId
 			return ad, nil
 		})
 
@@ -65,7 +68,8 @@ func TestAdUsecase_Get(t *testing.T) {
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
 		Id:             1,
-		UserAuthorVkId: 2,
+		UserAuthorId:   101,
+		UserAuthorVkId: 201,
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
@@ -111,20 +115,21 @@ func TestAdUsecase_Update(t *testing.T) {
 	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr1,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr1,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
 	}
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
 		Id:             ad.Id,
-		UserAuthorVkId: ad.UserAuthorVkId,
+		UserAuthorId:   ad.UserAuthorId,
+		UserAuthorVkId: 201,
 		LocDep:         "Общежитие №9",
 		LocArr:         "СК",
 		DateTimeArr:    *dateTimeArr2,
@@ -158,20 +163,21 @@ func TestAdUsecase_Update_forbidden(t *testing.T) {
 	dateTimeArr1, err := timestamps.NewDateTime("24.11.2021 13:50")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr1,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr1,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
 	}
 	dateTimeArr2, err := timestamps.NewDateTime("24.11.2021 13:55")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
 		Id:             ad.Id,
-		UserAuthorVkId: 3,
+		UserAuthorId:   102,
+		UserAuthorVkId: 202,
 		LocDep:         "Общежитие №9",
 		LocArr:         "СК",
 		DateTimeArr:    *dateTimeArr2,
@@ -199,14 +205,14 @@ func TestAdUsecase_Update_notFound(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:35")
 	assert.Nil(t, err)
 	ad := &models.Ad{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
 	}
 
 	mockAdRepository.
@@ -229,7 +235,8 @@ func TestAdUsecase_Delete(t *testing.T) {
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
 		Id:             1,
-		UserAuthorVkId: 2,
+		UserAuthorId:   101,
+		UserAuthorVkId: 201,
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
@@ -249,7 +256,7 @@ func TestAdUsecase_Delete(t *testing.T) {
 		Return(expectedAd, nil).
 		After(call)
 
-	response_ := adUsecase.Delete(expectedAd.UserAuthorVkId, expectedAd.Id)
+	response_ := adUsecase.Delete(expectedAd.UserAuthorId, expectedAd.Id)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedAd), response_)
 }
 
@@ -264,7 +271,8 @@ func TestAdUsecase_Delete_forbidden(t *testing.T) {
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
 		Id:             1,
-		UserAuthorVkId: 2,
+		UserAuthorId:   101,
+		UserAuthorVkId: 201,
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
@@ -278,7 +286,7 @@ func TestAdUsecase_Delete_forbidden(t *testing.T) {
 		Select(gomock.Eq(expectedAd.Id)).
 		Return(expectedAd, nil)
 
-	response_ := adUsecase.Delete(expectedAd.UserAuthorVkId+1, expectedAd.Id)
+	response_ := adUsecase.Delete(expectedAd.UserAuthorId+1, expectedAd.Id)
 	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }
 
@@ -290,14 +298,14 @@ func TestAdUsecase_Delete_notFound(t *testing.T) {
 	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
 
 	const id uint32 = 1
-	const userAuthorVkId uint32 = 2
+	const userAuthorId uint32 = 101
 
 	mockAdRepository.
 		EXPECT().
 		Select(gomock.Eq(id)).
 		Return(nil, consts.RepErrNotFound)
 
-	response_ := adUsecase.Delete(userAuthorVkId, id)
+	response_ := adUsecase.Delete(userAuthorId, id)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
@@ -312,11 +320,12 @@ func TestAdUsecase_Search(t *testing.T) {
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
-	adsSearch := HandoverTesting.NewAdsSearch(10, "Общежитие", "СК", *dateTimeArr1, 1000)
+	adsSearch := HandoverTesting.NewAdsSearch(101, "Общежитие", "СК", *dateTimeArr1, 1000)
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:             1,
-			UserAuthorVkId: 10,
+			UserAuthorId:   101,
+			UserAuthorVkId: 201,
 			LocDep:         "Общежитие №10",
 			LocArr:         "УЛК",
 			DateTimeArr:    *dateTimeArr1,
@@ -326,7 +335,8 @@ func TestAdUsecase_Search(t *testing.T) {
 		},
 		&models.Ad{
 			Id:             2,
-			UserAuthorVkId: 10,
+			UserAuthorId:   102,
+			UserAuthorVkId: 202,
 			LocDep:         "Общежитие №9",
 			LocArr:         "СК",
 			DateTimeArr:    *dateTimeArr2,
@@ -343,4 +353,129 @@ func TestAdUsecase_Search(t *testing.T) {
 
 	response_ := adUsecase.Search(adsSearch)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedAds), response_)
+}
+
+func TestAdUsecase_SetAdUserExecutor(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdRepository := mock_ad.NewMockRepository(controller)
+	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
+
+	dateTimeArr, err := timestamps.NewDateTime("05.12.2021 20:00")
+	assert.Nil(t, err)
+	ad := &models.Ad{
+		Id:             1,
+		UserAuthorId: 101,
+		UserAuthorVkId: 201,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
+	}
+	adUserExecution := &models.AdUserExecution{
+		AdId: ad.Id,
+		UserExecutorId: ad.UserAuthorId + 1,
+	}
+	expectedAd := &models.Ad{
+		Id:             ad.Id,
+		UserAuthorId:   ad.UserAuthorId,
+		UserAuthorVkId: ad.UserAuthorVkId,
+		UserExecutorVkId: &adUserExecution.UserExecutorId,
+		LocDep:         ad.LocDep,
+		LocArr:         ad.LocArr,
+		DateTimeArr:    ad.DateTimeArr,
+		Item:           ad.Item,
+		MinPrice:       ad.MinPrice,
+		Comment:        ad.Comment,
+	}
+
+	callSelect1 := mockAdRepository.
+		EXPECT().
+		Select(gomock.Eq(ad.Id)).
+		Return(ad, nil)
+	callInsertAdUserExecution := mockAdRepository.
+		EXPECT().
+		InsertAdUserExecution(gomock.Eq(adUserExecution)).
+		Return(adUserExecution, nil).
+		After(callSelect1)
+	mockAdRepository.
+		EXPECT().
+		Select(gomock.Eq(ad.Id)).
+		Return(expectedAd, nil).
+		After(callInsertAdUserExecution)
+
+	response_ := adUsecase.SetAdUserExecutor(adUserExecution.UserExecutorId, adUserExecution.AdId)
+	assert.Equal(t, response.NewResponse(consts.OK, expectedAd), response_)
+}
+
+func TestAdUsecase_SetAdUserExecutor_self(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdRepository := mock_ad.NewMockRepository(controller)
+	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
+
+	dateTimeArr, err := timestamps.NewDateTime("05.12.2021 20:05")
+	assert.Nil(t, err)
+	ad := &models.Ad{
+		Id:             1,
+		UserAuthorId: 101,
+		UserAuthorVkId: 201,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
+	}
+	adUserExecution := &models.AdUserExecution{
+		AdId: ad.Id,
+		UserExecutorId: ad.UserAuthorId,
+	}
+
+	mockAdRepository.
+		EXPECT().
+		Select(gomock.Eq(ad.Id)).
+		Return(ad, nil)
+
+	response_ := adUsecase.SetAdUserExecutor(adUserExecution.UserExecutorId, adUserExecution.AdId)
+	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
+}
+
+func TestAdUsecase_SetAdUserExecutor_conflict(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdRepository := mock_ad.NewMockRepository(controller)
+	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
+
+	dateTimeArr, err := timestamps.NewDateTime("05.12.2021 20:10")
+	assert.Nil(t, err)
+	ad := &models.Ad{
+		Id:             1,
+		UserAuthorId: 101,
+		UserAuthorVkId: 201,
+		UserExecutorVkId: pointy.Uint32(202),
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
+	}
+	adUserExecution := &models.AdUserExecution{
+		AdId: ad.Id,
+		UserExecutorId: ad.UserAuthorId + 1,
+	}
+
+	mockAdRepository.
+		EXPECT().
+		Select(gomock.Eq(ad.Id)).
+		Return(ad, nil)
+
+	response_ := adUsecase.SetAdUserExecutor(adUserExecution.UserExecutorId, adUserExecution.AdId)
+	assert.Equal(t, response.NewEmptyResponse(consts.Conflict), response_)
 }

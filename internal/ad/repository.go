@@ -8,4 +8,5 @@ type Repository interface {
 	Update(ad_ *models.Ad) (*models.Ad, error)
 	SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error)
 	Delete(id uint32) (*models.Ad, error)
+	InsertAdUserExecution(adUserExecution *models.AdUserExecution) (*models.AdUserExecution, error)
 }

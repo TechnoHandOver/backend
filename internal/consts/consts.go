@@ -3,8 +3,8 @@ package consts
 import "errors"
 
 const (
-	EchoCookieAuthName     = "handover_auth_session_id"
-	EchoContextKeyUserVkId = "userVkId"
+	EchoCookieAuthName   = "handover_auth_session_id"
+	EchoContextKeyUserId = "userId"
 )
 
 type RepositoryError error

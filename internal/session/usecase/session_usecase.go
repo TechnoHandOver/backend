@@ -18,10 +18,10 @@ func NewSessionUsecaseImpl(sessionRepository session.Repository) *SessionUsecase
 	}
 }
 
-func (sessionUsecase *SessionUsecase) Create(userVkId uint32) *response.Response {
+func (sessionUsecase *SessionUsecase) Create(userId uint32) *response.Response {
 	session_ := &models.Session{
-		Id:       uuid.NewString(),
-		UserVkId: userVkId,
+		Id:     uuid.NewString(),
+		UserId: userId,
 	}
 
 	session_, err := sessionUsecase.sessionRepository.Insert(session_)

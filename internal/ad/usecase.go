@@ -9,6 +9,7 @@ type Usecase interface {
 	Create(ad_ *models.Ad) *response.Response
 	Get(id uint32) *response.Response
 	Update(ad_ *models.Ad) *response.Response
-	Delete(userVkId uint32, id uint32) *response.Response
+	Delete(userId uint32, id uint32) *response.Response
 	Search(adsSearch *models.AdsSearch) *response.Response
+	SetAdUserExecutor(userId uint32, adId uint32) *response.Response
 }

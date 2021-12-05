@@ -20,12 +20,12 @@ func TestUserUsecase_Login(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	user := &models.User{
-		VkId:   2,
+		VkId:   201,
 		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
 	expectedUser := &models.User{
-		Id:     1,
+		Id:     101,
 		VkId:   user.VkId,
 		Name:   user.Name,
 		Avatar: user.Avatar,
@@ -48,12 +48,12 @@ func TestUserUsecase_Login_create(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	user := &models.User{
-		VkId:   2,
+		VkId:   201,
 		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
 	expectedUser := &models.User{
-		Id:     1,
+		Id:     101,
 		VkId:   user.VkId,
 		Name:   user.Name,
 		Avatar: user.Avatar,
@@ -85,8 +85,8 @@ func TestUserUsecase_Login_update(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	existingUser := &models.User{
-		Id:     1,
-		VkId:   2,
+		Id:     101,
+		VkId:   201,
 		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
@@ -125,18 +125,18 @@ func TestUserUsecase_Get(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	expectedUser := &models.User{
-		Id:     1,
-		VkId:   2,
+		Id:     101,
+		VkId:   201,
 		Name:   "Василий Петров",
 		Avatar: "https://mail.ru/vasiliy_petrov_avatar.jpg",
 	}
 
 	mockUserRepository.
 		EXPECT().
-		SelectByVkId(gomock.Eq(expectedUser.VkId)).
+		Select(gomock.Eq(expectedUser.Id)).
 		Return(expectedUser, nil)
 
-	response_ := userUsecase.Get(expectedUser.VkId)
+	response_ := userUsecase.Get(expectedUser.Id)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedUser), response_)
 }
 
@@ -147,14 +147,14 @@ func TestUserUsecase_Get_notFound(t *testing.T) {
 	mockUserRepository := mock_user.NewMockRepository(controller)
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
-	const vkId uint32 = 2
+	const id uint32 = 101
 
 	mockUserRepository.
 		EXPECT().
-		SelectByVkId(gomock.Eq(vkId)).
+		Select(gomock.Eq(id)).
 		Return(nil, consts.RepErrNotFound)
 
-	response_ := userUsecase.Get(vkId)
+	response_ := userUsecase.Get(id)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
@@ -170,21 +170,21 @@ func TestUserUsecase_CreateRouteTmp(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("10.11.2021 18:15")
 	assert.Nil(t, err)
 	routeTmp := &models.RouteTmp{
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: routeTmp.UserAuthorVkId,
-		LocDep:         routeTmp.LocDep,
-		LocArr:         routeTmp.LocArr,
-		MinPrice:       routeTmp.MinPrice,
-		DateTimeDep:    routeTmp.DateTimeDep,
-		DateTimeArr:    routeTmp.DateTimeArr,
+		Id:           1,
+		UserAuthorId: routeTmp.UserAuthorId,
+		LocDep:       routeTmp.LocDep,
+		LocArr:       routeTmp.LocArr,
+		MinPrice:     routeTmp.MinPrice,
+		DateTimeDep:  routeTmp.DateTimeDep,
+		DateTimeArr:  routeTmp.DateTimeArr,
 	}
 
 	mockUserRepository.
@@ -211,13 +211,13 @@ func TestUserUsecase_GetRouteTmp(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 11:50")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	mockUserRepository.
@@ -259,26 +259,26 @@ func TestUserUsecase_UpdateRouteTmp(t *testing.T) {
 	dateTimeArr1, err := timestamps.NewDateTime("13.11.2021 13:55")
 	assert.Nil(t, err)
 	routeTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep1,
-		DateTimeArr:    *dateTimeArr1,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep1,
+		DateTimeArr:  *dateTimeArr1,
 	}
 	dateTimeDep2, err := timestamps.NewDateTime("13.11.2021 14:00")
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("13.11.2021 14:05")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             routeTmp.Id,
-		UserAuthorVkId: routeTmp.UserAuthorVkId,
-		LocDep:         "Общежитие №9",
-		LocArr:         "СК",
-		MinPrice:       600,
-		DateTimeDep:    *dateTimeDep2,
-		DateTimeArr:    *dateTimeArr2,
+		Id:           routeTmp.Id,
+		UserAuthorId: routeTmp.UserAuthorId,
+		LocDep:       "Общежитие №9",
+		LocArr:       "СК",
+		MinPrice:     600,
+		DateTimeDep:  *dateTimeDep2,
+		DateTimeArr:  *dateTimeArr2,
 	}
 
 	call := mockUserRepository.
@@ -308,26 +308,26 @@ func TestUserUsecase_UpdateRouteTmp_forbidden(t *testing.T) {
 	dateTimeArr1, err := timestamps.NewDateTime("13.11.2021 13:55")
 	assert.Nil(t, err)
 	routeTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep1,
-		DateTimeArr:    *dateTimeArr1,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep1,
+		DateTimeArr:  *dateTimeArr1,
 	}
 	dateTimeDep2, err := timestamps.NewDateTime("13.11.2021 14:00")
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("13.11.2021 14:05")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             routeTmp.Id,
-		UserAuthorVkId: 3,
-		LocDep:         "Общежитие №9",
-		LocArr:         "СК",
-		MinPrice:       600,
-		DateTimeDep:    *dateTimeDep2,
-		DateTimeArr:    *dateTimeArr2,
+		Id:           routeTmp.Id,
+		UserAuthorId: 102,
+		LocDep:       "Общежитие №9",
+		LocArr:       "СК",
+		MinPrice:     600,
+		DateTimeDep:  *dateTimeDep2,
+		DateTimeArr:  *dateTimeArr2,
 	}
 
 	mockUserRepository.
@@ -351,13 +351,13 @@ func TestUserUsecase_UpdateRouteTmp_notFound(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 14:00")
 	assert.Nil(t, err)
 	routeTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	mockUserRepository.
@@ -381,13 +381,13 @@ func TestUserUsecase_DeleteRouteTmp(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 17:25")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	call := mockUserRepository.
@@ -401,7 +401,7 @@ func TestUserUsecase_DeleteRouteTmp(t *testing.T) {
 		Return(expectedRouteTmp, nil).
 		After(call)
 
-	response_ := userUsecase.DeleteRouteTmp(expectedRouteTmp.UserAuthorVkId, expectedRouteTmp.Id)
+	response_ := userUsecase.DeleteRouteTmp(expectedRouteTmp.UserAuthorId, expectedRouteTmp.Id)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedRouteTmp), response_)
 }
 
@@ -417,13 +417,13 @@ func TestUserUsecase_DeleteRouteTmp_forbidden(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 17:25")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	mockUserRepository.
@@ -431,7 +431,7 @@ func TestUserUsecase_DeleteRouteTmp_forbidden(t *testing.T) {
 		SelectRouteTmp(gomock.Eq(expectedRouteTmp.Id)).
 		Return(expectedRouteTmp, nil)
 
-	response_ := userUsecase.DeleteRouteTmp(expectedRouteTmp.UserAuthorVkId+1, expectedRouteTmp.Id)
+	response_ := userUsecase.DeleteRouteTmp(expectedRouteTmp.UserAuthorId+1, expectedRouteTmp.Id)
 	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }
 
@@ -443,14 +443,14 @@ func TestUserUsecase_DeleteRouteTmp_notFound(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	const routeTmpId uint32 = 1
-	const userAuthorVkId uint32 = 2
+	const userAuthorId uint32 = 101
 
 	mockUserRepository.
 		EXPECT().
 		SelectRouteTmp(gomock.Eq(routeTmpId)).
 		Return(nil, consts.RepErrNotFound)
 
-	response_ := userUsecase.DeleteRouteTmp(userAuthorVkId, routeTmpId)
+	response_ := userUsecase.DeleteRouteTmp(userAuthorId, routeTmpId)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
@@ -471,22 +471,22 @@ func TestUserUsecase_ListRouteTmp(t *testing.T) {
 	assert.Nil(t, err)
 	expectedRoutesTmp := &models.RoutesTmp{
 		&models.RouteTmp{
-			Id:             1,
-			UserAuthorVkId: 3,
-			LocDep:         "Общежитие №10",
-			LocArr:         "УЛК",
-			MinPrice:       500,
-			DateTimeDep:    *dateTimeDep1,
-			DateTimeArr:    *dateTimeArr1,
+			Id:           1,
+			UserAuthorId: 101,
+			LocDep:       "Общежитие №10",
+			LocArr:       "УЛК",
+			MinPrice:     500,
+			DateTimeDep:  *dateTimeDep1,
+			DateTimeArr:  *dateTimeArr1,
 		},
 		&models.RouteTmp{
-			Id:             2,
-			UserAuthorVkId: 4,
-			LocDep:         "Общежитие №9",
-			LocArr:         "СК",
-			MinPrice:       600,
-			DateTimeDep:    *dateTimeDep2,
-			DateTimeArr:    *dateTimeArr2,
+			Id:           2,
+			UserAuthorId: 102,
+			LocDep:       "Общежитие №9",
+			LocArr:       "СК",
+			MinPrice:     600,
+			DateTimeDep:  *dateTimeDep2,
+			DateTimeArr:  *dateTimeArr2,
 		},
 	}
 
@@ -511,27 +511,27 @@ func TestUserUsecase_CreateRoutePerm(t *testing.T) {
 	timeArr, err := timestamps.NewTime("12:35")
 	assert.Nil(t, err)
 	routePerm := &models.RoutePerm{
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		UserAuthorId: 2,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: routePerm.UserAuthorVkId,
-		LocDep:         routePerm.LocDep,
-		LocArr:         routePerm.LocArr,
-		MinPrice:       routePerm.MinPrice,
-		EvenWeek:       routePerm.EvenWeek,
-		OddWeek:        routePerm.OddWeek,
-		DayOfWeek:      routePerm.DayOfWeek,
-		TimeDep:        routePerm.TimeDep,
-		TimeArr:        routePerm.TimeArr,
+		Id:           1,
+		UserAuthorId: routePerm.UserAuthorId,
+		LocDep:       routePerm.LocDep,
+		LocArr:       routePerm.LocArr,
+		MinPrice:     routePerm.MinPrice,
+		EvenWeek:     routePerm.EvenWeek,
+		OddWeek:      routePerm.OddWeek,
+		DayOfWeek:    routePerm.DayOfWeek,
+		TimeDep:      routePerm.TimeDep,
+		TimeArr:      routePerm.TimeArr,
 	}
 
 	mockUserRepository.
@@ -558,16 +558,16 @@ func TestUserUsecase_GetRoutePerm(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	mockUserRepository.
@@ -609,32 +609,32 @@ func TestUserUsecase_UpdateRoutePerm(t *testing.T) {
 	timeArr1, err := timestamps.NewTime("16:25")
 	assert.Nil(t, err)
 	routePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep1,
-		TimeArr:        *timeArr1,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep1,
+		TimeArr:      *timeArr1,
 	}
 	timeDep2, err := timestamps.NewTime("16:30")
 	assert.Nil(t, err)
 	timeArr2, err := timestamps.NewTime("16:35")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: routePerm.UserAuthorVkId,
-		LocDep:         "Общежитие №9",
-		LocArr:         "СК",
-		MinPrice:       600,
-		EvenWeek:       false,
-		OddWeek:        true,
-		DayOfWeek:      timestamps.DayOfWeekSaturday,
-		TimeDep:        *timeDep2,
-		TimeArr:        *timeArr2,
+		Id:           1,
+		UserAuthorId: routePerm.UserAuthorId,
+		LocDep:       "Общежитие №9",
+		LocArr:       "СК",
+		MinPrice:     600,
+		EvenWeek:     false,
+		OddWeek:      true,
+		DayOfWeek:    timestamps.DayOfWeekSaturday,
+		TimeDep:      *timeDep2,
+		TimeArr:      *timeArr2,
 	}
 
 	call := mockUserRepository.
@@ -664,32 +664,32 @@ func TestUserUsecase_UpdateRoutePerm_forbidden(t *testing.T) {
 	timeArr1, err := timestamps.NewTime("16:25")
 	assert.Nil(t, err)
 	routePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep1,
-		TimeArr:        *timeArr1,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep1,
+		TimeArr:      *timeArr1,
 	}
 	timeDep2, err := timestamps.NewTime("16:30")
 	assert.Nil(t, err)
 	timeArr2, err := timestamps.NewTime("16:35")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 3,
-		LocDep:         "Общежитие №9",
-		LocArr:         "СК",
-		MinPrice:       600,
-		EvenWeek:       false,
-		OddWeek:        true,
-		DayOfWeek:      timestamps.DayOfWeekSaturday,
-		TimeDep:        *timeDep2,
-		TimeArr:        *timeArr2,
+		Id:           routePerm.Id,
+		UserAuthorId: 102,
+		LocDep:       "Общежитие №9",
+		LocArr:       "СК",
+		MinPrice:     600,
+		EvenWeek:     false,
+		OddWeek:      true,
+		DayOfWeek:    timestamps.DayOfWeekSaturday,
+		TimeDep:      *timeDep2,
+		TimeArr:      *timeArr2,
 	}
 
 	mockUserRepository.
@@ -713,16 +713,16 @@ func TestUserUsecase_UpdateRoutePerm_notFound(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	routePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	mockUserRepository.
@@ -746,16 +746,16 @@ func TestUserUsecase_DeleteRoutePerm(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	call := mockUserRepository.
@@ -769,7 +769,7 @@ func TestUserUsecase_DeleteRoutePerm(t *testing.T) {
 		Return(expectedRoutePerm, nil).
 		After(call)
 
-	response_ := userUsecase.DeleteRoutePerm(expectedRoutePerm.UserAuthorVkId, expectedRoutePerm.Id)
+	response_ := userUsecase.DeleteRoutePerm(expectedRoutePerm.UserAuthorId, expectedRoutePerm.Id)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedRoutePerm), response_)
 }
 
@@ -785,16 +785,16 @@ func TestUserUsecase_DeleteRoutePerm_forbidden(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	mockUserRepository.
@@ -802,7 +802,7 @@ func TestUserUsecase_DeleteRoutePerm_forbidden(t *testing.T) {
 		SelectRoutePerm(gomock.Eq(expectedRoutePerm.Id)).
 		Return(expectedRoutePerm, nil)
 
-	response_ := userUsecase.DeleteRoutePerm(expectedRoutePerm.UserAuthorVkId+1, expectedRoutePerm.Id)
+	response_ := userUsecase.DeleteRoutePerm(expectedRoutePerm.UserAuthorId+1, expectedRoutePerm.Id)
 	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }
 
@@ -814,14 +814,14 @@ func TestUserUsecase_DeleteRoutePerm_notFound(t *testing.T) {
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
 	const routePermId uint32 = 1
-	const userAuthorVkId uint32 = 2
+	const userAuthorId uint32 = 101
 
 	mockUserRepository.
 		EXPECT().
 		SelectRoutePerm(gomock.Eq(routePermId)).
 		Return(nil, consts.RepErrNotFound)
 
-	response_ := userUsecase.DeleteRoutePerm(userAuthorVkId, routePermId)
+	response_ := userUsecase.DeleteRoutePerm(userAuthorId, routePermId)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
@@ -842,28 +842,28 @@ func TestUserUsecase_ListRoutePerm(t *testing.T) {
 	assert.Nil(t, err)
 	expectedRoutesPerm := &models.RoutesPerm{
 		&models.RoutePerm{
-			Id:             1,
-			UserAuthorVkId: 2,
-			LocDep:         "Общежитие №10",
-			LocArr:         "УЛК",
-			MinPrice:       500,
-			EvenWeek:       true,
-			OddWeek:        false,
-			DayOfWeek:      timestamps.DayOfWeekWednesday,
-			TimeDep:        *timeDep1,
-			TimeArr:        *timeArr1,
+			Id:           1,
+			UserAuthorId: 101,
+			LocDep:       "Общежитие №10",
+			LocArr:       "УЛК",
+			MinPrice:     500,
+			EvenWeek:     true,
+			OddWeek:      false,
+			DayOfWeek:    timestamps.DayOfWeekWednesday,
+			TimeDep:      *timeDep1,
+			TimeArr:      *timeArr1,
 		},
 		&models.RoutePerm{
-			Id:             1,
-			UserAuthorVkId: 3,
-			LocDep:         "Общежитие №9",
-			LocArr:         "СК",
-			MinPrice:       600,
-			EvenWeek:       false,
-			OddWeek:        true,
-			DayOfWeek:      timestamps.DayOfWeekSaturday,
-			TimeDep:        *timeDep2,
-			TimeArr:        *timeArr2,
+			Id:           1,
+			UserAuthorId: 102,
+			LocDep:       "Общежитие №9",
+			LocArr:       "СК",
+			MinPrice:     600,
+			EvenWeek:     false,
+			OddWeek:      true,
+			DayOfWeek:    timestamps.DayOfWeekSaturday,
+			TimeDep:      *timeDep2,
+			TimeArr:      *timeArr2,
 		},
 	}
 

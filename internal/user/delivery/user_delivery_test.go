@@ -32,27 +32,26 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
-	const vkId uint32 = 2
 	dateTimeDep, err := timestamps.NewDateTime("10.11.2021 18:10")
 	assert.Nil(t, err)
 	dateTimeArr, err := timestamps.NewDateTime("10.11.2021 18:15")
 	assert.Nil(t, err)
 	routeTmp := &models.RouteTmp{
-		UserAuthorVkId: vkId,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: routeTmp.UserAuthorVkId,
-		LocDep:         routeTmp.LocDep,
-		LocArr:         routeTmp.LocArr,
-		MinPrice:       routeTmp.MinPrice,
-		DateTimeDep:    routeTmp.DateTimeDep,
-		DateTimeArr:    routeTmp.DateTimeArr,
+		Id:           1,
+		UserAuthorId: routeTmp.UserAuthorId,
+		LocDep:       routeTmp.LocDep,
+		LocArr:       routeTmp.LocArr,
+		MinPrice:     routeTmp.MinPrice,
+		DateTimeDep:  routeTmp.DateTimeDep,
+		DateTimeArr:  routeTmp.DateTimeArr,
 	}
 
 	mockUserUsecase.
@@ -77,7 +76,7 @@ func TestUserDelivery_HandlerRouteTmpCreate(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
-	context.Set(consts.EchoContextKeyUserVkId, vkId)
+	context.Set(consts.EchoContextKeyUserId, routeTmp.UserAuthorId)
 
 	handler := userDelivery.HandlerRouteTmpCreate()
 
@@ -105,13 +104,13 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 11:35")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	mockUserUsecase.
@@ -159,13 +158,13 @@ func TestUserDelivery_HandlerRouteTmpUpdate(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 13:35")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	mockUserUsecase.
@@ -190,7 +189,7 @@ func TestUserDelivery_HandlerRouteTmpUpdate(t *testing.T) {
 	context.SetPath("/api/users/routes-tmp/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedRouteTmp.Id), 10))
-	context.Set(consts.EchoContextKeyUserVkId, expectedRouteTmp.UserAuthorVkId)
+	context.Set(consts.EchoContextKeyUserId, expectedRouteTmp.UserAuthorId)
 
 	handler := userDelivery.HandlerRouteTmpUpdate()
 
@@ -218,18 +217,18 @@ func TestUserDelivery_HandlerRouteTmpDelete(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 13:35")
 	assert.Nil(t, err)
 	expectedRouteTmp := &models.RouteTmp{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		DateTimeDep:    *dateTimeDep,
-		DateTimeArr:    *dateTimeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
 	}
 
 	mockUserUsecase.
 		EXPECT().
-		DeleteRouteTmp(gomock.Eq(expectedRouteTmp.UserAuthorVkId), gomock.Eq(expectedRouteTmp.Id)).
+		DeleteRouteTmp(gomock.Eq(expectedRouteTmp.UserAuthorId), gomock.Eq(expectedRouteTmp.Id)).
 		Return(response.NewResponse(consts.OK, expectedRouteTmp))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -245,7 +244,7 @@ func TestUserDelivery_HandlerRouteTmpDelete(t *testing.T) {
 	context.SetPath("/api/users/routes-tmp/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedRouteTmp.Id), 10))
-	context.Set(consts.EchoContextKeyUserVkId, expectedRouteTmp.UserAuthorVkId)
+	context.Set(consts.EchoContextKeyUserId, expectedRouteTmp.UserAuthorId)
 
 	handler := userDelivery.HandlerRouteTmpDelete()
 
@@ -278,22 +277,22 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 	assert.Nil(t, err)
 	expectedRoutesTmp := &models.RoutesTmp{
 		&models.RouteTmp{
-			Id:             1,
-			UserAuthorVkId: 3,
-			LocDep:         "Общежитие №10",
-			LocArr:         "УЛК",
-			MinPrice:       500,
-			DateTimeDep:    *dateTimeDep1,
-			DateTimeArr:    *dateTimeArr1,
+			Id:           1,
+			UserAuthorId: 101,
+			LocDep:       "Общежитие №10",
+			LocArr:       "УЛК",
+			MinPrice:     500,
+			DateTimeDep:  *dateTimeDep1,
+			DateTimeArr:  *dateTimeArr1,
 		},
 		&models.RouteTmp{
-			Id:             2,
-			UserAuthorVkId: 4,
-			LocDep:         "Общежитие №9",
-			LocArr:         "СК",
-			MinPrice:       600,
-			DateTimeDep:    *dateTimeDep2,
-			DateTimeArr:    *dateTimeArr2,
+			Id:           2,
+			UserAuthorId: 102,
+			LocDep:       "Общежитие №9",
+			LocArr:       "СК",
+			MinPrice:     600,
+			DateTimeDep:  *dateTimeDep2,
+			DateTimeArr:  *dateTimeArr2,
 		},
 	}
 
@@ -335,33 +334,32 @@ func TestUserDelivery_HandlerRoutePermCreate(t *testing.T) {
 	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
-	const vkId uint32 = 2
 	timeDep, err := timestamps.NewTime("12:30")
 	assert.Nil(t, err)
 	timeArr, err := timestamps.NewTime("12:35")
 	assert.Nil(t, err)
 	routePerm := &models.RoutePerm{
-		UserAuthorVkId: vkId,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: routePerm.UserAuthorVkId,
-		LocDep:         routePerm.LocDep,
-		LocArr:         routePerm.LocArr,
-		MinPrice:       routePerm.MinPrice,
-		EvenWeek:       routePerm.EvenWeek,
-		OddWeek:        routePerm.OddWeek,
-		DayOfWeek:      routePerm.DayOfWeek,
-		TimeDep:        routePerm.TimeDep,
-		TimeArr:        routePerm.TimeArr,
+		Id:           1,
+		UserAuthorId: routePerm.UserAuthorId,
+		LocDep:       routePerm.LocDep,
+		LocArr:       routePerm.LocArr,
+		MinPrice:     routePerm.MinPrice,
+		EvenWeek:     routePerm.EvenWeek,
+		OddWeek:      routePerm.OddWeek,
+		DayOfWeek:    routePerm.DayOfWeek,
+		TimeDep:      routePerm.TimeDep,
+		TimeArr:      routePerm.TimeArr,
 	}
 
 	mockUserUsecase.
@@ -386,7 +384,7 @@ func TestUserDelivery_HandlerRoutePermCreate(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
-	context.Set(consts.EchoContextKeyUserVkId, vkId)
+	context.Set(consts.EchoContextKeyUserId, routePerm.UserAuthorId)
 
 	handler := userDelivery.HandlerRoutePermCreate()
 
@@ -414,16 +412,16 @@ func TestUserDelivery_HandlerRoutePermGet(t *testing.T) {
 	timeArr, err := timestamps.NewTime("15:05")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	mockUserUsecase.
@@ -471,16 +469,16 @@ func TestUserDelivery_HandlerRoutePermUpdate(t *testing.T) {
 	timeArr, err := timestamps.NewTime("16:20")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	mockUserUsecase.
@@ -505,7 +503,7 @@ func TestUserDelivery_HandlerRoutePermUpdate(t *testing.T) {
 	context.SetPath("/api/users/routes-perm/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedRoutePerm.Id), 10))
-	context.Set(consts.EchoContextKeyUserVkId, expectedRoutePerm.UserAuthorVkId)
+	context.Set(consts.EchoContextKeyUserId, expectedRoutePerm.UserAuthorId)
 
 	handler := userDelivery.HandlerRoutePermUpdate()
 
@@ -533,21 +531,21 @@ func TestUserDelivery_HandlerRoutePermDelete(t *testing.T) {
 	timeArr, err := timestamps.NewTime("16:20")
 	assert.Nil(t, err)
 	expectedRoutePerm := &models.RoutePerm{
-		Id:             1,
-		UserAuthorVkId: 2,
-		LocDep:         "Корпус Энерго",
-		LocArr:         "Корпус УЛК",
-		MinPrice:       500,
-		EvenWeek:       true,
-		OddWeek:        false,
-		DayOfWeek:      timestamps.DayOfWeekWednesday,
-		TimeDep:        *timeDep,
-		TimeArr:        *timeArr,
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
 	}
 
 	mockUserUsecase.
 		EXPECT().
-		DeleteRoutePerm(gomock.Eq(expectedRoutePerm.UserAuthorVkId), gomock.Eq(expectedRoutePerm.Id)).
+		DeleteRoutePerm(gomock.Eq(expectedRoutePerm.UserAuthorId), gomock.Eq(expectedRoutePerm.Id)).
 		Return(response.NewResponse(consts.OK, expectedRoutePerm))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -563,7 +561,7 @@ func TestUserDelivery_HandlerRoutePermDelete(t *testing.T) {
 	context.SetPath("/api/users/routes-perm/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedRoutePerm.Id), 10))
-	context.Set(consts.EchoContextKeyUserVkId, expectedRoutePerm.UserAuthorVkId)
+	context.Set(consts.EchoContextKeyUserId, expectedRoutePerm.UserAuthorId)
 
 	handler := userDelivery.HandlerRoutePermDelete()
 
@@ -596,28 +594,28 @@ func TestUserDelivery_HandlerRoutePermList(t *testing.T) {
 	assert.Nil(t, err)
 	expectedRoutesPerm := &models.RoutesPerm{
 		&models.RoutePerm{
-			Id:             1,
-			UserAuthorVkId: 2,
-			LocDep:         "Общежитие №10",
-			LocArr:         "УЛК",
-			MinPrice:       500,
-			EvenWeek:       true,
-			OddWeek:        false,
-			DayOfWeek:      timestamps.DayOfWeekWednesday,
-			TimeDep:        *timeDep1,
-			TimeArr:        *timeArr1,
+			Id:           1,
+			UserAuthorId: 101,
+			LocDep:       "Общежитие №10",
+			LocArr:       "УЛК",
+			MinPrice:     500,
+			EvenWeek:     true,
+			OddWeek:      false,
+			DayOfWeek:    timestamps.DayOfWeekWednesday,
+			TimeDep:      *timeDep1,
+			TimeArr:      *timeArr1,
 		},
 		&models.RoutePerm{
-			Id:             1,
-			UserAuthorVkId: 3,
-			LocDep:         "Общежитие №9",
-			LocArr:         "СК",
-			MinPrice:       600,
-			EvenWeek:       false,
-			OddWeek:        true,
-			DayOfWeek:      timestamps.DayOfWeekSaturday,
-			TimeDep:        *timeDep2,
-			TimeArr:        *timeArr2,
+			Id:           2,
+			UserAuthorId: 102,
+			LocDep:       "Общежитие №9",
+			LocArr:       "СК",
+			MinPrice:     600,
+			EvenWeek:     false,
+			OddWeek:      true,
+			DayOfWeek:    timestamps.DayOfWeekSaturday,
+			TimeDep:      *timeDep2,
+			TimeArr:      *timeArr2,
 		},
 	}
 

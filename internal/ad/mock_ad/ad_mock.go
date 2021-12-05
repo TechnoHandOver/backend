@@ -91,6 +91,20 @@ func (mr *MockUsecaseMockRecorder) Search(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockUsecase)(nil).Search), arg0)
 }
 
+// SetAdUserExecutor mocks base method.
+func (m *MockUsecase) SetAdUserExecutor(arg0, arg1 uint32) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetAdUserExecutor", arg0, arg1)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// SetAdUserExecutor indicates an expected call of SetAdUserExecutor.
+func (mr *MockUsecaseMockRecorder) SetAdUserExecutor(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAdUserExecutor", reflect.TypeOf((*MockUsecase)(nil).SetAdUserExecutor), arg0, arg1)
+}
+
 // Update mocks base method.
 func (m *MockUsecase) Update(arg0 *models.Ad) *response.Response {
 	m.ctrl.T.Helper()
@@ -156,6 +170,21 @@ func (m *MockRepository) Insert(arg0 *models.Ad) (*models.Ad, error) {
 func (mr *MockRepositoryMockRecorder) Insert(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), arg0)
+}
+
+// InsertAdUserExecution mocks base method.
+func (m *MockRepository) InsertAdUserExecution(arg0 *models.AdUserExecution) (*models.AdUserExecution, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertAdUserExecution", arg0)
+	ret0, _ := ret[0].(*models.AdUserExecution)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertAdUserExecution indicates an expected call of InsertAdUserExecution.
+func (mr *MockRepositoryMockRecorder) InsertAdUserExecution(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertAdUserExecution", reflect.TypeOf((*MockRepository)(nil).InsertAdUserExecution), arg0)
 }
 
 // Select mocks base method.

@@ -108,13 +108,13 @@ func (userRepository *UserRepository) Update(user_ *models.User) (*models.User, 
 
 func (userRepository *UserRepository) InsertRouteTmp(routeTmp *models.RouteTmp) (*models.RouteTmp, error) {
 	const query = `
-INSERT INTO view_route_tmp (user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr)
+INSERT INTO view_route_tmp (user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
+RETURNING id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
 
-	if err := userRepository.db.QueryRow(query, routeTmp.UserAuthorVkId, routeTmp.LocDep, routeTmp.LocArr,
+	if err := userRepository.db.QueryRow(query, routeTmp.UserAuthorId, routeTmp.LocDep, routeTmp.LocArr,
 		routeTmp.MinPrice, time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)).Scan(&routeTmp.Id,
-		&routeTmp.UserAuthorVkId, &routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
+		&routeTmp.UserAuthorId, &routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
 		&routeTmp.DateTimeArr); err != nil {
 		return nil, err
 	}
@@ -124,11 +124,11 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, dat
 
 func (userRepository *UserRepository) SelectRouteTmp(routeTmpId uint32) (*models.RouteTmp, error) {
 	const query = `
-SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp
+SELECT id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp
 WHERE id = $1`
 
 	routeTmp := new(models.RouteTmp)
-	if err := userRepository.db.QueryRow(query, routeTmpId).Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId,
+	if err := userRepository.db.QueryRow(query, routeTmpId).Scan(&routeTmp.Id, &routeTmp.UserAuthorId,
 		&routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
 		&routeTmp.DateTimeArr); err != nil {
 		if err == sql.ErrNoRows {
@@ -143,7 +143,7 @@ WHERE id = $1`
 
 func (userRepository *UserRepository) SelectRouteTmpArray() (*models.RoutesTmp, error) {
 	const query = `
-SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp
+SELECT id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp
 ORDER BY date_time_dep, date_time_arr, min_price DESC, id`
 
 	rows, err := userRepository.db.Query(query)
@@ -157,7 +157,7 @@ ORDER BY date_time_dep, date_time_arr, min_price DESC, id`
 	routesTmp := make(models.RoutesTmp, 0)
 	for rows.Next() {
 		routeTmp := new(models.RouteTmp)
-		if err := rows.Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId, &routeTmp.LocDep, &routeTmp.LocArr,
+		if err := rows.Scan(&routeTmp.Id, &routeTmp.UserAuthorId, &routeTmp.LocDep, &routeTmp.LocArr,
 			&routeTmp.MinPrice, &routeTmp.DateTimeDep, &routeTmp.DateTimeArr); err != nil {
 			return nil, err
 		}
@@ -172,10 +172,10 @@ func (userRepository *UserRepository) UpdateRouteTmp(routeTmp *models.RouteTmp) 
 	const query = `
 UPDATE view_route_tmp SET loc_dep = $2, loc_arr = $3, min_price = $4, date_time_dep = $5, date_time_arr = $6
 WHERE id = $1
-RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
+RETURNING id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
 
 	if err := userRepository.db.QueryRow(query, routeTmp.Id, routeTmp.LocDep, routeTmp.LocArr, routeTmp.MinPrice,
-		time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)).Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId,
+		time.Time(routeTmp.DateTimeDep), time.Time(routeTmp.DateTimeArr)).Scan(&routeTmp.Id, &routeTmp.UserAuthorId,
 		&routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
 		&routeTmp.DateTimeArr); err != nil {
 		if err == sql.ErrNoRows {
@@ -192,10 +192,10 @@ func (userRepository *UserRepository) DeleteRouteTmp(routeTmpId uint32) (*models
 	const query = `
 DELETE FROM view_route_tmp
 WHERE id = $1
-RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
+RETURNING id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr`
 
 	routeTmp := new(models.RouteTmp)
-	if err := userRepository.db.QueryRow(query, routeTmpId).Scan(&routeTmp.Id, &routeTmp.UserAuthorVkId,
+	if err := userRepository.db.QueryRow(query, routeTmpId).Scan(&routeTmp.Id, &routeTmp.UserAuthorId,
 		&routeTmp.LocDep, &routeTmp.LocArr, &routeTmp.MinPrice, &routeTmp.DateTimeDep,
 		&routeTmp.DateTimeArr); err != nil {
 		if err == sql.ErrNoRows {
@@ -210,16 +210,15 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, date_time_dep, dat
 
 func (userRepository *UserRepository) InsertRoutePerm(routePerm *models.RoutePerm) (*models.RoutePerm, error) {
 	const query = `
-INSERT INTO view_route_perm (user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep,
-                             time_arr)
+INSERT INTO view_route_perm (user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr`
+RETURNING id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr`
 
-	if err := userRepository.db.QueryRow(query, routePerm.UserAuthorVkId, routePerm.LocDep, routePerm.LocArr,
+	if err := userRepository.db.QueryRow(query, routePerm.UserAuthorId, routePerm.LocDep, routePerm.LocArr,
 		routePerm.MinPrice, routePerm.EvenWeek, routePerm.OddWeek, routePerm.DayOfWeek, time.Time(routePerm.TimeDep),
-		time.Time(routePerm.TimeArr)).Scan(&routePerm.Id, &routePerm.UserAuthorVkId, &routePerm.LocDep,
-		&routePerm.LocArr, &routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek, &routePerm.DayOfWeek,
-		&routePerm.TimeDep, &routePerm.TimeArr); err != nil {
+		time.Time(routePerm.TimeArr)).Scan(&routePerm.Id, &routePerm.UserAuthorId, &routePerm.LocDep, &routePerm.LocArr,
+		&routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek, &routePerm.DayOfWeek, &routePerm.TimeDep,
+		&routePerm.TimeArr); err != nil {
 		return nil, err
 	}
 
@@ -228,11 +227,11 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_wee
 
 func (userRepository *UserRepository) SelectRoutePerm(routePermId uint32) (*models.RoutePerm, error) {
 	const query = `
-SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm
+SELECT id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm
 WHERE id = $1`
 
 	routePerm := new(models.RoutePerm)
-	if err := userRepository.db.QueryRow(query, routePermId).Scan(&routePerm.Id, &routePerm.UserAuthorVkId,
+	if err := userRepository.db.QueryRow(query, routePermId).Scan(&routePerm.Id, &routePerm.UserAuthorId,
 		&routePerm.LocDep, &routePerm.LocArr, &routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek,
 		&routePerm.DayOfWeek, &routePerm.TimeDep, &routePerm.TimeArr); err != nil {
 		if err == sql.ErrNoRows {
@@ -249,13 +248,13 @@ func (userRepository *UserRepository) UpdateRoutePerm(routePerm *models.RoutePer
 	const query = `
 UPDATE view_route_perm SET loc_dep = $2, loc_arr = $3, min_price = $4, even_week = $5, odd_week = $6, day_of_week = $7, time_dep = $8, time_arr = $9
 WHERE id = $1
-RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr`
+RETURNING id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr`
 
 	if err := userRepository.db.QueryRow(query, routePerm.Id, routePerm.LocDep, routePerm.LocArr, routePerm.MinPrice,
 		routePerm.EvenWeek, routePerm.OddWeek, routePerm.DayOfWeek, time.Time(routePerm.TimeDep),
-		time.Time(routePerm.TimeArr)).Scan(&routePerm.Id, &routePerm.UserAuthorVkId, &routePerm.LocDep,
-		&routePerm.LocArr, &routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek, &routePerm.DayOfWeek,
-		&routePerm.TimeDep, &routePerm.TimeArr); err != nil {
+		time.Time(routePerm.TimeArr)).Scan(&routePerm.Id, &routePerm.UserAuthorId, &routePerm.LocDep, &routePerm.LocArr,
+		&routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek, &routePerm.DayOfWeek, &routePerm.TimeDep,
+		&routePerm.TimeArr); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, consts.RepErrNotFound
 		}
@@ -270,10 +269,10 @@ func (userRepository *UserRepository) DeleteRoutePerm(routePermId uint32) (*mode
 	const query = `
 DELETE FROM view_route_perm
 WHERE id = $1
-RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr`
+RETURNING id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr`
 
 	routePerm := new(models.RoutePerm)
-	if err := userRepository.db.QueryRow(query, routePermId).Scan(&routePerm.Id, &routePerm.UserAuthorVkId,
+	if err := userRepository.db.QueryRow(query, routePermId).Scan(&routePerm.Id, &routePerm.UserAuthorId,
 		&routePerm.LocDep, &routePerm.LocArr, &routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek,
 		&routePerm.DayOfWeek, &routePerm.TimeDep, &routePerm.TimeArr); err != nil {
 		if err == sql.ErrNoRows {
@@ -288,7 +287,7 @@ RETURNING id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_wee
 
 func (userRepository *UserRepository) SelectRoutePermArray() (*models.RoutesPerm, error) {
 	const query = `
-SELECT id, user_author_vk_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm
+SELECT id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm
 ORDER BY day_of_week, time_dep, time_arr, even_week, odd_week, min_price DESC, id`
 
 	rows, err := userRepository.db.Query(query)
@@ -302,7 +301,7 @@ ORDER BY day_of_week, time_dep, time_arr, even_week, odd_week, min_price DESC, i
 	routesPerm := make(models.RoutesPerm, 0)
 	for rows.Next() {
 		routePerm := new(models.RoutePerm)
-		if err := rows.Scan(&routePerm.Id, &routePerm.UserAuthorVkId, &routePerm.LocDep, &routePerm.LocArr,
+		if err := rows.Scan(&routePerm.Id, &routePerm.UserAuthorId, &routePerm.LocDep, &routePerm.LocArr,
 			&routePerm.MinPrice, &routePerm.EvenWeek, &routePerm.OddWeek, &routePerm.DayOfWeek, &routePerm.TimeDep,
 			&routePerm.TimeArr); err != nil {
 			return nil, err

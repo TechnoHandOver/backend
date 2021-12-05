@@ -53,17 +53,19 @@ func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {
 			return responser.Respond(context, userResponse)
 		}
 
-		sessionResponse := sessionDelivery.sessionUsecase.Create(user_.VkId)
+		user_ = userResponse.Data.(*models.User)
+
+		sessionResponse := sessionDelivery.sessionUsecase.Create(user_.Id)
 		if sessionResponse.Code != consts.OK {
 			return responser.Respond(context, sessionResponse)
 		}
 
 		session_ := sessionResponse.Data.(*models.Session)
 		context.SetCookie(&http.Cookie{
-			Name:  consts.EchoCookieAuthName,
-			Value: session_.Id,
-			Secure: true,
+			Name:     consts.EchoCookieAuthName,
 			SameSite: http.SameSiteNoneMode,
+			Secure:   false,
+			Value:    session_.Id,
 		})
 
 		return responser.Respond(context, userResponse)

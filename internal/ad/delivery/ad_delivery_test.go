@@ -35,19 +35,19 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:31")
 	assert.Nil(t, err)
-
 	ad := &models.Ad{
-		UserAuthorVkId: 2,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
 	}
 	expectedAd := &models.Ad{
 		Id:             1,
-		UserAuthorVkId: ad.UserAuthorVkId,
+		UserAuthorId:   ad.UserAuthorId,
+		UserAuthorVkId: 201,
 		LocDep:         ad.LocDep,
 		LocArr:         ad.LocArr,
 		DateTimeArr:    ad.DateTimeArr,
@@ -61,6 +61,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 		Create(gomock.Eq(ad)).
 		DoAndReturn(func(ad *models.Ad) *response.Response {
 			ad.Id = expectedAd.Id
+			ad.UserAuthorVkId = expectedAd.UserAuthorVkId
 			return response.NewResponse(consts.Created, ad)
 		})
 
@@ -78,7 +79,7 @@ func TestAdDelivery_HandlerAdCreate(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
-	context.Set(consts.EchoContextKeyUserVkId, ad.UserAuthorVkId)
+	context.Set(consts.EchoContextKeyUserId, ad.UserAuthorId)
 
 	handler := adDelivery.HandlerAdCreate()
 
@@ -105,7 +106,8 @@ func TestAdDelivery_HandlerAdGet(t *testing.T) {
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
 		Id:             1,
-		UserAuthorVkId: 2,
+		UserAuthorId:   101,
+		UserAuthorVkId: 201,
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
@@ -156,21 +158,35 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 
 	dateTimeArr, err := timestamps.NewDateTime("27.10.2021 19:50")
 	assert.Nil(t, err)
+	ad := &models.Ad{
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
+	}
 	expectedAd := &models.Ad{
-		Id:          1,
-		UserAuthorVkId: 2,
-		LocDep:      "Общежитие №10",
-		LocArr:      "УЛК",
-		DateTimeArr: *dateTimeArr,
-		Item:        "Зачётная книжка",
-		MinPrice:    500,
-		Comment:     "Поеду на велосипеде",
+		Id:             ad.Id,
+		UserAuthorId:   ad.UserAuthorId,
+		UserAuthorVkId: 201,
+		LocDep:         ad.LocDep,
+		LocArr:         ad.LocArr,
+		DateTimeArr:    ad.DateTimeArr,
+		Item:           ad.Item,
+		MinPrice:       ad.MinPrice,
+		Comment:        ad.Comment,
 	}
 
 	mockAdUsecase.
 		EXPECT().
-		Update(gomock.Eq(expectedAd)).
-		Return(response.NewResponse(consts.OK, expectedAd))
+		Update(gomock.Eq(ad)).
+		DoAndReturn(func(ad *models.Ad) *response.Response {
+			ad.UserAuthorVkId = expectedAd.UserAuthorVkId
+			return response.NewResponse(consts.OK, ad)
+		})
 
 	jsonRequest, err := json.Marshal(expectedAd)
 	assert.Nil(t, err)
@@ -189,7 +205,7 @@ func TestAdDelivery_HandlerAdUpdate(t *testing.T) {
 	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
-	context.Set(consts.EchoContextKeyUserVkId, expectedAd.UserAuthorVkId)
+	context.Set(consts.EchoContextKeyUserId, expectedAd.UserAuthorId)
 
 	handler := adDelivery.HandlerAdUpdate()
 
@@ -216,7 +232,8 @@ func TestAdDelivery_HandlerAdDelete(t *testing.T) {
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
 		Id:             1,
-		UserAuthorVkId: 2,
+		UserAuthorId:   101,
+		UserAuthorVkId: 201,
 		LocDep:         "Общежитие №10",
 		LocArr:         "УЛК",
 		DateTimeArr:    *dateTimeArr,
@@ -227,7 +244,7 @@ func TestAdDelivery_HandlerAdDelete(t *testing.T) {
 
 	mockAdUsecase.
 		EXPECT().
-		Delete(gomock.Eq(expectedAd.UserAuthorVkId), gomock.Eq(expectedAd.Id)).
+		Delete(gomock.Eq(expectedAd.UserAuthorId), gomock.Eq(expectedAd.Id)).
 		Return(response.NewResponse(consts.OK, expectedAd))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -243,7 +260,7 @@ func TestAdDelivery_HandlerAdDelete(t *testing.T) {
 	context.SetPath("/api/ads/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
-	context.Set(consts.EchoContextKeyUserVkId, expectedAd.UserAuthorVkId)
+	context.Set(consts.EchoContextKeyUserId, expectedAd.UserAuthorId)
 
 	handler := adDelivery.HandlerAdDelete()
 
@@ -270,11 +287,13 @@ func TestAdDelivery_HandlerAdsList(t *testing.T) {
 	assert.Nil(t, err)
 	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
 	assert.Nil(t, err)
-	adsSearch := HandoverTesting.NewAdsSearchByUserAuthorVkId(10)
+	const userAuthorId uint32 = 101
+	const userAuthorVkId uint32 = 201
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:             1,
-			UserAuthorVkId: 10,
+			UserAuthorId:   userAuthorId,
+			UserAuthorVkId: userAuthorVkId,
 			LocDep:         "Общежитие №10",
 			LocArr:         "УЛК",
 			DateTimeArr:    *dateTimeArr1,
@@ -284,7 +303,8 @@ func TestAdDelivery_HandlerAdsList(t *testing.T) {
 		},
 		&models.Ad{
 			Id:             2,
-			UserAuthorVkId: 10,
+			UserAuthorId:   userAuthorId,
+			UserAuthorVkId: userAuthorVkId,
 			LocDep:         "Общежитие №9",
 			LocArr:         "СК",
 			DateTimeArr:    *dateTimeArr2,
@@ -293,6 +313,7 @@ func TestAdDelivery_HandlerAdsList(t *testing.T) {
 			Comment:        "Поеду на роликах :)",
 		},
 	}
+	adsSearch := HandoverTesting.NewAdsSearchByUserAuthorId(userAuthorId)
 
 	mockAdUsecase.
 		EXPECT().
@@ -313,7 +334,7 @@ func TestAdDelivery_HandlerAdsList(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
-	context.Set(consts.EchoContextKeyUserVkId, uint32(10))
+	context.Set(consts.EchoContextKeyUserId, userAuthorId)
 
 	handler := adDelivery.HandlerAdsList()
 
@@ -344,7 +365,8 @@ func TestAdDelivery_HandlerAdsSearch(t *testing.T) {
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:             1,
-			UserAuthorVkId: 10,
+			UserAuthorId:   101,
+			UserAuthorVkId: 201,
 			LocDep:         "Общежитие №10",
 			LocArr:         "УЛК",
 			DateTimeArr:    *dateTimeArr1,
@@ -354,7 +376,8 @@ func TestAdDelivery_HandlerAdsSearch(t *testing.T) {
 		},
 		&models.Ad{
 			Id:             2,
-			UserAuthorVkId: 20,
+			UserAuthorId:   102,
+			UserAuthorVkId: 202,
 			LocDep:         "Общежитие №9",
 			LocArr:         "СК",
 			DateTimeArr:    *dateTimeArr2,
@@ -389,6 +412,78 @@ func TestAdDelivery_HandlerAdsSearch(t *testing.T) {
 	err = handler(context)
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusOK, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}
+
+func TestAdDelivery_HandlerAdExecutionCreate(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdUsecase := mock_ad.NewMockUsecase(controller)
+	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
+	echo_ := echo.New()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
+	adDelivery.Configure(echo_, &middlewares.Manager{})
+
+	dateTimeArr, err := timestamps.NewDateTime("05.12.2021 19:50")
+	assert.Nil(t, err)
+	ad := &models.Ad{
+		Id:             1,
+		UserAuthorId: 101,
+		UserAuthorVkId: 201,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
+	}
+	var userExecutorVkId uint32 = 202
+	expectedAd := &models.Ad{
+		Id:             ad.Id,
+		UserAuthorId:   ad.UserAuthorId,
+		UserAuthorVkId: ad.UserAuthorVkId,
+		UserExecutorVkId: &userExecutorVkId,
+		LocDep:         ad.LocDep,
+		LocArr:         ad.LocArr,
+		DateTimeArr:    ad.DateTimeArr,
+		Item:           ad.Item,
+		MinPrice:       ad.MinPrice,
+		Comment:        ad.Comment,
+	}
+
+	mockAdUsecase.
+		EXPECT().
+		SetAdUserExecutor(gomock.Eq(userExecutorVkId), gomock.Eq(ad.Id)).
+		DoAndReturn(func(userId uint32, adId uint32) *response.Response {
+			ad.UserExecutorVkId = new(uint32)
+			*ad.UserExecutorVkId = userId
+			return response.NewResponse(consts.Created, ad)
+		})
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedAd,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodPost, "/", nil)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.SetPath("/api/ads/:id/execution")
+	context.SetParamNames("id")
+	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
+	context.Set(consts.EchoContextKeyUserId, userExecutorVkId)
+
+	handler := adDelivery.HandlerAdExecutionCreate()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusCreated, recorder.Code)
 
 	responseBody, err := ioutil.ReadAll(recorder.Body)
 	assert.Nil(t, err)

@@ -36,7 +36,7 @@ func main() {
 	}
 
 	var logFile *os.File
-	if logFile, err = os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+	if logFile, err = os.OpenFile(logFileName, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644); err != nil {
 		log.Fatal(err)
 	}
 	defer func() {

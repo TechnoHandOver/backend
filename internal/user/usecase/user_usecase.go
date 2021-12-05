@@ -50,8 +50,8 @@ func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *respo
 	return response.NewResponse(consts.Created, routeTmp)
 }
 
-func (userUsecase *UserUsecase) Get(vkId uint32) *response.Response {
-	user_, err := userUsecase.userRepository.SelectByVkId(vkId)
+func (userUsecase *UserUsecase) Get(id uint32) *response.Response {
+	user_, err := userUsecase.userRepository.Select(id)
 	if err != nil {
 		if err == consts.RepErrNotFound {
 			return response.NewEmptyResponse(consts.NotFound)
@@ -86,7 +86,7 @@ func (userUsecase *UserUsecase) UpdateRouteTmp(routeTmp *models.RouteTmp) *respo
 		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
-	if routeTmp.UserAuthorVkId != existingRouteTmp.UserAuthorVkId {
+	if routeTmp.UserAuthorId != existingRouteTmp.UserAuthorId {
 		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
@@ -102,7 +102,7 @@ func (userUsecase *UserUsecase) UpdateRouteTmp(routeTmp *models.RouteTmp) *respo
 	return response.NewResponse(consts.OK, routeTmp)
 }
 
-func (userUsecase *UserUsecase) DeleteRouteTmp(userVkId uint32, routeTmpId uint32) *response.Response {
+func (userUsecase *UserUsecase) DeleteRouteTmp(userId uint32, routeTmpId uint32) *response.Response {
 	existingRouteTmp, err := userUsecase.userRepository.SelectRouteTmp(routeTmpId)
 	if err != nil {
 		if err == consts.RepErrNotFound {
@@ -112,7 +112,7 @@ func (userUsecase *UserUsecase) DeleteRouteTmp(userVkId uint32, routeTmpId uint3
 		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
-	if userVkId != existingRouteTmp.UserAuthorVkId {
+	if userId != existingRouteTmp.UserAuthorId {
 		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
@@ -169,7 +169,7 @@ func (userUsecase *UserUsecase) UpdateRoutePerm(routePerm *models.RoutePerm) *re
 		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
-	if routePerm.UserAuthorVkId != existingRoutePerm.UserAuthorVkId {
+	if routePerm.UserAuthorId != existingRoutePerm.UserAuthorId {
 		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
@@ -185,7 +185,7 @@ func (userUsecase *UserUsecase) UpdateRoutePerm(routePerm *models.RoutePerm) *re
 	return response.NewResponse(consts.OK, routePerm)
 }
 
-func (userUsecase *UserUsecase) DeleteRoutePerm(userVkId uint32, routePermId uint32) *response.Response {
+func (userUsecase *UserUsecase) DeleteRoutePerm(userId uint32, routePermId uint32) *response.Response {
 	existingRoutePerm, err := userUsecase.userRepository.SelectRoutePerm(routePermId)
 	if err != nil {
 		if err == consts.RepErrNotFound {
@@ -195,7 +195,7 @@ func (userUsecase *UserUsecase) DeleteRoutePerm(userVkId uint32, routePermId uin
 		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
-	if userVkId != existingRoutePerm.UserAuthorVkId {
+	if userId != existingRoutePerm.UserAuthorId {
 		return response.NewEmptyResponse(consts.Forbidden)
 	}
 

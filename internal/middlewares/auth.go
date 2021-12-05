@@ -43,11 +43,11 @@ func (authMiddleware *AuthMiddleware) checkAuth(next echo.HandlerFunc) echo.Hand
 		}
 
 		session_ := response_.Data.(*models.Session)
-		if response_ := authMiddleware.userUsecase.Get(session_.UserVkId); response_.Code != consts.OK {
+		if response_ := authMiddleware.userUsecase.Get(session_.UserId); response_.Code != consts.OK {
 			return responser.Respond(context, response_)
 		}
 
-		context.Set(consts.EchoContextKeyUserVkId, session_.UserVkId)
+		context.Set(consts.EchoContextKeyUserId, session_.UserId)
 
 		return next(context)
 	}

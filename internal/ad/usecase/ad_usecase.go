@@ -50,7 +50,7 @@ func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
-	if ad_.UserAuthorVkId != existingAd.UserAuthorVkId {
+	if ad_.UserAuthorId != existingAd.UserAuthorId {
 		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
@@ -66,7 +66,7 @@ func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 	return response.NewResponse(consts.OK, ad_)
 }
 
-func (adUsecase *AdUsecase) Delete(userVkId uint32, id uint32) *response.Response {
+func (adUsecase *AdUsecase) Delete(userId uint32, id uint32) *response.Response {
 	existingAd, err := adUsecase.adRepository.Select(id)
 	if err != nil {
 		if err == consts.RepErrNotFound {
@@ -76,7 +76,7 @@ func (adUsecase *AdUsecase) Delete(userVkId uint32, id uint32) *response.Respons
 		return response.NewErrorResponse(consts.InternalError, err)
 	}
 
-	if userVkId != existingAd.UserAuthorVkId {
+	if userId != existingAd.UserAuthorId {
 		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
@@ -99,4 +99,46 @@ func (adUsecase *AdUsecase) Search(adsSearch *models.AdsSearch) *response.Respon
 	}
 
 	return response.NewResponse(consts.OK, ads)
+}
+
+func (adUsecase *AdUsecase) SetAdUserExecutor(userId uint32, adId uint32) *response.Response {
+	ad_, err := adUsecase.adRepository.Select(adId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if ad_.UserAuthorId == userId {
+		return response.NewEmptyResponse(consts.Forbidden)
+	}
+	if ad_.UserExecutorVkId != nil {
+		return response.NewEmptyResponse(consts.Conflict)
+	}
+
+	adUserExecution := &models.AdUserExecution{
+		AdId:           adId,
+		UserExecutorId: userId,
+	}
+	adUserExecution, err = adUsecase.adRepository.InsertAdUserExecution(adUserExecution)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	updatedAd, err := adUsecase.adRepository.Select(adUserExecution.AdId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, updatedAd)
 }

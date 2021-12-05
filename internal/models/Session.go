@@ -1,6 +1,6 @@
 package models
 
 type Session struct {
-	Id       string
-	UserVkId uint32
+	Id     string
+	UserId uint32
 }

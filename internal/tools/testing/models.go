@@ -5,19 +5,19 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 )
 
-func NewAdsSearch(userAuthorVkId uint32, locDep, locArr string, dateTimeArr timestamps.DateTime, maxPrice uint32) *models.AdsSearch {
+func NewAdsSearch(userAuthorId uint32, locDep, locArr string, dateTimeArr timestamps.DateTime, maxPrice uint32) *models.AdsSearch {
 	return &models.AdsSearch{
-		UserAuthorVkId: &userAuthorVkId,
-		LocDep:         &locDep,
-		LocArr:         &locArr,
-		DateTimeArr:    &dateTimeArr,
-		MaxPrice:       &maxPrice,
+		UserAuthorId: &userAuthorId,
+		LocDep:       &locDep,
+		LocArr:       &locArr,
+		DateTimeArr:  &dateTimeArr,
+		MaxPrice:     &maxPrice,
 	}
 }
 
-func NewAdsSearchByUserAuthorVkId(userAuthorVkId uint32) *models.AdsSearch {
+func NewAdsSearchByUserAuthorId(userAuthorId uint32) *models.AdsSearch {
 	return &models.AdsSearch{
-		UserAuthorVkId: &userAuthorVkId,
+		UserAuthorId: &userAuthorId,
 	}
 }
 
