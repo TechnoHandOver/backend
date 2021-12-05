@@ -201,3 +201,41 @@ RETURNING ad_id, user_executor_id`
 
 	return adUserExecution, nil
 }
+
+func (adsRepository *AdRepository) SelectAdUserExecution(adId uint32) (*models.AdUserExecution, error) {
+	const query = `
+SELECT ad_id, user_executor_id
+FROM ad_user_execution
+WHERE ad_id = $1`
+
+	adUserExecution := new(models.AdUserExecution)
+	if err := adsRepository.db.QueryRow(query, adId).Scan(&adUserExecution.AdId,
+		&adUserExecution.UserExecutorId); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, consts.RepErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return adUserExecution, nil
+}
+
+func (adsRepository *AdRepository) DeleteAdUserExecution(adId uint32) (*models.AdUserExecution, error) {
+	const query = `
+DELETE FROM ad_user_execution
+WHERE ad_id = $1
+RETURNING ad_id, user_executor_id`
+
+	adUserExecution := new(models.AdUserExecution)
+	if err := adsRepository.db.QueryRow(query, adId).Scan(&adUserExecution.AdId,
+		&adUserExecution.UserExecutorId); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, consts.RepErrNotFound
+		}
+
+		return nil, err
+	}
+
+	return adUserExecution, nil
+}

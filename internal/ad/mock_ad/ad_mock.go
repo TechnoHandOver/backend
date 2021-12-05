@@ -105,6 +105,20 @@ func (mr *MockUsecaseMockRecorder) SetAdUserExecutor(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAdUserExecutor", reflect.TypeOf((*MockUsecase)(nil).SetAdUserExecutor), arg0, arg1)
 }
 
+// UnsetAdUserExecutor mocks base method.
+func (m *MockUsecase) UnsetAdUserExecutor(arg0, arg1 uint32) *response.Response {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UnsetAdUserExecutor", arg0, arg1)
+	ret0, _ := ret[0].(*response.Response)
+	return ret0
+}
+
+// UnsetAdUserExecutor indicates an expected call of UnsetAdUserExecutor.
+func (mr *MockUsecaseMockRecorder) UnsetAdUserExecutor(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnsetAdUserExecutor", reflect.TypeOf((*MockUsecase)(nil).UnsetAdUserExecutor), arg0, arg1)
+}
+
 // Update mocks base method.
 func (m *MockUsecase) Update(arg0 *models.Ad) *response.Response {
 	m.ctrl.T.Helper()
@@ -157,6 +171,21 @@ func (mr *MockRepositoryMockRecorder) Delete(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), arg0)
 }
 
+// DeleteAdUserExecution mocks base method.
+func (m *MockRepository) DeleteAdUserExecution(arg0 uint32) (*models.AdUserExecution, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAdUserExecution", arg0)
+	ret0, _ := ret[0].(*models.AdUserExecution)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteAdUserExecution indicates an expected call of DeleteAdUserExecution.
+func (mr *MockRepositoryMockRecorder) DeleteAdUserExecution(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAdUserExecution", reflect.TypeOf((*MockRepository)(nil).DeleteAdUserExecution), arg0)
+}
+
 // Insert mocks base method.
 func (m *MockRepository) Insert(arg0 *models.Ad) (*models.Ad, error) {
 	m.ctrl.T.Helper()
@@ -200,6 +229,21 @@ func (m *MockRepository) Select(arg0 uint32) (*models.Ad, error) {
 func (mr *MockRepositoryMockRecorder) Select(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Select", reflect.TypeOf((*MockRepository)(nil).Select), arg0)
+}
+
+// SelectAdUserExecution mocks base method.
+func (m *MockRepository) SelectAdUserExecution(arg0 uint32) (*models.AdUserExecution, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SelectAdUserExecution", arg0)
+	ret0, _ := ret[0].(*models.AdUserExecution)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SelectAdUserExecution indicates an expected call of SelectAdUserExecution.
+func (mr *MockRepositoryMockRecorder) SelectAdUserExecution(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectAdUserExecution", reflect.TypeOf((*MockRepository)(nil).SelectAdUserExecution), arg0)
 }
 
 // SelectArray mocks base method.

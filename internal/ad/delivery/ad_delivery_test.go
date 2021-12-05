@@ -14,6 +14,7 @@ import (
 	HandoverValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
+	"github.com/openlyinc/pointy"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
@@ -428,41 +429,25 @@ func TestAdDelivery_HandlerAdExecutionCreate(t *testing.T) {
 	echo_.Validator = HandoverValidator.NewRequestValidator()
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
+	const userId uint32 = 102
 	dateTimeArr, err := timestamps.NewDateTime("05.12.2021 19:50")
 	assert.Nil(t, err)
-	ad := &models.Ad{
-		Id:             1,
-		UserAuthorId: 101,
-		UserAuthorVkId: 201,
-		LocDep:       "Общежитие №10",
-		LocArr:       "УЛК",
-		DateTimeArr:  *dateTimeArr,
-		Item:         "Зачётная книжка",
-		MinPrice:     500,
-		Comment:      "Поеду на велосипеде",
-	}
-	var userExecutorVkId uint32 = 202
 	expectedAd := &models.Ad{
-		Id:             ad.Id,
-		UserAuthorId:   ad.UserAuthorId,
-		UserAuthorVkId: ad.UserAuthorVkId,
-		UserExecutorVkId: &userExecutorVkId,
-		LocDep:         ad.LocDep,
-		LocArr:         ad.LocArr,
-		DateTimeArr:    ad.DateTimeArr,
-		Item:           ad.Item,
-		MinPrice:       ad.MinPrice,
-		Comment:        ad.Comment,
+		Id:             1,
+		UserAuthorId:   101,
+		UserAuthorVkId: 201,
+		LocDep:         "Общежитие №10",
+		LocArr:         "УЛК",
+		DateTimeArr:    *dateTimeArr,
+		Item:           "Зачётная книжка",
+		MinPrice:       500,
+		Comment:        "Поеду на велосипеде",
 	}
 
 	mockAdUsecase.
 		EXPECT().
-		SetAdUserExecutor(gomock.Eq(userExecutorVkId), gomock.Eq(ad.Id)).
-		DoAndReturn(func(userId uint32, adId uint32) *response.Response {
-			ad.UserExecutorVkId = new(uint32)
-			*ad.UserExecutorVkId = userId
-			return response.NewResponse(consts.Created, ad)
-		})
+		SetAdUserExecutor(gomock.Eq(userId), gomock.Eq(expectedAd.Id)).
+		Return(response.NewResponse(consts.Created, expectedAd))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
 		Data: expectedAd,
@@ -477,13 +462,70 @@ func TestAdDelivery_HandlerAdExecutionCreate(t *testing.T) {
 	context.SetPath("/api/ads/:id/execution")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
-	context.Set(consts.EchoContextKeyUserId, userExecutorVkId)
+	context.Set(consts.EchoContextKeyUserId, userId)
 
 	handler := adDelivery.HandlerAdExecutionCreate()
 
 	err = handler(context)
 	assert.Nil(t, err)
 	assert.Equal(t, http.StatusCreated, recorder.Code)
+
+	responseBody, err := ioutil.ReadAll(recorder.Body)
+	assert.Nil(t, err)
+	assert.Equal(t, jsonExpectedResponse, responseBody)
+}
+
+func TestAdDelivery_HandlerAdExecutionDelete(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockAdUsecase := mock_ad.NewMockUsecase(controller)
+	adDelivery := delivery.NewAdDelivery(mockAdUsecase)
+	echo_ := echo.New()
+	echo_.Validator = HandoverValidator.NewRequestValidator()
+	adDelivery.Configure(echo_, &middlewares.Manager{})
+
+	const userId uint32 = 102
+	dateTimeArr, err := timestamps.NewDateTime("05.12.2021 20:35")
+	assert.Nil(t, err)
+	expectedAd := &models.Ad{
+		Id:               1,
+		UserAuthorId:     101,
+		UserAuthorVkId:   201,
+		UserExecutorVkId: pointy.Uint32(userId),
+		LocDep:           "Общежитие №10",
+		LocArr:           "УЛК",
+		DateTimeArr:      *dateTimeArr,
+		Item:             "Зачётная книжка",
+		MinPrice:         500,
+		Comment:          "Поеду на велосипеде",
+	}
+
+	mockAdUsecase.
+		EXPECT().
+		UnsetAdUserExecutor(gomock.Eq(userId), gomock.Eq(expectedAd.Id)).
+		Return(response.NewResponse(consts.OK, expectedAd))
+
+	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
+		Data: expectedAd,
+	})
+	assert.Nil(t, err)
+	jsonExpectedResponse = append(jsonExpectedResponse, '\n')
+
+	request := httptest.NewRequest(http.MethodDelete, "/", nil)
+
+	recorder := httptest.NewRecorder()
+	context := echo_.NewContext(request, recorder)
+	context.SetPath("/api/ads/:id/execution")
+	context.SetParamNames("id")
+	context.SetParamValues(strconv.FormatUint(uint64(expectedAd.Id), 10))
+	context.Set(consts.EchoContextKeyUserId, userId)
+
+	handler := adDelivery.HandlerAdExecutionDelete()
+
+	err = handler(context)
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, recorder.Code)
 
 	responseBody, err := ioutil.ReadAll(recorder.Body)
 	assert.Nil(t, err)

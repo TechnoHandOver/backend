@@ -30,6 +30,7 @@ func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *mi
 	echo_.GET("/api/ads/list", adDelivery.HandlerAdsList(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ads/search", adDelivery.HandlerAdsSearch())
 	echo_.POST("/api/ads/:id/execution", adDelivery.HandlerAdExecutionCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
+	echo_.DELETE("/api/ads/:id/execution", adDelivery.HandlerAdExecutionDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
 func (adDelivery *AdDelivery) HandlerAdCreate() echo.HandlerFunc {
@@ -180,5 +181,23 @@ func (adDelivery *AdDelivery) HandlerAdExecutionCreate() echo.HandlerFunc {
 		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
 
 		return responser.Respond(context, adDelivery.adUsecase.SetAdUserExecutor(userId, adId))
+	}
+}
+
+func (adDelivery *AdDelivery) HandlerAdExecutionDelete() echo.HandlerFunc {
+	type AdExecutionRequest struct {
+		Id *uint32 `param:"id" validate:"required"`
+	}
+
+	return func(context echo.Context) error {
+		adExecutionRequest := new(AdExecutionRequest)
+		if err := parser.ParseRequest(context, adExecutionRequest); err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
+
+		adId := *adExecutionRequest.Id
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
+
+		return responser.Respond(context, adDelivery.adUsecase.UnsetAdUserExecutor(userId, adId))
 	}
 }

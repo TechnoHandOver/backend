@@ -64,7 +64,7 @@ func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {
 		context.SetCookie(&http.Cookie{
 			Name:     consts.EchoCookieAuthName,
 			SameSite: http.SameSiteNoneMode,
-			Secure:   false,
+			Secure:   true,
 			Value:    session_.Id,
 		})
 

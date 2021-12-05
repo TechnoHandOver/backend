@@ -142,3 +142,38 @@ func (adUsecase *AdUsecase) SetAdUserExecutor(userId uint32, adId uint32) *respo
 
 	return response.NewResponse(consts.OK, updatedAd)
 }
+
+func (adUsecase *AdUsecase) UnsetAdUserExecutor(userId uint32, adId uint32) *response.Response {
+	adUserExecution, err := adUsecase.adRepository.SelectAdUserExecution(adId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if adUserExecution.UserExecutorId != userId {
+		return response.NewEmptyResponse(consts.Forbidden)
+	}
+
+	adUserExecution, err = adUsecase.adRepository.DeleteAdUserExecution(adId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	updatedAd, err := adUsecase.adRepository.Select(adUserExecution.AdId)
+	if err != nil {
+		if err == consts.RepErrNotFound {
+			return response.NewEmptyResponse(consts.NotFound)
+		}
+
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.OK, updatedAd)
+}

@@ -8,6 +8,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	HandoverTesting "github.com/TechnoHandOver/backend/internal/tools/testing"
+	"github.com/openlyinc/pointy"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -76,6 +77,7 @@ func TestAdRepository_Select(t *testing.T) {
 		Id:               1,
 		UserAuthorId:     101,
 		UserAuthorVkId:   201,
+		UserExecutorVkId: pointy.Uint32(202),
 		LocDep:           "Общежитие №10",
 		LocArr:           "УЛК",
 		DateTimeArr:      *dateTimeArr,
@@ -83,8 +85,6 @@ func TestAdRepository_Select(t *testing.T) {
 		MinPrice:         500,
 		Comment:          "Поеду на велосипеде",
 	}
-	expectedAd.UserExecutorVkId = new(uint32)
-	*expectedAd.UserExecutorVkId = 202
 
 	sqlmock_.
 		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
@@ -387,7 +387,7 @@ func TestAdRepository_InsertAdUserExecution(t *testing.T) {
 	adRepository := repository.NewAdRepositoryImpl(db)
 
 	expectedAdUserExecution := &models.AdUserExecution{
-		AdId: 1,
+		AdId:           1,
 		UserExecutorId: 101,
 	}
 
@@ -401,6 +401,108 @@ func TestAdRepository_InsertAdUserExecution(t *testing.T) {
 	resultAdUserExecution, resultErr := adRepository.InsertAdUserExecution(expectedAdUserExecution)
 	assert.Nil(t, resultErr)
 	assert.Equal(t, expectedAdUserExecution, resultAdUserExecution)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
+func TestAdRepository_SelectAdUserExecution(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	adRepository := repository.NewAdRepositoryImpl(db)
+
+	expectedAdUserExecution := &models.AdUserExecution{
+		AdId:           1,
+		UserExecutorId: 101,
+	}
+
+	sqlmock_.
+		ExpectQuery("SELECT ad_id, user_executor_id FROM ad_user_execution").
+		WithArgs(expectedAdUserExecution.AdId).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"ad_id", "user_executor_id"}).
+				AddRow(expectedAdUserExecution.AdId, expectedAdUserExecution.UserExecutorId))
+
+	resultAdUserExecution, resultErr := adRepository.SelectAdUserExecution(expectedAdUserExecution.AdId)
+	assert.Nil(t, resultErr)
+	assert.Equal(t, expectedAdUserExecution, resultAdUserExecution)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
+func TestAdRepository_SelectAdUserExecution_notFound(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	adRepository := repository.NewAdRepositoryImpl(db)
+
+	const adId uint32 = 1
+
+	sqlmock_.
+		ExpectQuery("SELECT ad_id, user_executor_id FROM ad_user_execution").
+		WithArgs(adId).
+		WillReturnError(sql.ErrNoRows)
+
+	resultAdUserExecution, resultErr := adRepository.SelectAdUserExecution(adId)
+	assert.Equal(t, resultErr, consts.RepErrNotFound)
+	assert.Nil(t, resultAdUserExecution)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
+func TestAdRepository_DeleteAdUserExecution(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	adRepository := repository.NewAdRepositoryImpl(db)
+
+	expectedAdUserExecution := &models.AdUserExecution{
+		AdId:           1,
+		UserExecutorId: 101,
+	}
+
+	sqlmock_.
+		ExpectQuery("DELETE FROM ad_user_execution").
+		WithArgs(expectedAdUserExecution.AdId).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"ad_id", "user_executor_id"}).
+				AddRow(expectedAdUserExecution.AdId, expectedAdUserExecution.UserExecutorId))
+
+	resultAdUserExecution, resultErr := adRepository.DeleteAdUserExecution(expectedAdUserExecution.AdId)
+	assert.Nil(t, resultErr)
+	assert.Equal(t, expectedAdUserExecution, resultAdUserExecution)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
+func TestAdRepository_DeleteAdUserExecution_notFound(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	adRepository := repository.NewAdRepositoryImpl(db)
+
+	const adId uint32 = 1
+
+	sqlmock_.
+		ExpectQuery("DELETE FROM ad_user_execution").
+		WithArgs(adId).
+		WillReturnError(sql.ErrNoRows)
+
+	resultAdUserExecution, resultErr := adRepository.DeleteAdUserExecution(adId)
+	assert.Equal(t, resultErr, consts.RepErrNotFound)
+	assert.Nil(t, resultAdUserExecution)
 
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }

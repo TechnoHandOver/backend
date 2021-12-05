@@ -12,4 +12,5 @@ type Usecase interface {
 	Delete(userId uint32, id uint32) *response.Response
 	Search(adsSearch *models.AdsSearch) *response.Response
 	SetAdUserExecutor(userId uint32, adId uint32) *response.Response
+	UnsetAdUserExecutor(userId uint32, adId uint32) *response.Response
 }

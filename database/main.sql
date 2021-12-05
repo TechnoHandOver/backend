@@ -1,15 +1,17 @@
-\c handover;
+\c postgres;
 
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
+DROP DATABASE handover;
+CREATE DATABASE handover;
+
+\c handover;
 
 CREATE TYPE DAY_OF_WEEK AS ENUM ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'); --TODO: может всё-таки есть какой-то встроенный тип?
 
 CREATE TABLE user_ (
     id SERIAL PRIMARY KEY,
     vk_id INT NOT NULL UNIQUE,
-    name VARCHAR(100) NOT NULL CHECK (length(name) >= 2), --TODO: точно 100?
-    avatar VARCHAR(500) --TODO: а лучше VARCHAR(2000) или TEXT?
+    name VARCHAR(100) NOT NULL CHECK (length(name) >= 2),
+    avatar VARCHAR(500)
 );
 
 CREATE TABLE ad (
@@ -19,7 +21,7 @@ CREATE TABLE ad (
     user_executor_vk_id INT DEFAULT NULL,
     loc_dep VARCHAR(100) NOT NULL CHECK (length(loc_dep) >= 2),
     loc_arr VARCHAR(100) NOT NULL CHECK (length(loc_arr) >= 2),
-    date_time_arr TIMESTAMP NOT NULL, --TODO: not timestamp?
+    date_time_arr TIMESTAMP NOT NULL,
     item VARCHAR(50) NOT NULL CHECK (length(item) >= 3),
     min_price INT NOT NULL CHECK (min_price >= 0),
     comment VARCHAR(100) NOT NULL
@@ -97,6 +99,21 @@ CREATE TRIGGER ad_user_execution_insert AFTER INSERT
     ON ad_user_execution
     FOR EACH ROW
 EXECUTE FUNCTION ad_user_execution_insert();
+
+CREATE FUNCTION ad_user_execution_delete()
+    RETURNS TRIGGER
+AS $$
+BEGIN
+    UPDATE ad SET user_executor_vk_id = NULL
+    WHERE id = old.ad_id;
+    RETURN old;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER ad_user_execution_delete AFTER DELETE
+    ON ad_user_execution
+    FOR EACH ROW
+EXECUTE FUNCTION ad_user_execution_delete();
 
 CREATE FUNCTION view_route_tmp_insert()
     RETURNS TRIGGER
@@ -210,3 +227,7 @@ EXECUTE FUNCTION view_route_perm_delete();
 --CREATE INDEX ON user_ USING hash (vk_id);
 
 --CREATE INDEX ON ad (user_author_id);
+
+GRANT CONNECT ON DATABASE handover TO handover;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO handover;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO handover;
