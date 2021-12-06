@@ -1,8 +1,3 @@
-\c postgres;
-
-DROP DATABASE handover;
-CREATE DATABASE handover;
-
 \c handover;
 
 CREATE TYPE DAY_OF_WEEK AS ENUM ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'); --TODO: может всё-таки есть какой-то встроенный тип?
@@ -11,13 +6,15 @@ CREATE TABLE user_ (
     id SERIAL PRIMARY KEY,
     vk_id INT NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL CHECK (length(name) >= 2),
-    avatar VARCHAR(500)
+    avatar VARCHAR(500) NOT NULL
 );
 
 CREATE TABLE ad (
     id SERIAL PRIMARY KEY,
     user_author_id INT NOT NULL REFERENCES user_ (id) ON DELETE CASCADE,
     user_author_vk_id INT NOT NULL,
+    user_author_name VARCHAR(100) NOT NULL,
+    user_author_avatar VARCHAR(500) NOT NULL,
     user_executor_vk_id INT DEFAULT NULL,
     loc_dep VARCHAR(100) NOT NULL CHECK (length(loc_dep) >= 2),
     loc_arr VARCHAR(100) NOT NULL CHECK (length(loc_arr) >= 2),
@@ -71,11 +68,30 @@ CREATE VIEW view_route_perm (id, user_author_id, loc_dep, loc_arr, min_price, ev
     ORDER BY route_perm.day_of_week, route_perm.time_dep, route_perm.time_arr, route.min_price DESC,
              route_perm.odd_week DESC, route_perm.even_week DESC, route.id;
 
-CREATE FUNCTION ad_insert()
+CREATE FUNCTION user__update()
     RETURNS TRIGGER
 AS $$
 BEGIN
-    new.user_author_vk_id = (SELECT user_.vk_id FROM user_ WHERE user_.id = new.user_author_id);
+    UPDATE ad SET user_author_name = new.name, user_author_avatar = new.avatar
+    WHERE user_author_id = new.id;
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER user__update AFTER UPDATE
+    ON user_
+    FOR EACH ROW
+EXECUTE FUNCTION user__update();
+
+CREATE FUNCTION ad_insert()
+    RETURNS TRIGGER
+AS $$
+DECLARE user__ user_%ROWTYPE;
+BEGIN
+    SELECT INTO user__ id, vk_id, name, avatar FROM user_ WHERE id = new.user_author_id; --TODO: возможны ли оптимизации?
+    new.user_author_vk_id = user__.vk_id;--(SELECT user_.vk_id FROM user_ WHERE user_.id = new.user_author_id);
+    new.user_author_name = user__.name;
+    new.user_author_avatar = user__.avatar;
     RETURN new;
 END;
 $$ LANGUAGE plpgsql;
@@ -224,10 +240,6 @@ CREATE TRIGGER view_route_perm_delete INSTEAD OF DELETE
     FOR EACH ROW
 EXECUTE FUNCTION view_route_perm_delete();
 
---CREATE INDEX ON user_ USING hash (vk_id);
+--CREATE INDEX ON user_ USING hash (vk_id); --TODO
 
 --CREATE INDEX ON ad (user_author_id);
-
-GRANT CONNECT ON DATABASE handover TO handover;
-GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO handover;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO handover;

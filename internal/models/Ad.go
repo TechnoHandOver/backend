@@ -6,6 +6,8 @@ type Ad struct {
 	Id               uint32   `json:"id"`
 	UserAuthorId     uint32   `json:"-"`
 	UserAuthorVkId   uint32   `json:"userAuthorVkId"`
+	UserAuthorName   string   `json:"userAuthorName"`
+	UserAuthorAvatar string   `json:"userAuthorAvatar"`
 	UserExecutorVkId *uint32  `json:"userExecutorVkId,omitempty"`
 	LocDep           string   `json:"locDep"`
 	LocArr           string   `json:"locArr"`

@@ -24,11 +24,12 @@ func (adsRepository *AdRepository) Insert(ad_ *models.Ad) (*models.Ad, error) {
 	const query = `
 INSERT INTO ad (user_author_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, user_author_id, user_author_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
+RETURNING id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
 
 	if err := adsRepository.db.QueryRow(query, ad_.UserAuthorId, ad_.LocDep, ad_.LocArr, time.Time(ad_.DateTimeArr),
-		ad_.Item, ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorId, &ad_.UserAuthorVkId, &ad_.LocDep,
-		&ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
+		ad_.Item, ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorId, &ad_.UserAuthorVkId, &ad_.UserAuthorName,
+		&ad_.UserAuthorAvatar, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice,
+		&ad_.Comment); err != nil {
 		return nil, err
 	}
 
@@ -37,15 +38,15 @@ RETURNING id, user_author_id, user_author_vk_id, loc_dep, loc_arr, date_time_arr
 
 func (adsRepository *AdRepository) Select(id uint32) (*models.Ad, error) {
 	const query = `
-SELECT id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment
+SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment
 FROM ad
 WHERE id = $1`
 
 	ad_ := new(models.Ad)
 	var userExecutorVkId sql.NullInt32
 	if err := adsRepository.db.QueryRow(query, id).Scan(&ad_.Id, &ad_.UserAuthorId, &ad_.UserAuthorVkId,
-		&userExecutorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice,
-		&ad_.Comment); err != nil {
+		&ad_.UserAuthorName, &ad_.UserAuthorAvatar, &userExecutorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr,
+		&ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, consts.RepErrNotFound
 		}
@@ -64,12 +65,13 @@ func (adsRepository *AdRepository) Update(ad_ *models.Ad) (*models.Ad, error) {
 	const query = `
 UPDATE ad SET loc_dep = $2, loc_arr = $3, date_time_arr = $4, item = $5, min_price = $6, comment = $7
 WHERE id = $1
-RETURNING id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
+RETURNING id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
 
 	var userExecutorVkId sql.NullInt32
 	if err := adsRepository.db.QueryRow(query, ad_.Id, ad_.LocDep, ad_.LocArr, time.Time(ad_.DateTimeArr), ad_.Item,
-		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorId, &ad_.UserAuthorVkId, &userExecutorVkId, &ad_.LocDep,
-		&ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
+		ad_.MinPrice, ad_.Comment).Scan(&ad_.Id, &ad_.UserAuthorId, &ad_.UserAuthorVkId, &ad_.UserAuthorName,
+		&ad_.UserAuthorAvatar, &userExecutorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr, &ad_.Item,
+		&ad_.MinPrice, &ad_.Comment); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, consts.RepErrNotFound
 		}
@@ -88,13 +90,13 @@ func (adsRepository *AdRepository) Delete(id uint32) (*models.Ad, error) {
 	const query = `
 DELETE FROM ad
 WHERE id = $1
-RETURNING id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
+RETURNING id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment`
 
 	ad_ := new(models.Ad)
 	var userExecutorVkId sql.NullInt32
 	if err := adsRepository.db.QueryRow(query, id).Scan(&ad_.Id, &ad_.UserAuthorId, &ad_.UserAuthorVkId,
-		&userExecutorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice,
-		&ad_.Comment); err != nil {
+		&ad_.UserAuthorName, &ad_.UserAuthorAvatar, &userExecutorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr,
+		&ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, consts.RepErrNotFound
 		}
@@ -110,7 +112,7 @@ RETURNING id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, l
 }
 
 func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error) {
-	const queryStart = "SELECT id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad"
+	const queryStart = "SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad"
 	const queryWhere = " WHERE "
 	const queryUserAuthorId = "user_author_id = $"
 	const queryLocDep1 = "to_tsvector('russian', loc_dep) @@ plainto_tsquery('russian', $"
@@ -169,8 +171,9 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 	for rows.Next() {
 		ad_ := new(models.Ad)
 		var userExecutorVkId sql.NullInt32
-		if err := rows.Scan(&ad_.Id, &ad_.UserAuthorId, &ad_.UserAuthorVkId, &userExecutorVkId, &ad_.LocDep,
-			&ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice, &ad_.Comment); err != nil {
+		if err := rows.Scan(&ad_.Id, &ad_.UserAuthorId, &ad_.UserAuthorVkId, &ad_.UserAuthorName, &ad_.UserAuthorAvatar,
+			&userExecutorVkId, &ad_.LocDep, &ad_.LocArr, &ad_.DateTimeArr, &ad_.Item, &ad_.MinPrice,
+			&ad_.Comment); err != nil {
 			return nil, err
 		}
 		if userExecutorVkId.Valid {

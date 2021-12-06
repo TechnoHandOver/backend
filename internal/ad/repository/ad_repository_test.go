@@ -35,25 +35,28 @@ func TestAdRepository_Insert(t *testing.T) {
 		Comment:      "Поеду на велосипеде",
 	}
 	expectedAd := &models.Ad{
-		Id:             1,
-		UserAuthorId:   ad.UserAuthorId,
-		UserAuthorVkId: 201,
-		LocDep:         ad.LocDep,
-		LocArr:         ad.LocArr,
-		DateTimeArr:    ad.DateTimeArr,
-		Item:           ad.Item,
-		MinPrice:       ad.MinPrice,
-		Comment:        ad.Comment,
+		Id:               1,
+		UserAuthorId:     ad.UserAuthorId,
+		UserAuthorVkId:   201,
+		UserAuthorName:   "Vasiliy Pupkin",
+		UserAuthorAvatar: "https://yandex.ru/logo.png",
+		LocDep:           ad.LocDep,
+		LocArr:           ad.LocArr,
+		DateTimeArr:      ad.DateTimeArr,
+		Item:             ad.Item,
+		MinPrice:         ad.MinPrice,
+		Comment:          ad.Comment,
 	}
 
 	sqlmock_.
 		ExpectQuery("INSERT INTO ad").
 		WithArgs(ad.UserAuthorId, ad.LocDep, ad.LocArr, time.Time(ad.DateTimeArr), ad.Item, ad.MinPrice, ad.Comment).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item",
-				"min_price", "comment"}).
-				AddRow(expectedAd.Id, ad.UserAuthorId, expectedAd.UserAuthorVkId, ad.LocDep, ad.LocArr,
-					time.Time(ad.DateTimeArr), ad.Item, ad.MinPrice, ad.Comment))
+			sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_author_name",
+				"user_author_avatar", "loc_dep", "loc_dep", "date_time_arr", "item", "min_price", "comment"}).
+				AddRow(expectedAd.Id, ad.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserAuthorName,
+					expectedAd.UserAuthorAvatar, ad.LocDep, ad.LocArr, time.Time(ad.DateTimeArr), ad.Item, ad.MinPrice,
+					ad.Comment))
 
 	resultAd, resultErr := adRepository.Insert(ad)
 	assert.Nil(t, resultErr)
@@ -77,6 +80,8 @@ func TestAdRepository_Select(t *testing.T) {
 		Id:               1,
 		UserAuthorId:     101,
 		UserAuthorVkId:   201,
+		UserAuthorName:   "Vasiliy Pupkin",
+		UserAuthorAvatar: "https://yandex.ru/logo.png",
 		UserExecutorVkId: pointy.Uint32(202),
 		LocDep:           "Общежитие №10",
 		LocArr:           "УЛК",
@@ -87,14 +92,15 @@ func TestAdRepository_Select(t *testing.T) {
 	}
 
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
+		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WithArgs(expectedAd.Id).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_executor_vk_id", "loc_dep", "loc_dep", "date_time_arr",
+			sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_author_name",
+				"user_author_avatar", "user_executor_vk_id", "loc_dep", "loc_dep", "date_time_arr",
 				"item", "min_price", "comment"}).
-				AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserExecutorVkId,
-					expectedAd.LocDep, expectedAd.LocArr, time.Time(expectedAd.DateTimeArr), expectedAd.Item,
-					expectedAd.MinPrice, expectedAd.Comment))
+				AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserAuthorName,
+					expectedAd.UserAuthorAvatar, expectedAd.UserExecutorVkId, expectedAd.LocDep, expectedAd.LocArr,
+					time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment))
 
 	resultAd, resultErr := adRepository.Select(expectedAd.Id)
 	assert.Nil(t, resultErr)
@@ -115,7 +121,7 @@ func TestAdRepository_Select_notFound(t *testing.T) {
 	const id uint32 = 1
 
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
+		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WithArgs(id).
 		WillReturnError(sql.ErrNoRows)
 
@@ -137,16 +143,28 @@ func TestAdRepository_Update(t *testing.T) {
 
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:20")
 	assert.Nil(t, err)
+	ad := &models.Ad{
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Общежитие №10",
+		LocArr:       "УЛК",
+		DateTimeArr:  *dateTimeArr,
+		Item:         "Зачётная книжка",
+		MinPrice:     500,
+		Comment:      "Поеду на велосипеде",
+	}
 	expectedAd := &models.Ad{
-		Id:             1,
-		UserAuthorId:   101,
-		UserAuthorVkId: 201,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		Id:               ad.Id,
+		UserAuthorId:     ad.UserAuthorId,
+		UserAuthorVkId:   201,
+		UserAuthorName:   "Vasiliy Pupkin",
+		UserAuthorAvatar: "https://yandex.ru/logo.png",
+		LocDep:           ad.LocDep,
+		LocArr:           ad.LocArr,
+		DateTimeArr:      ad.DateTimeArr,
+		Item:             ad.Item,
+		MinPrice:         ad.MinPrice,
+		Comment:          ad.Comment,
 	}
 
 	sqlmock_.
@@ -154,11 +172,12 @@ func TestAdRepository_Update(t *testing.T) {
 		WithArgs(expectedAd.Id, expectedAd.LocDep, expectedAd.LocArr, time.Time(expectedAd.DateTimeArr),
 			expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_executor_vk_id", "loc_dep",
-				"loc_dep", "date_time_arr", "item", "min_price", "comment"}).
-				AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserExecutorVkId,
-					expectedAd.LocDep, expectedAd.LocArr, time.Time(expectedAd.DateTimeArr), expectedAd.Item,
-					expectedAd.MinPrice, expectedAd.Comment))
+			sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_author_name",
+				"user_author_avatar", "user_executor_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item", "min_price",
+				"comment"}).
+				AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserAuthorName,
+					expectedAd.UserAuthorAvatar, expectedAd.UserExecutorVkId, expectedAd.LocDep, expectedAd.LocArr,
+					time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment))
 
 	resultAd, resultErr := adRepository.Update(expectedAd)
 	assert.Nil(t, resultErr)
@@ -212,26 +231,29 @@ func TestAdRepository_Delete(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("22.11.2021 16:55")
 	assert.Nil(t, err)
 	expectedAd := &models.Ad{
-		Id:             1,
-		UserAuthorId:   101,
-		UserAuthorVkId: 201,
-		LocDep:         "Общежитие №10",
-		LocArr:         "УЛК",
-		DateTimeArr:    *dateTimeArr,
-		Item:           "Зачётная книжка",
-		MinPrice:       500,
-		Comment:        "Поеду на велосипеде",
+		Id:               1,
+		UserAuthorId:     101,
+		UserAuthorVkId:   201,
+		UserAuthorName:   "Vasiliy Pupkin",
+		UserAuthorAvatar: "https://yandex.ru/logo.png",
+		LocDep:           "Общежитие №10",
+		LocArr:           "УЛК",
+		DateTimeArr:      *dateTimeArr,
+		Item:             "Зачётная книжка",
+		MinPrice:         500,
+		Comment:          "Поеду на велосипеде",
 	}
 
 	sqlmock_.
 		ExpectQuery("DELETE FROM ad").
 		WithArgs(expectedAd.Id).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_executor_vk_id", "loc_dep",
-				"loc_dep", "date_time_arr", "item", "min_price", "comment"}).
-				AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserExecutorVkId,
-					expectedAd.LocDep, expectedAd.LocArr, time.Time(expectedAd.DateTimeArr), expectedAd.Item,
-					expectedAd.MinPrice, expectedAd.Comment))
+			sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_author_name",
+				"user_author_avatar", "user_executor_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item", "min_price",
+				"comment"}).
+				AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserAuthorName,
+					expectedAd.UserAuthorAvatar, expectedAd.UserExecutorVkId, expectedAd.LocDep, expectedAd.LocArr,
+					time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment))
 
 	resultAd, resultErr := adRepository.Delete(expectedAd.Id)
 	assert.Nil(t, resultErr)
@@ -279,38 +301,43 @@ func TestAdRepository_SelectArray(t *testing.T) {
 	adsSearch := HandoverTesting.NewAdsSearch(101, "Общежитие", "СК", *dateTimeArr1, 1000)
 	expectedAds := &models.Ads{
 		&models.Ad{
-			Id:             1,
-			UserAuthorId:   101,
-			UserAuthorVkId: 201,
-			LocDep:         "Общежитие №10",
-			LocArr:         "УЛК",
-			DateTimeArr:    *dateTimeArr1,
-			Item:           "Тубус",
-			MinPrice:       500,
-			Comment:        "Поеду на коньках",
+			Id:               1,
+			UserAuthorId:     101,
+			UserAuthorVkId:   201,
+			UserAuthorName:   "Vasiliy Pupkin",
+			UserAuthorAvatar: "https://yandex.ru/logo.png",
+			LocDep:           "Общежитие №10",
+			LocArr:           "УЛК",
+			DateTimeArr:      *dateTimeArr1,
+			Item:             "Тубус",
+			MinPrice:         500,
+			Comment:          "Поеду на коньках",
 		},
 		&models.Ad{
-			Id:             2,
-			UserAuthorId:   102,
-			UserAuthorVkId: 202,
-			LocDep:         "Общежитие №9",
-			LocArr:         "СК",
-			DateTimeArr:    *dateTimeArr2,
-			Item:           "Спортивная форма",
-			MinPrice:       600,
-			Comment:        "Поеду на роликах :)",
+			Id:               2,
+			UserAuthorId:     102,
+			UserAuthorVkId:   202,
+			UserAuthorName:   "Pupok Vasiliev",
+			UserAuthorAvatar: "https://yandex.ru/logo2.png",
+			LocDep:           "Общежитие №9",
+			LocArr:           "СК",
+			DateTimeArr:      *dateTimeArr2,
+			Item:             "Спортивная форма",
+			MinPrice:         600,
+			Comment:          "Поеду на роликах :)",
 		},
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_executor_vk_id", "loc_dep",
-		"loc_dep", "date_time_arr", "item", "min_price", "comment"})
+	rows := sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_author_name",
+		"user_author_avatar", "user_executor_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item", "min_price",
+		"comment"})
 	for _, expectedAd := range *expectedAds {
-		rows.AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserExecutorVkId,
-			expectedAd.LocDep, expectedAd.LocArr, time.Time(expectedAd.DateTimeArr), expectedAd.Item,
-			expectedAd.MinPrice, expectedAd.Comment)
+		rows.AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserAuthorName,
+			expectedAd.UserAuthorAvatar, expectedAd.UserExecutorVkId, expectedAd.LocDep, expectedAd.LocArr,
+			time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment)
 	}
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
+		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WithArgs(adsSearch.UserAuthorId, adsSearch.LocDep, adsSearch.LocArr, time.Time(*adsSearch.DateTimeArr),
 			adsSearch.MaxPrice).
 		WillReturnRows(rows)
@@ -359,15 +386,16 @@ func TestAdRepository_SelectArray_emptySearchQuery(t *testing.T) {
 		},
 	}
 
-	rows := sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_executor_vk_id", "loc_dep",
-		"loc_dep", "date_time_arr", "item", "min_price", "comment"})
+	rows := sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_author_name",
+		"user_author_avatar", "user_executor_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item", "min_price",
+		"comment"})
 	for _, expectedAd := range *expectedAds {
-		rows.AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserExecutorVkId,
-			expectedAd.LocDep, expectedAd.LocArr, time.Time(expectedAd.DateTimeArr), expectedAd.Item,
-			expectedAd.MinPrice, expectedAd.Comment)
+		rows.AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserAuthorName,
+			expectedAd.UserAuthorAvatar, expectedAd.UserExecutorVkId, expectedAd.LocDep, expectedAd.LocArr,
+			time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment)
 	}
 	sqlmock_.
-		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
+		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WillReturnRows(rows)
 
 	resultAds, resultErr := adRepository.SelectArray(adsSearch)

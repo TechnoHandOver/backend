@@ -40,7 +40,7 @@ func (adUsecase *AdUsecase) Get(id uint32) *response.Response {
 	return response.NewResponse(consts.OK, ad_)
 }
 
-func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
+func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response { //TODO: bug, only author can update it!
 	existingAd, err := adUsecase.adRepository.Select(ad_.Id)
 	if err != nil {
 		if err == consts.RepErrNotFound {
