@@ -10,7 +10,6 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
-	HandoverTesting "github.com/TechnoHandOver/backend/internal/tools/testing"
 	HandoverValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
@@ -314,7 +313,9 @@ func TestAdDelivery_HandlerAdsList(t *testing.T) {
 			Comment:        "Поеду на роликах :)",
 		},
 	}
-	adsSearch := HandoverTesting.NewAdsSearchByUserAuthorId(userAuthorId)
+	adsSearch := &models.AdsSearch{
+		UserAuthorId: pointy.Uint32(userAuthorId),
+	}
 
 	mockAdUsecase.
 		EXPECT().
@@ -358,30 +359,36 @@ func TestAdDelivery_HandlerAdsSearch(t *testing.T) {
 	echo_.Validator = HandoverValidator.NewRequestValidator()
 	adDelivery.Configure(echo_, &middlewares.Manager{})
 
-	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
+	var userId uint32 = 101
+	var userVkId uint32 = 201
+	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
-	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
-	assert.Nil(t, err)
-	adsSearch := HandoverTesting.NewAdsSearchBySecondaryFields("Общежитие", "СК", *dateTimeArr1, 1000)
+	adsSearch := &models.AdsSearch{
+		NotUserAuthorId: &userId,
+		LocDep:          pointy.String("Общежитие"),
+		LocArr:          pointy.String("СК"),
+		DateTimeArr:     dateTimeArr,
+		MaxPrice:        pointy.Uint32(1000),
+	}
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:             1,
-			UserAuthorId:   101,
-			UserAuthorVkId: 201,
+			UserAuthorId:   userId,
+			UserAuthorVkId: userVkId,
 			LocDep:         "Общежитие №10",
 			LocArr:         "УЛК",
-			DateTimeArr:    *dateTimeArr1,
+			DateTimeArr:    *dateTimeArr,
 			Item:           "Тубус",
 			MinPrice:       500,
 			Comment:        "Поеду на коньках",
 		},
 		&models.Ad{
 			Id:             2,
-			UserAuthorId:   102,
-			UserAuthorVkId: 202,
+			UserAuthorId:   userId,
+			UserAuthorVkId: userVkId,
 			LocDep:         "Общежитие №9",
 			LocArr:         "СК",
-			DateTimeArr:    *dateTimeArr2,
+			DateTimeArr:    *dateTimeArr,
 			Item:           "Спортивная форма",
 			MinPrice:       600,
 			Comment:        "Поеду на роликах :)",
@@ -407,6 +414,7 @@ func TestAdDelivery_HandlerAdsSearch(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
+	context.Set(consts.EchoContextKeyUserId, userId)
 
 	handler := adDelivery.HandlerAdsSearch()
 

@@ -28,7 +28,7 @@ func (adDelivery *AdDelivery) Configure(echo_ *echo.Echo, middlewaresManager *mi
 	echo_.PUT("/api/ads/:id", adDelivery.HandlerAdUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/ads/:id", adDelivery.HandlerAdDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/ads/list", adDelivery.HandlerAdsList(), middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.GET("/api/ads/search", adDelivery.HandlerAdsSearch())
+	echo_.GET("/api/ads/search", adDelivery.HandlerAdsSearch(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.POST("/api/ads/:id/execution", adDelivery.HandlerAdExecutionCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/ads/:id/execution", adDelivery.HandlerAdExecutionDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 }
@@ -155,11 +155,13 @@ func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
 		adsSearch := &models.AdsSearch{
-			LocDep:      adsSearchRequest.LocDep,
-			LocArr:      adsSearchRequest.LocArr,
-			DateTimeArr: adsSearchRequest.DateTimeArr,
-			MaxPrice:    adsSearchRequest.MaxPrice,
+			NotUserAuthorId: &userId,
+			LocDep:          adsSearchRequest.LocDep,
+			LocArr:          adsSearchRequest.LocArr,
+			DateTimeArr:     adsSearchRequest.DateTimeArr,
+			MaxPrice:        adsSearchRequest.MaxPrice,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Search(adsSearch))

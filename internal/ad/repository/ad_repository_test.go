@@ -7,7 +7,6 @@ import (
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
-	HandoverTesting "github.com/TechnoHandOver/backend/internal/tools/testing"
 	"github.com/openlyinc/pointy"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -285,7 +284,7 @@ func TestAdRepository_Delete_notFound(t *testing.T) {
 	assert.Nil(t, sqlmock_.ExpectationsWereMet())
 }
 
-func TestAdRepository_SelectArray(t *testing.T) {
+func TestAdRepository_SelectArray_1(t *testing.T) {
 	db, sqlmock_, err := sqlmock.New()
 	assert.Nil(t, err)
 	defer func(db *sql.DB) {
@@ -294,11 +293,15 @@ func TestAdRepository_SelectArray(t *testing.T) {
 
 	adRepository := repository.NewAdRepositoryImpl(db)
 
-	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
+	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
-	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
-	assert.Nil(t, err)
-	adsSearch := HandoverTesting.NewAdsSearch(101, "Общежитие", "СК", *dateTimeArr1, 1000)
+	adsSearch := &models.AdsSearch{
+		UserAuthorId: pointy.Uint32(101),
+		LocDep:       pointy.String("Общежитие"),
+		LocArr:       pointy.String("СК"),
+		DateTimeArr:  dateTimeArr,
+		MaxPrice:     pointy.Uint32(1000),
+	}
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:               1,
@@ -308,20 +311,20 @@ func TestAdRepository_SelectArray(t *testing.T) {
 			UserAuthorAvatar: "https://yandex.ru/logo.png",
 			LocDep:           "Общежитие №10",
 			LocArr:           "УЛК",
-			DateTimeArr:      *dateTimeArr1,
+			DateTimeArr:      *dateTimeArr,
 			Item:             "Тубус",
 			MinPrice:         500,
 			Comment:          "Поеду на коньках",
 		},
 		&models.Ad{
 			Id:               2,
-			UserAuthorId:     102,
-			UserAuthorVkId:   202,
+			UserAuthorId:     101,
+			UserAuthorVkId:   201,
 			UserAuthorName:   "Pupok Vasiliev",
 			UserAuthorAvatar: "https://yandex.ru/logo2.png",
 			LocDep:           "Общежитие №9",
 			LocArr:           "СК",
-			DateTimeArr:      *dateTimeArr2,
+			DateTimeArr:      *dateTimeArr,
 			Item:             "Спортивная форма",
 			MinPrice:         600,
 			Comment:          "Поеду на роликах :)",
@@ -339,6 +342,74 @@ func TestAdRepository_SelectArray(t *testing.T) {
 	sqlmock_.
 		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
 		WithArgs(adsSearch.UserAuthorId, adsSearch.LocDep, adsSearch.LocArr, time.Time(*adsSearch.DateTimeArr),
+			adsSearch.MaxPrice).
+		WillReturnRows(rows)
+
+	resultAds, resultErr := adRepository.SelectArray(adsSearch)
+	assert.Nil(t, resultErr)
+	assert.Equal(t, expectedAds, resultAds)
+
+	assert.Nil(t, sqlmock_.ExpectationsWereMet())
+}
+
+func TestAdRepository_SelectArray_2(t *testing.T) {
+	db, sqlmock_, err := sqlmock.New()
+	assert.Nil(t, err)
+	defer func(db *sql.DB) {
+		_ = db.Close()
+	}(db)
+
+	adRepository := repository.NewAdRepositoryImpl(db)
+
+	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:40")
+	assert.Nil(t, err)
+	adsSearch := &models.AdsSearch{
+		NotUserAuthorId: pointy.Uint32(101),
+		LocDep:          pointy.String("Общежитие"),
+		LocArr:          pointy.String("СК"),
+		DateTimeArr:     dateTimeArr,
+		MaxPrice:        pointy.Uint32(1000),
+	}
+	expectedAds := &models.Ads{
+		&models.Ad{
+			Id:               2,
+			UserAuthorId:     102,
+			UserAuthorVkId:   202,
+			UserAuthorName:   "Vasiliy Pupkin",
+			UserAuthorAvatar: "https://yandex.ru/logo.png",
+			LocDep:           "Общежитие №10",
+			LocArr:           "УЛК",
+			DateTimeArr:      *dateTimeArr,
+			Item:             "Тубус",
+			MinPrice:         500,
+			Comment:          "Поеду на коньках",
+		},
+		&models.Ad{
+			Id:               3,
+			UserAuthorId:     103,
+			UserAuthorVkId:   203,
+			UserAuthorName:   "Pupok Vasiliev",
+			UserAuthorAvatar: "https://yandex.ru/logo2.png",
+			LocDep:           "Общежитие №9",
+			LocArr:           "СК",
+			DateTimeArr:      *dateTimeArr,
+			Item:             "Спортивная форма",
+			MinPrice:         600,
+			Comment:          "Поеду на роликах :)",
+		},
+	}
+
+	rows := sqlmock.NewRows([]string{"id", "user_author_id", "user_author_vk_id", "user_author_name",
+		"user_author_avatar", "user_executor_vk_id", "loc_dep", "loc_dep", "date_time_arr", "item", "min_price",
+		"comment"})
+	for _, expectedAd := range *expectedAds {
+		rows.AddRow(expectedAd.Id, expectedAd.UserAuthorId, expectedAd.UserAuthorVkId, expectedAd.UserAuthorName,
+			expectedAd.UserAuthorAvatar, expectedAd.UserExecutorVkId, expectedAd.LocDep, expectedAd.LocArr,
+			time.Time(expectedAd.DateTimeArr), expectedAd.Item, expectedAd.MinPrice, expectedAd.Comment)
+	}
+	sqlmock_.
+		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
+		WithArgs(adsSearch.NotUserAuthorId, adsSearch.LocDep, adsSearch.LocArr, time.Time(*adsSearch.DateTimeArr),
 			adsSearch.MaxPrice).
 		WillReturnRows(rows)
 

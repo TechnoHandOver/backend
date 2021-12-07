@@ -7,7 +7,6 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
-	HandoverTesting "github.com/TechnoHandOver/backend/internal/tools/testing"
 	"github.com/golang/mock/gomock"
 	"github.com/openlyinc/pointy"
 	"github.com/stretchr/testify/assert"
@@ -316,11 +315,13 @@ func TestAdUsecase_Search(t *testing.T) {
 	mockAdRepository := mock_ad.NewMockRepository(controller)
 	adUsecase := usecase.NewAdUsecaseImpl(mockAdRepository)
 
-	dateTimeArr1, err := timestamps.NewDateTime("04.11.2021 19:40")
+	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
-	dateTimeArr2, err := timestamps.NewDateTime("04.11.2021 19:45")
-	assert.Nil(t, err)
-	adsSearch := HandoverTesting.NewAdsSearch(101, "Общежитие", "СК", *dateTimeArr1, 1000)
+	adsSearch := &models.AdsSearch{
+		LocDep:      pointy.String("Общежитие"),
+		LocArr:      pointy.String("СК"),
+		DateTimeArr: dateTimeArr,
+	}
 	expectedAds := &models.Ads{
 		&models.Ad{
 			Id:             1,
@@ -328,7 +329,7 @@ func TestAdUsecase_Search(t *testing.T) {
 			UserAuthorVkId: 201,
 			LocDep:         "Общежитие №10",
 			LocArr:         "УЛК",
-			DateTimeArr:    *dateTimeArr1,
+			DateTimeArr:    *dateTimeArr,
 			Item:           "Тубус",
 			MinPrice:       500,
 			Comment:        "Поеду на коньках",
@@ -339,7 +340,7 @@ func TestAdUsecase_Search(t *testing.T) {
 			UserAuthorVkId: 202,
 			LocDep:         "Общежитие №9",
 			LocArr:         "СК",
-			DateTimeArr:    *dateTimeArr2,
+			DateTimeArr:    *dateTimeArr,
 			Item:           "Спортивная форма",
 			MinPrice:       600,
 			Comment:        "Поеду на роликах :)",
@@ -543,6 +544,6 @@ func TestAdUsecase_UnsetAdUserExecutor_notSelf(t *testing.T) {
 		SelectAdUserExecution(gomock.Eq(adUserExecution.AdId)).
 		Return(adUserExecution, nil)
 
-	response_ := adUsecase.UnsetAdUserExecutor(adUserExecution.UserExecutorId + 1, adUserExecution.AdId)
+	response_ := adUsecase.UnsetAdUserExecutor(adUserExecution.UserExecutorId+1, adUserExecution.AdId)
 	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }

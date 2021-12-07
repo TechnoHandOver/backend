@@ -115,6 +115,7 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 	const queryStart = "SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad"
 	const queryWhere = " WHERE "
 	const queryUserAuthorId = "user_author_id = $"
+	const queryNotUserAuthorId = "user_author_id != $"
 	const queryLocDep1 = "to_tsvector('russian', loc_dep) @@ plainto_tsquery('russian', $"
 	const queryLocDep2 = ")"
 	const queryLocArr1 = "to_tsvector('russian', loc_arr) @@ plainto_tsquery('russian', $"
@@ -130,6 +131,11 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 	if adsSearch.UserAuthorId != nil {
 		query += queryUserAuthorId + strconv.Itoa(len(queryArgs)+1) + queryAnd
 		queryArgs = append(queryArgs, adsSearch.UserAuthorId)
+	}
+
+	if adsSearch.NotUserAuthorId != nil {
+		query += queryNotUserAuthorId + strconv.Itoa(len(queryArgs)+1) + queryAnd
+		queryArgs = append(queryArgs, adsSearch.NotUserAuthorId)
 	}
 
 	if adsSearch.LocDep != nil {
