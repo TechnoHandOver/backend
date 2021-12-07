@@ -24,12 +24,12 @@ func NewUserDelivery(userUsecase user.Usecase) *UserDelivery {
 
 func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager *middlewares.Manager) {
 	echo_.POST("/api/users/routes-tmp", userDelivery.HandlerRouteTmpCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.GET("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpGet())
+	echo_.GET("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpGet(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.PUT("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-tmp/list", userDelivery.HandlerRouteTmpList(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.POST("/api/users/routes-perm", userDelivery.HandlerRoutePermCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.GET("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermGet())
+	echo_.GET("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermGet(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.PUT("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-perm/list", userDelivery.HandlerRoutePermList(), middlewaresManager.AuthMiddleware.CheckAuth())
@@ -75,8 +75,9 @@ func (userDelivery *UserDelivery) HandlerRouteTmpGet() echo.HandlerFunc {
 		}
 
 		id := *routeTmpGetRequest.Id
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
 
-		return responser.Respond(context, userDelivery.userUsecase.GetRouteTmp(id))
+		return responser.Respond(context, userDelivery.userUsecase.GetRouteTmp(userId, id))
 	}
 }
 
@@ -182,8 +183,9 @@ func (userDelivery *UserDelivery) HandlerRoutePermGet() echo.HandlerFunc {
 		}
 
 		id := *routePermGetRequest.Id
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
 
-		return responser.Respond(context, userDelivery.userUsecase.GetRoutePerm(id))
+		return responser.Respond(context, userDelivery.userUsecase.GetRoutePerm(userId, id))
 	}
 }
 

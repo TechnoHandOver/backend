@@ -41,15 +41,6 @@ func (userUsecase *UserUsecase) Login(user_ *models.User) *response.Response {
 	return response.NewResponse(consts.OK, user2)
 }
 
-func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response {
-	routeTmp, err := userUsecase.userRepository.InsertRouteTmp(routeTmp)
-	if err != nil {
-		return response.NewErrorResponse(consts.InternalError, err)
-	}
-
-	return response.NewResponse(consts.Created, routeTmp)
-}
-
 func (userUsecase *UserUsecase) Get(id uint32) *response.Response {
 	user_, err := userUsecase.userRepository.Select(id)
 	if err != nil {
@@ -63,7 +54,16 @@ func (userUsecase *UserUsecase) Get(id uint32) *response.Response {
 	return response.NewResponse(consts.OK, user_)
 }
 
-func (userUsecase *UserUsecase) GetRouteTmp(routeTmpId uint32) *response.Response {
+func (userUsecase *UserUsecase) CreateRouteTmp(routeTmp *models.RouteTmp) *response.Response {
+	routeTmp, err := userUsecase.userRepository.InsertRouteTmp(routeTmp)
+	if err != nil {
+		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	return response.NewResponse(consts.Created, routeTmp)
+}
+
+func (userUsecase *UserUsecase) GetRouteTmp(userId uint32, routeTmpId uint32) *response.Response {
 	routeTmp, err := userUsecase.userRepository.SelectRouteTmp(routeTmpId)
 	if err != nil {
 		if err == consts.RepErrNotFound {
@@ -71,6 +71,10 @@ func (userUsecase *UserUsecase) GetRouteTmp(routeTmpId uint32) *response.Respons
 		}
 
 		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if userId != routeTmp.UserAuthorId {
+		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
 	return response.NewResponse(consts.OK, routeTmp)
@@ -146,7 +150,7 @@ func (userUsecase *UserUsecase) CreateRoutePerm(routePerm *models.RoutePerm) *re
 	return response.NewResponse(consts.Created, routePerm)
 }
 
-func (userUsecase *UserUsecase) GetRoutePerm(routePermId uint32) *response.Response {
+func (userUsecase *UserUsecase) GetRoutePerm(userId uint32, routePermId uint32) *response.Response {
 	routePerm, err := userUsecase.userRepository.SelectRoutePerm(routePermId)
 	if err != nil {
 		if err == consts.RepErrNotFound {
@@ -154,6 +158,10 @@ func (userUsecase *UserUsecase) GetRoutePerm(routePermId uint32) *response.Respo
 		}
 
 		return response.NewErrorResponse(consts.InternalError, err)
+	}
+
+	if userId != routePerm.UserAuthorId {
+		return response.NewEmptyResponse(consts.Forbidden)
 	}
 
 	return response.NewResponse(consts.OK, routePerm)

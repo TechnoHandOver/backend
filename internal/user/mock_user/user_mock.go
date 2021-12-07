@@ -106,31 +106,31 @@ func (mr *MockUsecaseMockRecorder) Get(arg0 interface{}) *gomock.Call {
 }
 
 // GetRoutePerm mocks base method.
-func (m *MockUsecase) GetRoutePerm(arg0 uint32) *response.Response {
+func (m *MockUsecase) GetRoutePerm(arg0, arg1 uint32) *response.Response {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRoutePerm", arg0)
+	ret := m.ctrl.Call(m, "GetRoutePerm", arg0, arg1)
 	ret0, _ := ret[0].(*response.Response)
 	return ret0
 }
 
 // GetRoutePerm indicates an expected call of GetRoutePerm.
-func (mr *MockUsecaseMockRecorder) GetRoutePerm(arg0 interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetRoutePerm(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoutePerm", reflect.TypeOf((*MockUsecase)(nil).GetRoutePerm), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoutePerm", reflect.TypeOf((*MockUsecase)(nil).GetRoutePerm), arg0, arg1)
 }
 
 // GetRouteTmp mocks base method.
-func (m *MockUsecase) GetRouteTmp(arg0 uint32) *response.Response {
+func (m *MockUsecase) GetRouteTmp(arg0, arg1 uint32) *response.Response {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRouteTmp", arg0)
+	ret := m.ctrl.Call(m, "GetRouteTmp", arg0, arg1)
 	ret0, _ := ret[0].(*response.Response)
 	return ret0
 }
 
 // GetRouteTmp indicates an expected call of GetRouteTmp.
-func (mr *MockUsecaseMockRecorder) GetRouteTmp(arg0 interface{}) *gomock.Call {
+func (mr *MockUsecaseMockRecorder) GetRouteTmp(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouteTmp", reflect.TypeOf((*MockUsecase)(nil).GetRouteTmp), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRouteTmp", reflect.TypeOf((*MockUsecase)(nil).GetRouteTmp), arg0, arg1)
 }
 
 // ListRoutePerm mocks base method.

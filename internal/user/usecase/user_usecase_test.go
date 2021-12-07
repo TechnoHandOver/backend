@@ -225,8 +225,38 @@ func TestUserUsecase_GetRouteTmp(t *testing.T) {
 		SelectRouteTmp(gomock.Eq(expectedRouteTmp.Id)).
 		Return(expectedRouteTmp, nil)
 
-	response_ := userUsecase.GetRouteTmp(expectedRouteTmp.Id)
+	response_ := userUsecase.GetRouteTmp(expectedRouteTmp.UserAuthorId, expectedRouteTmp.Id)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedRouteTmp), response_)
+}
+
+func TestUserUsecase_GetRouteTmp_forbidden(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	dateTimeDep, err := timestamps.NewDateTime("13.11.2021 11:45")
+	assert.Nil(t, err)
+	dateTimeArr, err := timestamps.NewDateTime("13.11.2021 11:50")
+	assert.Nil(t, err)
+	expectedRouteTmp := &models.RouteTmp{
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		DateTimeDep:  *dateTimeDep,
+		DateTimeArr:  *dateTimeArr,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectRouteTmp(gomock.Eq(expectedRouteTmp.Id)).
+		Return(expectedRouteTmp, nil)
+
+	response_ := userUsecase.GetRouteTmp(expectedRouteTmp.UserAuthorId+1, expectedRouteTmp.Id)
+	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }
 
 func TestUserUsecase_GetRouteTmp_notFound(t *testing.T) {
@@ -236,6 +266,7 @@ func TestUserUsecase_GetRouteTmp_notFound(t *testing.T) {
 	mockUserRepository := mock_user.NewMockRepository(controller)
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
+	const userId uint32 = 101
 	const routeTmpId uint32 = 1
 
 	mockUserRepository.
@@ -243,7 +274,7 @@ func TestUserUsecase_GetRouteTmp_notFound(t *testing.T) {
 		SelectRouteTmp(gomock.Eq(routeTmpId)).
 		Return(nil, consts.RepErrNotFound)
 
-	response_ := userUsecase.GetRouteTmp(routeTmpId)
+	response_ := userUsecase.GetRouteTmp(userId, routeTmpId)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 
@@ -576,8 +607,41 @@ func TestUserUsecase_GetRoutePerm(t *testing.T) {
 		SelectRoutePerm(gomock.Eq(expectedRoutePerm.Id)).
 		Return(expectedRoutePerm, nil)
 
-	response_ := userUsecase.GetRoutePerm(expectedRoutePerm.Id)
+	response_ := userUsecase.GetRoutePerm(expectedRoutePerm.UserAuthorId, expectedRoutePerm.Id)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedRoutePerm), response_)
+}
+
+func TestUserUsecase_GetRoutePerm_forbidden(t *testing.T) {
+	controller := gomock.NewController(t)
+	defer controller.Finish()
+
+	mockUserRepository := mock_user.NewMockRepository(controller)
+	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
+
+	timeDep, err := timestamps.NewTime("15:00")
+	assert.Nil(t, err)
+	timeArr, err := timestamps.NewTime("15:05")
+	assert.Nil(t, err)
+	expectedRoutePerm := &models.RoutePerm{
+		Id:           1,
+		UserAuthorId: 101,
+		LocDep:       "Корпус Энерго",
+		LocArr:       "Корпус УЛК",
+		MinPrice:     500,
+		EvenWeek:     true,
+		OddWeek:      false,
+		DayOfWeek:    timestamps.DayOfWeekWednesday,
+		TimeDep:      *timeDep,
+		TimeArr:      *timeArr,
+	}
+
+	mockUserRepository.
+		EXPECT().
+		SelectRoutePerm(gomock.Eq(expectedRoutePerm.Id)).
+		Return(expectedRoutePerm, nil)
+
+	response_ := userUsecase.GetRoutePerm(expectedRoutePerm.UserAuthorId+1, expectedRoutePerm.Id)
+	assert.Equal(t, response.NewEmptyResponse(consts.Forbidden), response_)
 }
 
 func TestUserUsecase_GetRoutePerm_notFound(t *testing.T) {
@@ -587,6 +651,7 @@ func TestUserUsecase_GetRoutePerm_notFound(t *testing.T) {
 	mockUserRepository := mock_user.NewMockRepository(controller)
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
+	const userId uint32 = 101
 	const routePermId uint32 = 1
 
 	mockUserRepository.
@@ -594,7 +659,7 @@ func TestUserUsecase_GetRoutePerm_notFound(t *testing.T) {
 		SelectRoutePerm(gomock.Eq(routePermId)).
 		Return(nil, consts.RepErrNotFound)
 
-	response_ := userUsecase.GetRoutePerm(routePermId)
+	response_ := userUsecase.GetRoutePerm(userId, routePermId)
 	assert.Equal(t, response.NewEmptyResponse(consts.NotFound), response_)
 }
 

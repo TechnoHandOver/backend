@@ -115,7 +115,7 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 
 	mockUserUsecase.
 		EXPECT().
-		GetRouteTmp(gomock.Eq(expectedRouteTmp.Id)).
+		GetRouteTmp(gomock.Eq(expectedRouteTmp.UserAuthorId), gomock.Eq(expectedRouteTmp.Id)).
 		Return(response.NewResponse(consts.OK, expectedRouteTmp))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -131,6 +131,7 @@ func TestUserDelivery_HandlerRouteTmpGet(t *testing.T) {
 	context.SetPath("/api/users/routes-tmp/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedRouteTmp.Id), 10))
+	context.Set(consts.EchoContextKeyUserId, expectedRouteTmp.UserAuthorId)
 
 	handler := userDelivery.HandlerRouteTmpGet()
 
@@ -428,7 +429,7 @@ func TestUserDelivery_HandlerRoutePermGet(t *testing.T) {
 
 	mockUserUsecase.
 		EXPECT().
-		GetRoutePerm(gomock.Eq(expectedRoutePerm.Id)).
+		GetRoutePerm(gomock.Eq(expectedRoutePerm.UserAuthorId), gomock.Eq(expectedRoutePerm.Id)).
 		Return(response.NewResponse(consts.OK, expectedRoutePerm))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -444,6 +445,7 @@ func TestUserDelivery_HandlerRoutePermGet(t *testing.T) {
 	context.SetPath("/api/users/routes-perm/:id")
 	context.SetParamNames("id")
 	context.SetParamValues(strconv.FormatUint(uint64(expectedRoutePerm.Id), 10))
+	context.Set(consts.EchoContextKeyUserId, expectedRoutePerm.UserAuthorId)
 
 	handler := userDelivery.HandlerRoutePermGet()
 
