@@ -461,6 +461,7 @@ func TestUserUsecase_ListRouteTmp(t *testing.T) {
 	mockUserRepository := mock_user.NewMockRepository(controller)
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
+	const userId uint32 = 101
 	dateTimeDep1, err := timestamps.NewDateTime("17.11.2021 10:25")
 	assert.Nil(t, err)
 	dateTimeArr1, err := timestamps.NewDateTime("17.11.2021 10:30")
@@ -472,7 +473,7 @@ func TestUserUsecase_ListRouteTmp(t *testing.T) {
 	expectedRoutesTmp := &models.RoutesTmp{
 		&models.RouteTmp{
 			Id:           1,
-			UserAuthorId: 101,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №10",
 			LocArr:       "УЛК",
 			MinPrice:     500,
@@ -481,7 +482,7 @@ func TestUserUsecase_ListRouteTmp(t *testing.T) {
 		},
 		&models.RouteTmp{
 			Id:           2,
-			UserAuthorId: 102,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №9",
 			LocArr:       "СК",
 			MinPrice:     600,
@@ -492,10 +493,10 @@ func TestUserUsecase_ListRouteTmp(t *testing.T) {
 
 	mockUserRepository.
 		EXPECT().
-		SelectRouteTmpArray().
+		SelectRouteTmpArrayByUserAuthorId(gomock.Eq(userId)).
 		Return(expectedRoutesTmp, nil)
 
-	response_ := userUsecase.ListRouteTmp()
+	response_ := userUsecase.ListRouteTmp(userId)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedRoutesTmp), response_)
 }
 
@@ -832,6 +833,7 @@ func TestUserUsecase_ListRoutePerm(t *testing.T) {
 	mockUserRepository := mock_user.NewMockRepository(controller)
 	userUsecase := usecase.NewUserUsecaseImpl(mockUserRepository)
 
+	const userId uint32 = 101
 	timeDep1, err := timestamps.NewTime("17:30")
 	assert.Nil(t, err)
 	timeArr1, err := timestamps.NewTime("17:35")
@@ -843,7 +845,7 @@ func TestUserUsecase_ListRoutePerm(t *testing.T) {
 	expectedRoutesPerm := &models.RoutesPerm{
 		&models.RoutePerm{
 			Id:           1,
-			UserAuthorId: 101,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №10",
 			LocArr:       "УЛК",
 			MinPrice:     500,
@@ -855,7 +857,7 @@ func TestUserUsecase_ListRoutePerm(t *testing.T) {
 		},
 		&models.RoutePerm{
 			Id:           1,
-			UserAuthorId: 102,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №9",
 			LocArr:       "СК",
 			MinPrice:     600,
@@ -869,9 +871,9 @@ func TestUserUsecase_ListRoutePerm(t *testing.T) {
 
 	mockUserRepository.
 		EXPECT().
-		SelectRoutePermArray().
+		SelectRoutePermArrayByUserAuthorId(gomock.Eq(userId)).
 		Return(expectedRoutesPerm, nil)
 
-	response_ := userUsecase.ListRoutePerm()
+	response_ := userUsecase.ListRoutePerm(userId)
 	assert.Equal(t, response.NewResponse(consts.OK, expectedRoutesPerm), response_)
 }

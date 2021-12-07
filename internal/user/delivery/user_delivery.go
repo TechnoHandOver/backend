@@ -27,12 +27,12 @@ func (userDelivery *UserDelivery) Configure(echo_ *echo.Echo, middlewaresManager
 	echo_.GET("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpGet())
 	echo_.PUT("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/users/routes-tmp/:id", userDelivery.HandlerRouteTmpDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.GET("/api/users/routes-tmp/list", userDelivery.HandlerRouteTmpList())
+	echo_.GET("/api/users/routes-tmp/list", userDelivery.HandlerRouteTmpList(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.POST("/api/users/routes-perm", userDelivery.HandlerRoutePermCreate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.GET("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermGet())
 	echo_.PUT("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermUpdate(), middlewaresManager.AuthMiddleware.CheckAuth())
 	echo_.DELETE("/api/users/routes-perm/:id", userDelivery.HandlerRoutePermDelete(), middlewaresManager.AuthMiddleware.CheckAuth())
-	echo_.GET("/api/users/routes-perm/list", userDelivery.HandlerRoutePermList())
+	echo_.GET("/api/users/routes-perm/list", userDelivery.HandlerRoutePermList(), middlewaresManager.AuthMiddleware.CheckAuth())
 }
 
 func (userDelivery *UserDelivery) HandlerRouteTmpCreate() echo.HandlerFunc {
@@ -130,7 +130,9 @@ func (userDelivery *UserDelivery) HandlerRouteTmpDelete() echo.HandlerFunc {
 
 func (userDelivery *UserDelivery) HandlerRouteTmpList() echo.HandlerFunc {
 	return func(context echo.Context) error {
-		return responser.Respond(context, userDelivery.userUsecase.ListRouteTmp())
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
+
+		return responser.Respond(context, userDelivery.userUsecase.ListRouteTmp(userId))
 	}
 }
 
@@ -241,6 +243,8 @@ func (userDelivery *UserDelivery) HandlerRoutePermDelete() echo.HandlerFunc {
 
 func (userDelivery *UserDelivery) HandlerRoutePermList() echo.HandlerFunc {
 	return func(context echo.Context) error {
-		return responser.Respond(context, userDelivery.userUsecase.ListRoutePerm())
+		userId := context.Get(consts.EchoContextKeyUserId).(uint32)
+
+		return responser.Respond(context, userDelivery.userUsecase.ListRoutePerm(userId))
 	}
 }

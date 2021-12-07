@@ -141,12 +141,13 @@ WHERE id = $1`
 	return routeTmp, nil
 }
 
-func (userRepository *UserRepository) SelectRouteTmpArray() (*models.RoutesTmp, error) {
+func (userRepository *UserRepository) SelectRouteTmpArrayByUserAuthorId(userAuthorId uint32) (*models.RoutesTmp, error) {
 	const query = `
 SELECT id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp
+WHERE user_author_id = $1
 ORDER BY date_time_dep, date_time_arr, min_price DESC, id`
 
-	rows, err := userRepository.db.Query(query)
+	rows, err := userRepository.db.Query(query, userAuthorId)
 	if err != nil {
 		return nil, err
 	}
@@ -285,12 +286,13 @@ RETURNING id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, 
 	return routePerm, nil
 }
 
-func (userRepository *UserRepository) SelectRoutePermArray() (*models.RoutesPerm, error) {
+func (userRepository *UserRepository) SelectRoutePermArrayByUserAuthorId(userAuthorId uint32) (*models.RoutesPerm, error) {
 	const query = `
 SELECT id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm
+WHERE user_author_id = $1
 ORDER BY day_of_week, time_dep, time_arr, even_week, odd_week, min_price DESC, id`
 
-	rows, err := userRepository.db.Query(query)
+	rows, err := userRepository.db.Query(query, userAuthorId)
 	if err != nil {
 		return nil, err
 	}

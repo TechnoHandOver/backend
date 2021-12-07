@@ -134,31 +134,31 @@ func (mr *MockUsecaseMockRecorder) GetRouteTmp(arg0 interface{}) *gomock.Call {
 }
 
 // ListRoutePerm mocks base method.
-func (m *MockUsecase) ListRoutePerm() *response.Response {
+func (m *MockUsecase) ListRoutePerm(arg0 uint32) *response.Response {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRoutePerm")
+	ret := m.ctrl.Call(m, "ListRoutePerm", arg0)
 	ret0, _ := ret[0].(*response.Response)
 	return ret0
 }
 
 // ListRoutePerm indicates an expected call of ListRoutePerm.
-func (mr *MockUsecaseMockRecorder) ListRoutePerm() *gomock.Call {
+func (mr *MockUsecaseMockRecorder) ListRoutePerm(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoutePerm", reflect.TypeOf((*MockUsecase)(nil).ListRoutePerm))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRoutePerm", reflect.TypeOf((*MockUsecase)(nil).ListRoutePerm), arg0)
 }
 
 // ListRouteTmp mocks base method.
-func (m *MockUsecase) ListRouteTmp() *response.Response {
+func (m *MockUsecase) ListRouteTmp(arg0 uint32) *response.Response {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRouteTmp")
+	ret := m.ctrl.Call(m, "ListRouteTmp", arg0)
 	ret0, _ := ret[0].(*response.Response)
 	return ret0
 }
 
 // ListRouteTmp indicates an expected call of ListRouteTmp.
-func (mr *MockUsecaseMockRecorder) ListRouteTmp() *gomock.Call {
+func (mr *MockUsecaseMockRecorder) ListRouteTmp(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRouteTmp", reflect.TypeOf((*MockUsecase)(nil).ListRouteTmp))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRouteTmp", reflect.TypeOf((*MockUsecase)(nil).ListRouteTmp), arg0)
 }
 
 // Login mocks base method.
@@ -346,19 +346,19 @@ func (mr *MockRepositoryMockRecorder) SelectRoutePerm(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRoutePerm", reflect.TypeOf((*MockRepository)(nil).SelectRoutePerm), arg0)
 }
 
-// SelectRoutePermArray mocks base method.
-func (m *MockRepository) SelectRoutePermArray() (*models.RoutesPerm, error) {
+// SelectRoutePermArrayByUserAuthorId mocks base method.
+func (m *MockRepository) SelectRoutePermArrayByUserAuthorId(arg0 uint32) (*models.RoutesPerm, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectRoutePermArray")
+	ret := m.ctrl.Call(m, "SelectRoutePermArrayByUserAuthorId", arg0)
 	ret0, _ := ret[0].(*models.RoutesPerm)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SelectRoutePermArray indicates an expected call of SelectRoutePermArray.
-func (mr *MockRepositoryMockRecorder) SelectRoutePermArray() *gomock.Call {
+// SelectRoutePermArrayByUserAuthorId indicates an expected call of SelectRoutePermArrayByUserAuthorId.
+func (mr *MockRepositoryMockRecorder) SelectRoutePermArrayByUserAuthorId(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRoutePermArray", reflect.TypeOf((*MockRepository)(nil).SelectRoutePermArray))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRoutePermArrayByUserAuthorId", reflect.TypeOf((*MockRepository)(nil).SelectRoutePermArrayByUserAuthorId), arg0)
 }
 
 // SelectRouteTmp mocks base method.
@@ -376,19 +376,19 @@ func (mr *MockRepositoryMockRecorder) SelectRouteTmp(arg0 interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRouteTmp", reflect.TypeOf((*MockRepository)(nil).SelectRouteTmp), arg0)
 }
 
-// SelectRouteTmpArray mocks base method.
-func (m *MockRepository) SelectRouteTmpArray() (*models.RoutesTmp, error) {
+// SelectRouteTmpArrayByUserAuthorId mocks base method.
+func (m *MockRepository) SelectRouteTmpArrayByUserAuthorId(arg0 uint32) (*models.RoutesTmp, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SelectRouteTmpArray")
+	ret := m.ctrl.Call(m, "SelectRouteTmpArrayByUserAuthorId", arg0)
 	ret0, _ := ret[0].(*models.RoutesTmp)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SelectRouteTmpArray indicates an expected call of SelectRouteTmpArray.
-func (mr *MockRepositoryMockRecorder) SelectRouteTmpArray() *gomock.Call {
+// SelectRouteTmpArrayByUserAuthorId indicates an expected call of SelectRouteTmpArrayByUserAuthorId.
+func (mr *MockRepositoryMockRecorder) SelectRouteTmpArrayByUserAuthorId(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRouteTmpArray", reflect.TypeOf((*MockRepository)(nil).SelectRouteTmpArray))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectRouteTmpArrayByUserAuthorId", reflect.TypeOf((*MockRepository)(nil).SelectRouteTmpArrayByUserAuthorId), arg0)
 }
 
 // Update mocks base method.

@@ -267,6 +267,7 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
+	const userId uint32 = 101
 	dateTimeDep1, err := timestamps.NewDateTime("17.11.2021 10:25")
 	assert.Nil(t, err)
 	dateTimeArr1, err := timestamps.NewDateTime("17.11.2021 10:30")
@@ -278,7 +279,7 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 	expectedRoutesTmp := &models.RoutesTmp{
 		&models.RouteTmp{
 			Id:           1,
-			UserAuthorId: 101,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №10",
 			LocArr:       "УЛК",
 			MinPrice:     500,
@@ -287,7 +288,7 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 		},
 		&models.RouteTmp{
 			Id:           2,
-			UserAuthorId: 102,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №9",
 			LocArr:       "СК",
 			MinPrice:     600,
@@ -298,7 +299,7 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 
 	mockUserUsecase.
 		EXPECT().
-		ListRouteTmp().
+		ListRouteTmp(gomock.Eq(userId)).
 		Return(response.NewResponse(consts.OK, expectedRoutesTmp))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -312,6 +313,7 @@ func TestUserDelivery_HandlerRouteTmpList(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
+	context.Set(consts.EchoContextKeyUserId, userId)
 
 	handler := userDelivery.HandlerRouteTmpList()
 
@@ -584,6 +586,7 @@ func TestUserDelivery_HandlerRoutePermList(t *testing.T) {
 	echo_.Validator = HandoverValidator.NewRequestValidator()
 	userDelivery.Configure(echo_, &middlewares.Manager{})
 
+	const userId uint32 = 101
 	timeDep1, err := timestamps.NewTime("17:30")
 	assert.Nil(t, err)
 	timeArr1, err := timestamps.NewTime("17:35")
@@ -595,7 +598,7 @@ func TestUserDelivery_HandlerRoutePermList(t *testing.T) {
 	expectedRoutesPerm := &models.RoutesPerm{
 		&models.RoutePerm{
 			Id:           1,
-			UserAuthorId: 101,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №10",
 			LocArr:       "УЛК",
 			MinPrice:     500,
@@ -607,7 +610,7 @@ func TestUserDelivery_HandlerRoutePermList(t *testing.T) {
 		},
 		&models.RoutePerm{
 			Id:           2,
-			UserAuthorId: 102,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №9",
 			LocArr:       "СК",
 			MinPrice:     600,
@@ -621,7 +624,7 @@ func TestUserDelivery_HandlerRoutePermList(t *testing.T) {
 
 	mockUserUsecase.
 		EXPECT().
-		ListRoutePerm().
+		ListRoutePerm(gomock.Eq(userId)).
 		Return(response.NewResponse(consts.OK, expectedRoutesPerm))
 
 	jsonExpectedResponse, err := json.Marshal(responser.DataResponse{
@@ -635,6 +638,7 @@ func TestUserDelivery_HandlerRoutePermList(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	context := echo_.NewContext(request, recorder)
+	context.Set(consts.EchoContextKeyUserId, userId)
 
 	handler := userDelivery.HandlerRoutePermList()
 

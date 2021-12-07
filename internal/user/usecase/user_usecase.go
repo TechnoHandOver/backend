@@ -128,8 +128,8 @@ func (userUsecase *UserUsecase) DeleteRouteTmp(userId uint32, routeTmpId uint32)
 	return response.NewResponse(consts.OK, routeTmp)
 }
 
-func (userUsecase *UserUsecase) ListRouteTmp() *response.Response {
-	routesTmp, err := userUsecase.userRepository.SelectRouteTmpArray()
+func (userUsecase *UserUsecase) ListRouteTmp(userId uint32) *response.Response {
+	routesTmp, err := userUsecase.userRepository.SelectRouteTmpArrayByUserAuthorId(userId)
 	if err != nil {
 		return response.NewErrorResponse(consts.InternalError, err)
 	}
@@ -211,8 +211,8 @@ func (userUsecase *UserUsecase) DeleteRoutePerm(userId uint32, routePermId uint3
 	return response.NewResponse(consts.OK, routePerm)
 }
 
-func (userUsecase *UserUsecase) ListRoutePerm() *response.Response {
-	routesPerm, err := userUsecase.userRepository.SelectRoutePermArray()
+func (userUsecase *UserUsecase) ListRoutePerm(userId uint32) *response.Response {
+	routesPerm, err := userUsecase.userRepository.SelectRoutePermArrayByUserAuthorId(userId)
 	if err != nil {
 		return response.NewErrorResponse(consts.InternalError, err)
 	}

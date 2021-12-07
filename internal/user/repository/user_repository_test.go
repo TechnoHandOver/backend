@@ -479,6 +479,7 @@ func TestUserRepository_SelectRouteTmpArray(t *testing.T) {
 
 	userRepository := repository.NewUserRepositoryImpl(db)
 
+	const userId uint32 = 101
 	dateTimeDep1, err := timestamps.NewDateTime("17.11.2021 10:25")
 	assert.Nil(t, err)
 	dateTimeArr1, err := timestamps.NewDateTime("17.11.2021 10:30")
@@ -490,7 +491,7 @@ func TestUserRepository_SelectRouteTmpArray(t *testing.T) {
 	expectedRoutesTmp := &models.RoutesTmp{
 		&models.RouteTmp{
 			Id:           1,
-			UserAuthorId: 101,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №10",
 			LocArr:       "УЛК",
 			MinPrice:     500,
@@ -499,7 +500,7 @@ func TestUserRepository_SelectRouteTmpArray(t *testing.T) {
 		},
 		&models.RouteTmp{
 			Id:           2,
-			UserAuthorId: 102,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №9",
 			LocArr:       "СК",
 			MinPrice:     600,
@@ -519,7 +520,7 @@ func TestUserRepository_SelectRouteTmpArray(t *testing.T) {
 		ExpectQuery("SELECT id, user_author_id, loc_dep, loc_arr, min_price, date_time_dep, date_time_arr FROM view_route_tmp").
 		WillReturnRows(rows)
 
-	resultRoutesTmp, resultErr := userRepository.SelectRouteTmpArray()
+	resultRoutesTmp, resultErr := userRepository.SelectRouteTmpArrayByUserAuthorId(userId)
 	assert.Nil(t, resultErr)
 	assert.Equal(t, expectedRoutesTmp, resultRoutesTmp)
 
@@ -805,6 +806,7 @@ func TestUserRepository_SelectRoutePermArray(t *testing.T) {
 
 	userRepository := repository.NewUserRepositoryImpl(db)
 
+	const userId uint32 = 101
 	timeDep1, err := timestamps.NewTime("17:30")
 	assert.Nil(t, err)
 	timeArr1, err := timestamps.NewTime("17:35")
@@ -816,7 +818,7 @@ func TestUserRepository_SelectRoutePermArray(t *testing.T) {
 	expectedRoutesPerm := &models.RoutesPerm{
 		&models.RoutePerm{
 			Id:           1,
-			UserAuthorId: 101,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №10",
 			LocArr:       "УЛК",
 			MinPrice:     500,
@@ -828,7 +830,7 @@ func TestUserRepository_SelectRoutePermArray(t *testing.T) {
 		},
 		&models.RoutePerm{
 			Id:           1,
-			UserAuthorId: 102,
+			UserAuthorId: userId,
 			LocDep:       "Общежитие №9",
 			LocArr:       "СК",
 			MinPrice:     600,
@@ -852,7 +854,7 @@ func TestUserRepository_SelectRoutePermArray(t *testing.T) {
 		ExpectQuery("SELECT id, user_author_id, loc_dep, loc_arr, min_price, even_week, odd_week, day_of_week, time_dep, time_arr FROM view_route_perm").
 		WillReturnRows(rows)
 
-	resultRoutesPerm, resultErr := userRepository.SelectRoutePermArray()
+	resultRoutesPerm, resultErr := userRepository.SelectRoutePermArrayByUserAuthorId(userId)
 	assert.Nil(t, resultErr)
 	assert.Equal(t, expectedRoutesPerm, resultRoutesPerm)
 
