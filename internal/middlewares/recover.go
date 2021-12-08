@@ -16,7 +16,6 @@ func NewRecoverMiddleware() *RecoverMiddleware {
 
 func (recoverMiddleware *RecoverMiddleware) Recover() echo.MiddlewareFunc {
 	return recoverMiddleware.recover
-	//return middleware.Recover() //TODO: сделать кастомный recover, который будет сохранять в логи всё как нужно и отправлять клиенту нужные ответы без доп. полей...
 }
 
 func (recoverMiddleware *RecoverMiddleware) recover(next echo.HandlerFunc) echo.HandlerFunc {

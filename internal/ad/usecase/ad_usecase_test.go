@@ -318,9 +318,9 @@ func TestAdUsecase_Search(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
 	adsSearch := &models.AdsSearch{
-		LocDep:      pointy.String("Общежитие"),
-		LocArr:      pointy.String("СК"),
-		DateTimeArr: dateTimeArr,
+		LocDep:         pointy.String("Общежитие"),
+		LocArr:         pointy.String("СК"),
+		MinDateTimeArr: dateTimeArr,
 	}
 	expectedAds := &models.Ads{
 		&models.Ad{

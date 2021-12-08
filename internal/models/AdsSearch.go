@@ -6,13 +6,14 @@ import (
 )
 
 type AdsSearch struct {
-	UserAuthorId    *uint32
-	NotUserAuthorId *uint32
-	LocDep          *string
-	LocArr          *string
-	DateTimeArr     *DateTime
-	MaxPrice        *uint32
-	Order           *AdsSearchOrder
+	UserAuthorId         *uint32
+	NotUserAuthorId      *uint32
+	NullUserExecutorVkId *bool
+	LocDep               *string
+	LocArr               *string
+	MinDateTimeArr       *DateTime
+	MaxPrice             *uint32
+	Order                *AdsSearchOrder
 }
 
 type AdsSearchOrder int

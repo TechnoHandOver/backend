@@ -1,10 +1,14 @@
 package usecase
 
 import (
+	"fmt"
 	"github.com/TechnoHandOver/backend/internal/ad"
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
+	"github.com/TechnoHandOver/backend/internal/models/timestamps"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
+	"github.com/openlyinc/pointy"
+	"time"
 )
 
 type AdUsecase struct {
@@ -93,6 +97,13 @@ func (adUsecase *AdUsecase) Delete(userId uint32, id uint32) *response.Response 
 }
 
 func (adUsecase *AdUsecase) Search(adsSearch *models.AdsSearch) *response.Response {
+	adsSearch.NullUserExecutorVkId = pointy.Bool(true)
+	if adsSearch.MinDateTimeArr == nil {
+		minDateTimeArr := timestamps.DateTime(time.Now().Add(time.Duration(-12) * time.Hour))
+		fmt.Println(minDateTimeArr.String())
+		adsSearch.MinDateTimeArr = &minDateTimeArr
+	}
+
 	ads, err := adUsecase.adRepository.SelectArray(adsSearch)
 	if err != nil {
 		return response.NewErrorResponse(consts.InternalError, err)

@@ -296,11 +296,11 @@ func TestAdRepository_SelectArray_1(t *testing.T) {
 	dateTimeArr, err := timestamps.NewDateTime("04.11.2021 19:40")
 	assert.Nil(t, err)
 	adsSearch := &models.AdsSearch{
-		UserAuthorId: pointy.Uint32(101),
-		LocDep:       pointy.String("Общежитие"),
-		LocArr:       pointy.String("СК"),
-		DateTimeArr:  dateTimeArr,
-		MaxPrice:     pointy.Uint32(1000),
+		UserAuthorId:   pointy.Uint32(101),
+		LocDep:         pointy.String("Общежитие"),
+		LocArr:         pointy.String("СК"),
+		MinDateTimeArr: dateTimeArr,
+		MaxPrice:       pointy.Uint32(1000),
 	}
 	expectedAds := &models.Ads{
 		&models.Ad{
@@ -341,7 +341,7 @@ func TestAdRepository_SelectArray_1(t *testing.T) {
 	}
 	sqlmock_.
 		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
-		WithArgs(adsSearch.UserAuthorId, adsSearch.LocDep, adsSearch.LocArr, time.Time(*adsSearch.DateTimeArr),
+		WithArgs(adsSearch.UserAuthorId, adsSearch.LocDep, adsSearch.LocArr, time.Time(*adsSearch.MinDateTimeArr),
 			adsSearch.MaxPrice).
 		WillReturnRows(rows)
 
@@ -367,7 +367,7 @@ func TestAdRepository_SelectArray_2(t *testing.T) {
 		NotUserAuthorId: pointy.Uint32(101),
 		LocDep:          pointy.String("Общежитие"),
 		LocArr:          pointy.String("СК"),
-		DateTimeArr:     dateTimeArr,
+		MinDateTimeArr:  dateTimeArr,
 		MaxPrice:        pointy.Uint32(1000),
 	}
 	expectedAds := &models.Ads{
@@ -409,7 +409,7 @@ func TestAdRepository_SelectArray_2(t *testing.T) {
 	}
 	sqlmock_.
 		ExpectQuery("SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad").
-		WithArgs(adsSearch.NotUserAuthorId, adsSearch.LocDep, adsSearch.LocArr, time.Time(*adsSearch.DateTimeArr),
+		WithArgs(adsSearch.NotUserAuthorId, adsSearch.LocDep, adsSearch.LocArr, time.Time(*adsSearch.MinDateTimeArr),
 			adsSearch.MaxPrice).
 		WillReturnRows(rows)
 

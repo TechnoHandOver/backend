@@ -367,7 +367,7 @@ func TestAdDelivery_HandlerAdsSearch(t *testing.T) {
 		NotUserAuthorId: &userId,
 		LocDep:          pointy.String("Общежитие"),
 		LocArr:          pointy.String("СК"),
-		DateTimeArr:     dateTimeArr,
+		MinDateTimeArr:  dateTimeArr,
 		MaxPrice:        pointy.Uint32(1000),
 	}
 	expectedAds := &models.Ads{

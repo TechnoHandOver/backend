@@ -6,3 +6,5 @@ type User struct {
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 }
+
+type Users []*User

@@ -1,6 +1,6 @@
 \c handover;
 
-CREATE TYPE DAY_OF_WEEK AS ENUM ('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'); --TODO: может всё-таки есть какой-то встроенный тип?
+CREATE TYPE DAY_OF_WEEK AS ENUM (1, 2, 3, 4, 5, 6, 7); --TODO: может всё-таки есть какой-то встроенный тип?
 
 CREATE TABLE user_ (
     id SERIAL PRIMARY KEY,

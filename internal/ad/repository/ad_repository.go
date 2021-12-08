@@ -111,24 +111,26 @@ RETURNING id, user_author_id, user_author_vk_id, user_author_name, user_author_a
 	return ad_, nil
 }
 
-func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error) {
+func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*models.Ads, error) { //TODO: назвать здесь константы SQL-запроса чуть более подходящими названиями...
 	const queryStart = "SELECT id, user_author_id, user_author_vk_id, user_author_name, user_author_avatar, user_executor_vk_id, loc_dep, loc_arr, date_time_arr, item, min_price, comment FROM ad"
 	const queryWhere = " WHERE "
 	const queryUserAuthorId = "user_author_id = $"
 	const queryNotUserAuthorId = "user_author_id != $"
+	const queryUserExecutorVkIdIsNull = "user_executor_vk_id IS NULL"
 	const queryLocDep1 = "to_tsvector('russian', loc_dep) @@ plainto_tsquery('russian', $"
 	const queryLocDep2 = ")"
 	const queryLocArr1 = "to_tsvector('russian', loc_arr) @@ plainto_tsquery('russian', $"
 	const queryLocArr2 = ")"
-	const queryDateTimeArr = "date_time_arr = $"
+	const queryDateTimeArr = "date_time_arr >= $"
 	const queryMinPrice = "min_price <= $"
 	const queryAnd = " AND "
 	const queryOrderBy = " ORDER BY "
-	const queryOrderByDateTimeArr = " date_time_arr"
-	const queryOrderByMinPrice = " min_price"
+	const queryOrderByDateTimeArr = "date_time_arr"
+	const queryOrderByMinPrice = "min_price"
 	const queryOrderByDesc = " DESC"
 	const queryEnd = ", id DESC"
 
+	var whereClause = false
 	query := queryStart + queryWhere
 	queryArgs := make([]interface{}, 0)
 
@@ -142,6 +144,11 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 		queryArgs = append(queryArgs, adsSearch.NotUserAuthorId)
 	}
 
+	if adsSearch.NullUserExecutorVkId != nil && *adsSearch.NullUserExecutorVkId == true {
+		query += queryUserExecutorVkIdIsNull + queryAnd
+		whereClause = true
+	}
+
 	if adsSearch.LocDep != nil {
 		query += queryLocDep1 + strconv.Itoa(len(queryArgs)+1) + queryLocDep2 + queryAnd
 		queryArgs = append(queryArgs, adsSearch.LocDep)
@@ -152,9 +159,9 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 		queryArgs = append(queryArgs, adsSearch.LocArr)
 	}
 
-	if adsSearch.DateTimeArr != nil {
+	if adsSearch.MinDateTimeArr != nil {
 		query += queryDateTimeArr + strconv.Itoa(len(queryArgs)+1) + queryAnd
-		queryArgs = append(queryArgs, time.Time(*adsSearch.DateTimeArr))
+		queryArgs = append(queryArgs, time.Time(*adsSearch.MinDateTimeArr))
 	}
 
 	if adsSearch.MaxPrice != nil {
@@ -162,10 +169,10 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 		queryArgs = append(queryArgs, adsSearch.MaxPrice)
 	}
 
-	if len(queryArgs) == 0 {
-		query = query[:len(query)-len(queryWhere)]
-	} else {
+	if len(queryArgs) > 0 || whereClause {
 		query = query[:len(query)-len(queryAnd)]
+	} else {
+		query = query[:len(query)-len(queryWhere)]
 	}
 
 	var order = models.AdsSearchOrderDateTimeArrDesc
