@@ -11,6 +11,7 @@ import (
 	SessionDelivery "github.com/TechnoHandOver/backend/internal/session/delivery"
 	SessionRepository "github.com/TechnoHandOver/backend/internal/session/repository"
 	SessionUsecase "github.com/TechnoHandOver/backend/internal/session/usecase"
+	"github.com/TechnoHandOver/backend/internal/tools/properties"
 	HandoverValidator "github.com/TechnoHandOver/backend/internal/tools/validator"
 	UserDelivery "github.com/TechnoHandOver/backend/internal/user/delivery"
 	UserRepository "github.com/TechnoHandOver/backend/internal/user/repository"
@@ -34,6 +35,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	properties.Properties = config_.Properties
 
 	var logFile *os.File
 	if logFile, err = os.OpenFile(logFileName, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644); err != nil {

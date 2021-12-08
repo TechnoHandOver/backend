@@ -18,6 +18,11 @@ type Config struct {
 		Host string `json:"host"`
 		Port uint16 `json:"port"`
 	} `json:"server"`
+	Properties `json:"properties"`
+}
+
+type Properties struct {
+	Debug bool `json:"debug"`
 }
 
 func (config *Config) GetDatabaseConfigString() string {

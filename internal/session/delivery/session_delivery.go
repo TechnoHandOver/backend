@@ -6,6 +6,7 @@ import (
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/session"
 	"github.com/TechnoHandOver/backend/internal/tools/parser"
+	"github.com/TechnoHandOver/backend/internal/tools/properties"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/TechnoHandOver/backend/internal/tools/responser"
 	"github.com/TechnoHandOver/backend/internal/user"
@@ -64,7 +65,7 @@ func (sessionDelivery *SessionDelivery) HandlerLogin() echo.HandlerFunc {
 		context.SetCookie(&http.Cookie{
 			Name:     consts.EchoCookieAuthName,
 			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
+			Secure:   !properties.Properties.Debug,
 			Value:    session_.Id,
 		})
 
