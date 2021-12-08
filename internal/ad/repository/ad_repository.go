@@ -123,7 +123,11 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 	const queryDateTimeArr = "date_time_arr = $"
 	const queryMinPrice = "min_price <= $"
 	const queryAnd = " AND "
-	const queryEnd = " ORDER BY min_price"
+	const queryOrderBy = " ORDER BY "
+	const queryOrderByDateTimeArr = " date_time_arr"
+	const queryOrderByMinPrice = " min_price"
+	const queryOrderByDesc = " DESC"
+	const queryEnd = ", id DESC"
 
 	query := queryStart + queryWhere
 	queryArgs := make([]interface{}, 0)
@@ -162,6 +166,27 @@ func (adsRepository *AdRepository) SelectArray(adsSearch *models.AdsSearch) (*mo
 		query = query[:len(query)-len(queryWhere)]
 	} else {
 		query = query[:len(query)-len(queryAnd)]
+	}
+
+	var order = models.AdsSearchOrderDateTimeArrDesc
+	if adsSearch.Order != nil {
+		order = *adsSearch.Order
+	}
+
+	query += queryOrderBy
+	switch order {
+	case models.AdsSearchOrderDateTimeArrAsc:
+		query += queryOrderByDateTimeArr
+		break
+	case models.AdsSearchOrderDateTimeArrDesc:
+		query += queryOrderByDateTimeArr + queryOrderByDesc
+		break
+	case models.AdsSearchOrderMinPriceAsc:
+		query += queryOrderByMinPrice
+		break
+	case models.AdsSearchOrderMinPriceDesc:
+		query += queryOrderByMinPrice + queryOrderByDesc
+		break
 	}
 	query += queryEnd
 

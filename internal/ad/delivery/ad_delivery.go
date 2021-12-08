@@ -143,10 +143,11 @@ func (adDelivery *AdDelivery) HandlerAdsList() echo.HandlerFunc {
 
 func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 	type AdsSearchRequest struct {
-		LocDep      *string   `query:"loc_dep" validate:"omitempty,lte=100"`
-		LocArr      *string   `query:"loc_arr" validate:"omitempty,lte=100"`
-		DateTimeArr *DateTime `query:"date_time_arr" validate:"omitempty"` //TODO: а точно нужен поиск по дате? как он будет работать?
-		MaxPrice    *uint32   `query:"max_price" validate:"omitempty"`
+		LocDep      *string                `query:"loc_dep" validate:"omitempty,lte=100"`
+		LocArr      *string                `query:"loc_arr" validate:"omitempty,lte=100"`
+		DateTimeArr *DateTime              `query:"date_time_arr" validate:"omitempty"` //TODO: а точно нужен поиск по дате? как он будет работать?
+		MaxPrice    *uint32                `query:"max_price" validate:"omitempty"`
+		Order       *models.AdsSearchOrder `query:"order" validate:"omitempty"`
 	}
 
 	return func(context echo.Context) error {
@@ -162,6 +163,7 @@ func (adDelivery *AdDelivery) HandlerAdsSearch() echo.HandlerFunc {
 			LocArr:          adsSearchRequest.LocArr,
 			DateTimeArr:     adsSearchRequest.DateTimeArr,
 			MaxPrice:        adsSearchRequest.MaxPrice,
+			Order:           adsSearchRequest.Order,
 		}
 
 		return responser.Respond(context, adDelivery.adUsecase.Search(adsSearch))
