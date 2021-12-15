@@ -8,6 +8,8 @@ import (
 	AdsRepository "github.com/TechnoHandOver/backend/internal/ad/repository"
 	AdsUsecase "github.com/TechnoHandOver/backend/internal/ad/usecase"
 	"github.com/TechnoHandOver/backend/internal/middlewares"
+	NotificationRepository "github.com/TechnoHandOver/backend/internal/notification/repository"
+	NotificationUsecase "github.com/TechnoHandOver/backend/internal/notification/usecase"
 	SessionDelivery "github.com/TechnoHandOver/backend/internal/session/delivery"
 	SessionRepository "github.com/TechnoHandOver/backend/internal/session/repository"
 	SessionUsecase "github.com/TechnoHandOver/backend/internal/session/usecase"
@@ -66,8 +68,10 @@ func main() {
 	adsRepository := AdsRepository.NewAdRepositoryImpl(db)
 	sessionRepository := SessionRepository.NewSessionRepositoryImpl()
 	userRepository := UserRepository.NewUserRepositoryImpl(db)
+	notificationRepository := NotificationRepository.NewNotificationRepositoryImpl(db)
 
-	adsUsecase := AdsUsecase.NewAdUsecaseImpl(adsRepository)
+	notificationUsecase := NotificationUsecase.NewNotificationUsecaseImpl(notificationRepository)
+	adsUsecase := AdsUsecase.NewAdUsecaseImpl(adsRepository, notificationUsecase)
 	userUsecase := UserUsecase.NewUserUsecaseImpl(userRepository)
 	sessionUsecase := SessionUsecase.NewSessionUsecaseImpl(sessionRepository)
 

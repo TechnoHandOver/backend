@@ -155,6 +155,10 @@ func (userDelivery *UserDelivery) HandlerRoutePermCreate() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
+		dayOfWeek, err := routePermCreateRequest.DayOfWeek.ToUint32()
+		if err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
 		routePerm := &models.RoutePerm{
 			UserAuthorId: context.Get(consts.EchoContextKeyUserId).(uint32),
 			LocDep:       *routePermCreateRequest.LocDep,
@@ -162,7 +166,7 @@ func (userDelivery *UserDelivery) HandlerRoutePermCreate() echo.HandlerFunc {
 			MinPrice:     parser.GetOrDefault(routePermCreateRequest.MinPrice, 0).(uint32),
 			EvenWeek:     parser.GetOrDefault(routePermCreateRequest.EvenWeek, true).(bool),
 			OddWeek:      parser.GetOrDefault(routePermCreateRequest.OddWeek, true).(bool),
-			DayOfWeek:    *routePermCreateRequest.DayOfWeek,
+			DayOfWeek:    dayOfWeek,
 			TimeDep:      *routePermCreateRequest.TimeDep,
 			TimeArr:      *routePermCreateRequest.TimeArr,
 		}
@@ -208,6 +212,10 @@ func (userDelivery *UserDelivery) HandlerRoutePermUpdate() echo.HandlerFunc {
 			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
 		}
 
+		dayOfWeek, err := routePermUpdateRequest.DayOfWeek.ToUint32()
+		if err != nil {
+			return responser.Respond(context, response.NewErrorResponse(consts.BadRequest, err))
+		}
 		routePerm := &models.RoutePerm{
 			Id:           *routePermUpdateRequest.Id,
 			UserAuthorId: context.Get(consts.EchoContextKeyUserId).(uint32),
@@ -216,7 +224,7 @@ func (userDelivery *UserDelivery) HandlerRoutePermUpdate() echo.HandlerFunc {
 			MinPrice:     *routePermUpdateRequest.MinPrice,
 			EvenWeek:     *routePermUpdateRequest.EvenWeek,
 			OddWeek:      *routePermUpdateRequest.OddWeek,
-			DayOfWeek:    *routePermUpdateRequest.DayOfWeek,
+			DayOfWeek:    dayOfWeek,
 			TimeDep:      *routePermUpdateRequest.TimeDep,
 			TimeArr:      *routePermUpdateRequest.TimeArr,
 		}

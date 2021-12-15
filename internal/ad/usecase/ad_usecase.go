@@ -6,18 +6,21 @@ import (
 	"github.com/TechnoHandOver/backend/internal/consts"
 	"github.com/TechnoHandOver/backend/internal/models"
 	"github.com/TechnoHandOver/backend/internal/models/timestamps"
+	"github.com/TechnoHandOver/backend/internal/notification"
 	"github.com/TechnoHandOver/backend/internal/tools/response"
 	"github.com/openlyinc/pointy"
 	"time"
 )
 
 type AdUsecase struct {
-	adRepository ad.Repository
+	adRepository        ad.Repository
+	notificationUsecase notification.Usecase
 }
 
-func NewAdUsecaseImpl(repository ad.Repository) ad.Usecase {
+func NewAdUsecaseImpl(repository ad.Repository, notificationUsecase notification.Usecase) ad.Usecase {
 	return &AdUsecase{
-		adRepository: repository,
+		adRepository:        repository,
+		notificationUsecase: notificationUsecase,
 	}
 }
 
@@ -27,6 +30,8 @@ func (adUsecase *AdUsecase) Create(ad_ *models.Ad) *response.Response {
 	if err != nil {
 		return response.NewErrorResponse(consts.InternalError, err)
 	}
+
+	go adUsecase.notificationUsecase.NotifySuitableUsers(ad_)
 
 	return response.NewResponse(consts.Created, ad_)
 }
@@ -44,7 +49,7 @@ func (adUsecase *AdUsecase) Get(id uint32) *response.Response {
 	return response.NewResponse(consts.OK, ad_)
 }
 
-func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response { //TODO: bug, only author can update it!
+func (adUsecase *AdUsecase) Update(ad_ *models.Ad) *response.Response {
 	existingAd, err := adUsecase.adRepository.Select(ad_.Id)
 	if err != nil {
 		if err == consts.RepErrNotFound {

@@ -1,6 +1,6 @@
 \c handover;
 
-CREATE TYPE DAY_OF_WEEK AS ENUM (1, 2, 3, 4, 5, 6, 7); --TODO: может всё-таки есть какой-то встроенный тип?
+--CREATE TYPE DAY_OF_WEEK AS ENUM (1, 2, 3, 4, 5, 6, 7); --TODO: может всё-таки есть какой-то встроенный тип?
 
 CREATE TABLE user_ (
     id SERIAL PRIMARY KEY,
@@ -47,7 +47,7 @@ CREATE TABLE route_perm (
     id INT NOT NULL PRIMARY KEY REFERENCES route (id) ON DELETE CASCADE,
     even_week BOOLEAN NOT NULL,
     odd_week BOOLEAN NOT NULL,
-    day_of_week DAY_OF_WEEK NOT NULL,
+    day_of_week INT NOT NULL CHECK (day_of_week >= 1 AND day_of_week <= 7),
     time_dep TIMESTAMP NOT NULL,
     time_arr TIMESTAMP NOT NULL
 );
@@ -89,7 +89,7 @@ AS $$
 DECLARE user__ user_%ROWTYPE;
 BEGIN
     SELECT INTO user__ id, vk_id, name, avatar FROM user_ WHERE id = new.user_author_id; --TODO: возможны ли оптимизации?
-    new.user_author_vk_id = user__.vk_id;--(SELECT user_.vk_id FROM user_ WHERE user_.id = new.user_author_id);
+    new.user_author_vk_id = user__.vk_id;
     new.user_author_name = user__.name;
     new.user_author_avatar = user__.avatar;
     RETURN new;
@@ -240,6 +240,16 @@ CREATE TRIGGER view_route_perm_delete INSTEAD OF DELETE
     FOR EACH ROW
 EXECUTE FUNCTION view_route_perm_delete();
 
---CREATE INDEX ON user_ USING hash (vk_id); --TODO
+CREATE INDEX ON user_ USING hash (vk_id);
 
---CREATE INDEX ON ad (user_author_id);
+CREATE INDEX ON ad USING hash (id);
+CREATE INDEX ON ad USING hash (user_author_id);
+CREATE INDEX ON ad (date_time_arr, min_price);
+
+CREATE INDEX ON ad_user_execution USING hash (ad_id);
+
+CREATE INDEX ON route USING hash (user_author_id);
+
+CREATE INDEX ON route_tmp (date_time_dep, date_time_arr);
+
+CREATE INDEX ON route_perm (time_dep, time_arr);
